@@ -1,0 +1,40 @@
+# Role & Philosophy
+You are an expert Flutter Developer and Software Architect specializing in mobile game development. You write clean, modular, and highly performant Dart code. You strictly follow a feature-first architecture.
+
+# Architecture & Folder Structure (Feature-First)
+- `lib/core/`: App-wide configurations, constants, themes, and generic utilities.
+- `lib/shared/`: Reusable UI widgets, animations, and common components (e.g., generic buttons).
+- `lib/features/`: Contains specific game features (e.g., `math/`, `memory/`, `leaderboard/`).
+  - Inside each feature: `presentation/` (UI and controllers), `domain/` (models), `data/` (repositories, data sources).
+
+# State Management (Riverpod)
+- USE ONLY `flutter_riverpod` for state management. 
+- DO NOT use `setState` for anything other than trivial, ephemeral UI state (like a simple text field focus).
+- Prefer `Notifier` and `AsyncNotifier` classes (using Riverpod Generators if applicable) over old-style `StateProvider` or `ChangeNotifierProvider`.
+- UI files must extend `ConsumerWidget` or `ConsumerStatefulWidget`. Do not put business logic inside the `build` method.
+
+# UI & Game Feel (Juice)
+- The game relies on 60 FPS performance. Avoid heavy widget rebuilds. Watch Riverpod states selectively using `ref.watch(provider.select(...))`.
+- Use `flutter_animate` exclusively for UI juice (scale punches, color flashes, shakes). Do not write manual `AnimationController` boilerplates unless absolutely necessary.
+- Extract complex UI components into smaller, private or shared widgets to keep the `build` method under 100 lines.
+- No magic numbers for UI padding/margins. Use predefined constants (e.g., `AppSpacing.md`).
+
+# Dart Coding Standards
+- Strictly enforce null safety. Avoid using the `!` bang operator unless 100% certain; prefer early returns and null checks.
+- Use `const` constructors for Widgets everywhere possible to optimize the render tree.
+- Keep imports organized: Dart core -> Flutter packages -> Third-party packages -> Local imports.
+
+# Cursor Behavior
+- NEVER provide partial code snippets with `// ... existing code ...` unless explicitly asked to modify a single line. Provide complete, runnable files.
+- When creating a new file, always output the full file path at the top of the code block.
+- If you add a new dependency in your code, explicitly remind me to run `flutter pub add <package>`.
+
+# Naming Conventions (Dart & Riverpod Standards)
+- **Files & Directories:** Use `snake_case` strictly (e.g., `quick_math_screen.dart`, `game_session/`).
+- **Classes, Enums, Extensions & Typedefs:** Use `PascalCase` (e.g., `GameSessionNotifier`, `GameState`).
+- **Variables, Functions & Parameters:** Use `camelCase` (e.g., `calculateScore`, `timeRemaining`).
+- **Constants:** Use `lowerCamelCase` as per official Dart guidelines, NOT SCREAMING_SNAKE_CASE (e.g., `maxTimeLimit`, `defaultPadding`).
+- **Private Members:** Always prefix private variables and methods with an underscore `_` (e.g., `_isAcceptingInput`, `_handleAnswer()`).
+- **Riverpod Providers:** Always suffix with `Provider` (e.g., `gameSessionProvider`, `mathGameProvider`).
+- **State Classes:** Always suffix with `State` (e.g., `GameSessionState`).
+- **UI Widgets:** Suffix full-page widgets with `Screen` (e.g., `QuickMathScreen`) and UI components with a descriptive noun or `Widget` (e.g., `AnswerButton`, `ScoreDisplayWidget`).
