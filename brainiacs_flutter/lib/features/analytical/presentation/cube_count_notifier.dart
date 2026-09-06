@@ -62,7 +62,10 @@ class CubeCountNotifier extends Notifier<CubeCountState> {
 
   void onCorrect() {
     final nextLevel = state.currentLevel + 1;
-    final puzzle = CubePuzzle.generate(nextLevel);
+    final puzzle = CubePuzzle.generate(
+      nextLevel,
+      excluding: state.currentGrid,
+    );
     state = CubeCountState(
       currentGrid: puzzle,
       userInput: '',
@@ -71,7 +74,10 @@ class CubeCountNotifier extends Notifier<CubeCountState> {
   }
 
   void onIncorrect() {
-    final puzzle = CubePuzzle.generate(state.currentLevel);
+    final puzzle = CubePuzzle.generate(
+      state.currentLevel,
+      excluding: state.currentGrid,
+    );
     state = state.copyWith(
       currentGrid: puzzle,
       userInput: '',

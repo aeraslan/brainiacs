@@ -42,14 +42,23 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     if (_showCountdown) {
       return;
     }
+    _pointerController.hide();
     setState(() {
       _showCountdown = true;
     });
-    _pointerController.hide();
   }
 
   void _onCountdownComplete() {
     ref.read(gameSessionProvider.notifier).beginPlaying();
+  }
+
+  Color _accentFor(MiniGameType type) {
+    return switch (type) {
+      MiniGameType.math => const Color(0xFFFFE566),
+      MiniGameType.memory => const Color(0xFFA8E6A3),
+      MiniGameType.analytical => const Color(0xFFFFBE7D),
+      MiniGameType.visual => VisualColors.sky,
+    };
   }
 
   @override
@@ -64,6 +73,16 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
       gameSessionProvider.select((state) => state.stageCount),
     );
     final copy = _TutorialCopy.forType(currentGame);
+
+    if (_showCountdown) {
+      return Scaffold(
+        backgroundColor: AppColors.textPrimary,
+        body: CountdownOverlay(
+          onComplete: _onCountdownComplete,
+          accentColor: _accentFor(currentGame),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: _scaffoldColorFor(currentGame),
@@ -98,40 +117,35 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                         removeBottom: true,
                         child: _TutorialGameHost(
                           type: currentGame,
-                          autoPlay: !_showCountdown,
+                          autoPlay: true,
                           pointerController: _pointerController,
                         ),
                       ),
                     ),
                   ),
                 ),
-                if (!_showCountdown)
-                  SafeArea(
-                    top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.md,
-                        AppSpacing.sm,
-                        AppSpacing.md,
-                        AppSpacing.md,
-                      ),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _onReady,
-                          child: const Text('Ready!'),
-                        ),
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.sm,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _onReady,
+                        child: const Text('Ready!'),
                       ),
                     ),
                   ),
+                ),
               ],
             ),
           ),
-          if (!_showCountdown) TutorialPointer(controller: _pointerController),
-          if (_showCountdown)
-            Positioned.fill(
-              child: CountdownOverlay(onComplete: _onCountdownComplete),
-            ),
+          TutorialPointer(controller: _pointerController),
         ],
       ),
     );

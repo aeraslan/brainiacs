@@ -207,11 +207,6 @@ class _CardMatchScreenState extends ConsumerState<CardMatchScreen> {
                   const GameHud(isOnLightBackground: true),
                   const SizedBox(height: AppSpacing.sm),
                 ],
-                Text(
-                  'Level ${matchState.currentLevel}',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: AppSpacing.md),
                 Expanded(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,

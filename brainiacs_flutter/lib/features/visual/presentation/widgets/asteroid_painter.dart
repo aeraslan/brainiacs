@@ -12,7 +12,10 @@ class AsteroidPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rng = Random(id);
     final center = Offset(size.width / 2, size.height / 2);
-    final path = _buildRockPath(center, size.shortestSide / 2, rng);
+    final outerRadius = size.shortestSide / 2;
+    // Leave room so the outline stroke isn't clipped by the canvas.
+    final radius = outerRadius * 0.92;
+    final path = _buildRockPath(center, radius, rng);
 
     final fill = Paint()
       ..color = color
@@ -21,8 +24,24 @@ class AsteroidPainter extends CustomPainter {
 
     canvas.save();
     canvas.clipPath(path);
-    _drawCraters(canvas, center, size.shortestSide / 2, rng);
+    _drawCraters(canvas, center, radius, rng);
     canvas.restore();
+
+    final strokeWidth = (radius * 0.08).clamp(2.0, 4.5);
+    final outerStroke = Paint()
+      ..color = Colors.white.withValues(alpha: 0.78)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, outerStroke);
+
+    final innerStroke = Paint()
+      ..color = Color.lerp(color, const Color(0xFF000000), 0.35)!
+          .withValues(alpha: 0.55)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth * 0.45
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, innerStroke);
   }
 
   Path _buildRockPath(Offset center, double radius, Random rng) {

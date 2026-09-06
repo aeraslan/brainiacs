@@ -210,25 +210,34 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
       quickMathProvider.select((state) => state.equation),
     );
 
-    Widget equationDisplay = RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        style: Theme.of(
-          context,
-        ).textTheme.displayLarge?.copyWith(color: AppColors.textPrimary),
-        children: [
-          TextSpan(text: '${equation.displayText} '),
-          TextSpan(
-            text: _input.isEmpty ? '?' : _input,
-            style: TextStyle(
-              color: switch (_feedback) {
-                _AnswerFeedback.correct => AppColors.correct,
-                _AnswerFeedback.incorrect => AppColors.incorrect,
-                _AnswerFeedback.none => AppColors.accent,
-              },
-            ),
+    Widget equationDisplay = SizedBox(
+      width: double.infinity,
+      height: 64,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: RichText(
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          softWrap: false,
+          text: TextSpan(
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+            children: [
+              TextSpan(text: '${equation.displayText} '),
+              TextSpan(
+                text: _input.isEmpty ? '?' : _input,
+                style: TextStyle(
+                  color: switch (_feedback) {
+                    _AnswerFeedback.correct => AppColors.correct,
+                    _AnswerFeedback.incorrect => AppColors.incorrect,
+                    _AnswerFeedback.none => AppColors.accent,
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
 

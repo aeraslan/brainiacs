@@ -35,11 +35,11 @@ abstract final class AppColors {
   static const Color padBorder = Color(0xFF5A6370);
   static const Color buttonFill = padGradientEnd;
 
-  // Timer HUD
-  static const Color timerGradientStart = electricBlue;
-  static const Color timerGradientEnd = coral;
+  // Timer HUD (fill color is lerped green → yellow → red in CircularTimer)
+  static const Color timerGradientStart = correct;
+  static const Color timerGradientEnd = incorrect;
   static const Color timerBorder = Color(0xFF2B2D42);
-  static const Color timerRemaining = Color(0xFF2B2D42);
+  static const Color timerRemaining = correct;
   static const Color timerElapsed = incorrect;
 
   // Score on light backgrounds

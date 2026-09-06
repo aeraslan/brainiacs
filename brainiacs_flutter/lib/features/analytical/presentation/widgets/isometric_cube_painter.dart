@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -15,11 +17,17 @@ class IsometricCubePainter extends CustomPainter {
     AppColors.mint,
   ];
 
+  static const double _fitPadding = 8;
+
+  /// Fixed reference layout so cube size stays constant across questions.
+  static const int _referenceGrid = 4;
+  static const int _referenceMaxHeight = 4;
+
   @override
   void paint(Canvas canvas, Size size) {
     final rows = puzzle.rows;
     final cols = puzzle.cols;
-    if (rows == 0 || cols == 0) {
+    if (rows == 0 || cols == 0 || size.width <= 0 || size.height <= 0) {
       return;
     }
 
@@ -35,15 +43,64 @@ class IsometricCubePainter extends CustomPainter {
       return;
     }
 
-    final tileW = size.width / (rows + cols);
-    final tileH = tileW * CubePuzzle.isoTileAspect;
-    final rise = tileH * CubePuzzle.isoRiseFactor;
+    const unitTileW = 1.0;
+    final unitTileH = unitTileW * CubePuzzle.isoTileAspect;
+    final unitRise = unitTileH * CubePuzzle.isoRiseFactor;
+    final unitHalfW = unitTileW * 0.5;
+    final unitHalfH = unitTileH * 0.5;
+    final unitExtentY = unitRise + unitHalfH;
 
-    final gridDepth = (cols + rows) * tileH * 0.5;
-    final gridHeight = maxHeight * rise;
+    Offset unitCellCenter(int row, int col, int layer) {
+      return Offset(
+        (col - row) * unitTileW * 0.5,
+        (col + row) * unitTileH * 0.5 - layer * unitRise,
+      );
+    }
 
-    final originX = size.width * 0.5;
-    final originY = (size.height - gridDepth - gridHeight) * 0.45 + gridHeight;
+    (double minX, double maxX, double minY, double maxY) boundsForGrid({
+      required int gridRows,
+      required int gridCols,
+      required int heightLayers,
+    }) {
+      var minX = double.infinity;
+      var maxX = -double.infinity;
+      var minY = double.infinity;
+      var maxY = -double.infinity;
+
+      void include(Offset center, {required bool withTop}) {
+        minX = math.min(minX, center.dx - unitHalfW);
+        maxX = math.max(maxX, center.dx + unitHalfW);
+        maxY = math.max(maxY, center.dy + unitHalfH);
+        if (withTop) {
+          minY = math.min(minY, center.dy - unitExtentY);
+        } else {
+          minY = math.min(minY, center.dy - unitHalfH);
+        }
+      }
+
+      for (var r = 0; r < gridRows; r++) {
+        for (var c = 0; c < gridCols; c++) {
+          include(unitCellCenter(r, c, 0), withTop: false);
+          include(unitCellCenter(r, c, heightLayers - 1), withTop: true);
+        }
+      }
+      return (minX, maxX, minY, maxY);
+    }
+
+    final refBounds = boundsForGrid(
+      gridRows: _referenceGrid,
+      gridCols: _referenceGrid,
+      heightLayers: _referenceMaxHeight,
+    );
+    final refW = (refBounds.$2 - refBounds.$1).clamp(0.001, double.infinity);
+    final refH = (refBounds.$4 - refBounds.$3).clamp(0.001, double.infinity);
+    final availableW = (size.width - _fitPadding * 2).clamp(1.0, size.width);
+    final availableH = (size.height - _fitPadding * 2).clamp(1.0, size.height);
+    final scale = math.min(availableW / refW, availableH / refH);
+
+    final tileW = unitTileW * scale;
+    final tileH = unitTileH * scale;
+    final rise = unitRise * scale;
 
     final cubes = <_CubeInstance>[];
     for (var r = 0; r < rows; r++) {
@@ -58,6 +115,9 @@ class IsometricCubePainter extends CustomPainter {
         }
       }
     }
+    if (cubes.isEmpty) {
+      return;
+    }
 
     cubes.sort((a, b) {
       final depthA = a.row + a.col;
@@ -68,13 +128,32 @@ class IsometricCubePainter extends CustomPainter {
       return a.layer.compareTo(b.layer);
     });
 
+    // Center the actual puzzle footprint (full grid cells, not only occupied).
+    final puzzleBounds = boundsForGrid(
+      gridRows: rows,
+      gridCols: cols,
+      heightLayers: maxHeight,
+    );
+    final puzzleW = (puzzleBounds.$2 - puzzleBounds.$1) * scale;
+    final puzzleH = (puzzleBounds.$4 - puzzleBounds.$3) * scale;
+    final originX =
+        (size.width - puzzleW) * 0.5 - puzzleBounds.$1 * scale;
+    final originY =
+        (size.height - puzzleH) * 0.5 - puzzleBounds.$3 * scale;
+
+    canvas.save();
+    canvas.clipRect(Offset.zero & size);
+
     for (final cube in cubes) {
+      final unit = unitCellCenter(cube.row, cube.col, cube.layer);
       final center = Offset(
-        originX + (cube.col - cube.row) * tileW * 0.5,
-        originY + (cube.col + cube.row) * tileH * 0.5 - cube.layer * rise,
+        originX + unit.dx * scale,
+        originY + unit.dy * scale,
       );
       _drawCube(canvas, center, tileW, tileH, rise, cube.color);
     }
+
+    canvas.restore();
   }
 
   void _drawCube(

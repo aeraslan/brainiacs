@@ -63,8 +63,7 @@ class MemoryCardTile extends StatelessWidget {
             begin: const Offset(1.08, 1.08),
             end: const Offset(1, 1),
             duration: 120.ms,
-          )
-          .tint(color: AppColors.correct, duration: 200.ms);
+          );
     } else if (isShaking) {
       tile = tile
           .animate(key: ValueKey('shake-$shakeKey-${card.id}'))
@@ -101,7 +100,7 @@ class _FlippingCard extends StatelessWidget {
             ..setEntry(3, 2, 0.001)
             ..rotateY(displayAngle),
           child: Opacity(
-            opacity: card.isMatched ? 0.72 : 1,
+            opacity: card.isMatched ? 0.92 : 1,
             child: isFrontVisible
                 ? Transform(
                     alignment: Alignment.center,
@@ -110,11 +109,13 @@ class _FlippingCard extends StatelessWidget {
                       size: size,
                       icon: card.icon,
                       isFront: true,
+                      isMatched: card.isMatched,
                     ),
                   )
                 : _CardFace(
                     size: size,
                     isFront: false,
+                    isMatched: false,
                   ),
           ),
         );
@@ -127,11 +128,13 @@ class _CardFace extends StatelessWidget {
   const _CardFace({
     required this.size,
     required this.isFront,
+    required this.isMatched,
     this.icon,
   });
 
   final double size;
   final bool isFront;
+  final bool isMatched;
   final IconData? icon;
 
   Color _iconColor(IconData iconData) {
@@ -141,9 +144,63 @@ class _CardFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(AppSpacing.sm);
+
+    if (isMatched) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1DE06A),
+              AppColors.correct,
+              Color(0xFF009624),
+            ],
+          ),
+          border: Border.all(color: Colors.white, width: 2.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.55),
+              blurRadius: 0,
+              spreadRadius: 1.5,
+            ),
+            const BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(3),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.sm - 2),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.85),
+                width: 1.25,
+              ),
+            ),
+            child: CustomPaint(
+              painter: _MatchedBorderOrnamentPainter(),
+              child: Center(
+                child: Icon(
+                  icon,
+                  size: size * 0.4,
+                  color: Colors.white.withValues(alpha: 0.92),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
+        borderRadius: radius,
         color: isFront ? AppColors.surface : AppColors.vibrantPurple,
         border: Border.all(
           color: isFront
@@ -184,6 +241,33 @@ class _CardFace extends StatelessWidget {
             ),
     );
   }
+}
+
+class _MatchedBorderOrnamentPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.7)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..strokeCap = StrokeCap.round;
+
+    const inset = 7.0;
+    const arm = 8.0;
+
+    void corner(Offset origin, double dx, double dy) {
+      canvas.drawLine(origin, origin.translate(dx * arm, 0), paint);
+      canvas.drawLine(origin, origin.translate(0, dy * arm), paint);
+    }
+
+    corner(const Offset(inset, inset), 1, 1);
+    corner(Offset(size.width - inset, inset), -1, 1);
+    corner(Offset(inset, size.height - inset), 1, -1);
+    corner(Offset(size.width - inset, size.height - inset), -1, -1);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _CardBackPatternPainter extends CustomPainter {

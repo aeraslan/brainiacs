@@ -41,13 +41,19 @@ class QuickMathNotifier extends Notifier<QuickMathState> {
     final nextLevel = state.currentLevel + 1;
     state = QuickMathState(
       currentLevel: nextLevel,
-      equation: MathEquation.forLevel(nextLevel),
+      equation: MathEquation.forLevel(
+        nextLevel,
+        minDifficultyScore: state.equation.difficultyScore,
+      ),
     );
   }
 
   void onIncorrect() {
     state = state.copyWith(
-      equation: MathEquation.forLevel(state.currentLevel),
+      equation: MathEquation.forLevel(
+        state.currentLevel,
+        minDifficultyScore: state.equation.difficultyScore,
+      ),
     );
   }
 }

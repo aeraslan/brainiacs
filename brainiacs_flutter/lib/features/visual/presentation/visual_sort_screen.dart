@@ -190,9 +190,6 @@ class _VisualSortScreenState extends ConsumerState<VisualSortScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentLevel = ref.watch(
-      visualSortProvider.select((s) => s.currentLevel),
-    );
     ref.watch(visualSortProvider.select((s) => s.boardGeneration));
     _syncAsteroidKeys();
 
@@ -207,13 +204,6 @@ class _VisualSortScreenState extends ConsumerState<VisualSortScreen> {
                 const GameHud(isOnLightBackground: true),
                 const SizedBox(height: AppSpacing.sm),
               ],
-              Text(
-                'Level $currentLevel',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(color: VisualColors.levelText),
-              ),
-              const SizedBox(height: AppSpacing.sm),
               Expanded(
                 child: AsteroidPlayfield(
                   asteroidKeys: widget.isTutorial ? _asteroidKeys : null,

@@ -17,7 +17,11 @@ class CubePuzzle {
 
   int get requiredDigitCount => expectedTotal.toString().length;
 
-  factory CubePuzzle.generate(int level, [Random? random]) {
+  factory CubePuzzle.generate(
+    int level, {
+    Random? random,
+    CubePuzzle? excluding,
+  }) {
     final rng = random ?? Random();
     final safeLevel = level < 1 ? 1 : level;
     final size = _gridSizeForLevel(safeLevel);
@@ -45,6 +49,9 @@ class CubePuzzle {
       if (!_allOccupiedColumnsVisible(heights)) {
         continue;
       }
+      if (excluding != null && _sameLayout(heights, excluding.heights)) {
+        continue;
+      }
 
       return CubePuzzle(
         heights: heights,
@@ -53,7 +60,24 @@ class CubePuzzle {
       );
     }
 
-    return _fallbackPuzzle(safeLevel);
+    return _fallbackPuzzle(safeLevel, excluding: excluding);
+  }
+
+  static bool _sameLayout(List<List<int>> a, List<List<int>> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (var r = 0; r < a.length; r++) {
+      if (a[r].length != b[r].length) {
+        return false;
+      }
+      for (var c = 0; c < a[r].length; c++) {
+        if (a[r][c] != b[r][c]) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /// Matches [IsometricCubePainter]: tile height / width and vertical rise.
@@ -169,11 +193,37 @@ class CubePuzzle {
     );
   }
 
-  static CubePuzzle _fallbackPuzzle(int level) {
-    final heights = [
-      [2, 0],
-      [0, 1],
+  static CubePuzzle _fallbackPuzzle(int level, {CubePuzzle? excluding}) {
+    final candidates = <List<List<int>>>[
+      [
+        [2, 0],
+        [0, 1],
+      ],
+      [
+        [1, 1],
+        [0, 1],
+      ],
+      [
+        [1, 0],
+        [1, 1],
+      ],
+      [
+        [3, 0],
+        [0, 1],
+      ],
     ];
+
+    for (final heights in candidates) {
+      if (excluding == null || !_sameLayout(heights, excluding.heights)) {
+        return CubePuzzle(
+          heights: heights,
+          expectedTotal: _totalCubes(heights),
+          level: level,
+        );
+      }
+    }
+
+    final heights = candidates.first;
     return CubePuzzle(
       heights: heights,
       expectedTotal: _totalCubes(heights),

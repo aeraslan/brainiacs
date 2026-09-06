@@ -29,6 +29,9 @@ class CardMatchBoard extends StatelessWidget {
   final ValueChanged<int> onCardTapped;
   final List<GlobalKey>? cardKeys;
 
+  static const double _cardAspectRatio = 1.35;
+  static const double _overflowPad = 14;
+
   GlobalKey? _keyForCard(int index) {
     final keys = cardKeys;
     if (keys == null || index < 0 || index >= keys.length) {
@@ -37,54 +40,94 @@ class CardMatchBoard extends StatelessWidget {
     return keys[index];
   }
 
-  double _cardSizeForCount(int count, double maxWidth) {
+  int _columnsForCount(int count) {
     if (count <= 4) {
-      return (maxWidth - AppSpacing.md * 3) / 2;
+      return 2;
     }
     if (count <= 6) {
-      return (maxWidth - AppSpacing.md * 4) / 3;
+      return 3;
     }
     if (count <= 8) {
-      return (maxWidth - AppSpacing.md * 3) / 2;
+      return 2;
     }
     if (count <= 12) {
-      return (maxWidth - AppSpacing.md * 4) / 3;
+      return 3;
     }
-    return (maxWidth - AppSpacing.md * 5) / 4;
+    return 4;
+  }
+
+  double _spacingForCount(int count) {
+    if (count <= 6) {
+      return AppSpacing.md;
+    }
+    if (count <= 12) {
+      return AppSpacing.sm;
+    }
+    return AppSpacing.xs + 2;
+  }
+
+  double _cardSizeForLayout({
+    required int count,
+    required double maxWidth,
+    required double maxHeight,
+  }) {
+    final columns = _columnsForCount(count);
+    final rows = (count / columns).ceil();
+    final spacing = _spacingForCount(count);
+
+    final usableWidth = (maxWidth - _overflowPad * 2).clamp(0.0, maxWidth);
+    final usableHeight = (maxHeight - _overflowPad * 2).clamp(0.0, maxHeight);
+
+    final widthBudget =
+        (usableWidth - spacing * (columns - 1)).clamp(0.0, usableWidth) /
+        columns;
+    final heightBudget =
+        (usableHeight - spacing * (rows - 1)).clamp(0.0, usableHeight) / rows;
+    final sizeFromHeight = heightBudget / _cardAspectRatio;
+
+    return widthBudget < sizeFromHeight ? widthBudget : sizeFromHeight;
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final cardSize = _cardSizeForCount(
-          cards.length,
-          constraints.maxWidth,
-        ).clamp(64.0, 120.0);
+        final spacing = _spacingForCount(cards.length);
+        final cardSize = _cardSizeForLayout(
+          count: cards.length,
+          maxWidth: constraints.maxWidth,
+          maxHeight: constraints.maxHeight,
+        ).clamp(40.0, 120.0);
 
         return Stack(
           alignment: Alignment.center,
           children: [
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: [
-                for (var index = 0; index < cards.length; index++)
-                  MemoryCardTile(
-                    key: _keyForCard(index),
-                    card: cards[index],
-                    size: cardSize,
-                    onTap: () => onCardTapped(index),
-                    isShaking:
-                        isEvaluating &&
-                        mismatchToken > 0 &&
-                        mismatchCardIndices.contains(index),
-                    shakeKey: mismatchToken,
-                    isMatchJuice: cards[index].isMatched,
-                    matchJuiceKey: cards[index].id,
-                  ),
-              ],
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: spacing,
+                  runSpacing: spacing,
+                  children: [
+                    for (var index = 0; index < cards.length; index++)
+                      MemoryCardTile(
+                        key: _keyForCard(index),
+                        card: cards[index],
+                        size: cardSize,
+                        onTap: () => onCardTapped(index),
+                        isShaking:
+                            isEvaluating &&
+                            mismatchToken > 0 &&
+                            mismatchCardIndices.contains(index),
+                        shakeKey: mismatchToken,
+                        isMatchJuice: cards[index].isMatched,
+                        matchJuiceKey: cards[index].id,
+                      ),
+                  ],
+                ),
+              ),
             ),
             if (isEvaluating && mismatchToken > 0)
               Positioned(

@@ -137,6 +137,10 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
   }
 
   void onCardTapped(int index) {
+    if (state.phase == CardMatchPhase.memorize) {
+      endMemorize();
+    }
+
     if (state.phase != CardMatchPhase.play ||
         state.isEvaluating ||
         index < 0 ||

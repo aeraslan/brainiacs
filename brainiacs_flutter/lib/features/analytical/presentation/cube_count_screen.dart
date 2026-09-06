@@ -262,12 +262,14 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
                   const SizedBox(height: AppSpacing.md),
                 ],
                 Expanded(
-                  flex: 4,
+                  flex: widget.isTutorial ? 5 : 4,
                   child: Column(
                     children: [
                       Expanded(
-                        child: IsometricCubeBoard(
-                          puzzle: cubeState.currentGrid,
+                        child: ClipRect(
+                          child: IsometricCubeBoard(
+                            puzzle: cubeState.currentGrid,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.sm),
@@ -276,7 +278,7 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Expanded(flex: 5, child: numberPad),
+                Expanded(flex: widget.isTutorial ? 4 : 5, child: numberPad),
                 const SizedBox(height: AppSpacing.sm),
               ],
             ),

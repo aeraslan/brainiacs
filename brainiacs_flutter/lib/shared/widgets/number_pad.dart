@@ -37,81 +37,38 @@ class NumberPad extends StatelessWidget {
           );
         }
 
+        Widget row(List<Widget> children) {
+          return SizedBox(
+            height: cellHeight,
+            child: Row(
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0) const SizedBox(width: spacing),
+                  Expanded(child: children[i]),
+                ],
+              ],
+            ),
+          );
+        }
+
         return Column(
           children: [
-            SizedBox(
-              height: cellHeight * 2 + spacing,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(child: digitButton(7)),
-                              const SizedBox(width: spacing),
-                              Expanded(child: digitButton(8)),
-                              const SizedBox(width: spacing),
-                              Expanded(child: digitButton(9)),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: spacing),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(child: digitButton(4)),
-                              const SizedBox(width: spacing),
-                              Expanded(child: digitButton(5)),
-                              const SizedBox(width: spacing),
-                              Expanded(child: digitButton(6)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: spacing),
-                  Expanded(
-                    child: _PadButton(
-                      label: 'C',
-                      enabled: enabled,
-                      isClear: true,
-                      onPressed: onClear,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            row([digitButton(1), digitButton(2), digitButton(3)]),
             const SizedBox(height: spacing),
-            SizedBox(
-              height: cellHeight,
-              child: Row(
-                children: [
-                  Expanded(child: digitButton(1)),
-                  const SizedBox(width: spacing),
-                  Expanded(child: digitButton(2)),
-                  const SizedBox(width: spacing),
-                  Expanded(child: digitButton(3)),
-                  const SizedBox(width: spacing),
-                  const Expanded(child: SizedBox.shrink()),
-                ],
-              ),
-            ),
+            row([digitButton(4), digitButton(5), digitButton(6)]),
             const SizedBox(height: spacing),
-            SizedBox(
-              height: cellHeight,
-              child: Row(
-                children: [
-                  const Spacer(),
-                  Expanded(flex: 2, child: digitButton(0)),
-                  const Spacer(flex: 2),
-                ],
+            row([digitButton(7), digitButton(8), digitButton(9)]),
+            const SizedBox(height: spacing),
+            row([
+              const SizedBox.shrink(),
+              digitButton(0),
+              _PadButton(
+                label: 'C',
+                enabled: enabled,
+                isClear: true,
+                onPressed: onClear,
               ),
-            ),
+            ]),
           ],
         );
       },
@@ -168,9 +125,9 @@ class _PadButton extends StatelessWidget {
             child: Text(
               label,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: AppColors.onAccent,
-                fontWeight: FontWeight.w800,
-              ),
+                    color: AppColors.onAccent,
+                    fontWeight: FontWeight.w800,
+                  ),
             ),
           ),
         ),

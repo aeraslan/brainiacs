@@ -28,7 +28,8 @@ class Asteroid {
   bool isPopped;
 
   bool get needsOrientationHint {
-    return displayText == '6' || displayText == '9';
+    const ambiguous = {'6', '9', 'Z', 'N', 'C', 'U'};
+    return ambiguous.contains(displayText);
   }
 }
 
@@ -40,14 +41,16 @@ abstract final class AsteroidField {
   static const double spawnPadding = 8;
   static const int maxPlacementAttempts = 80;
 
+  /// Distinct rock colors — avoids sky-like blues that blend into the playfield.
   static const List<Color> palette = [
-    Color(0xFFB8E05A),
-    Color(0xFFE89A9A),
-    Color(0xFF8A8F99),
-    Color(0xFFC8E04A),
-    Color(0xFF6EC6E8),
-    Color(0xFFF0B45A),
-    Color(0xFFC4A4E0),
+    Color(0xFFE07050), // terracotta
+    Color(0xFF5BBF7A), // green
+    Color(0xFFD4A017), // gold
+    Color(0xFF9B6B9E), // plum
+    Color(0xFFD97B8C), // rose
+    Color(0xFF6B7F8A), // slate
+    Color(0xFFC47A3A), // amber-brown
+    Color(0xFF7A9E5C), // olive
   ];
 
   static const List<String> letterPool = [
@@ -108,7 +111,7 @@ abstract final class AsteroidField {
         ? _uniqueLetters(count, rng)
         : _uniqueNumberEntries(safeLevel, count, rng);
     final radii = _radiiForCount(count, playfield, rng);
-    final colors = List<Color>.from(palette)..shuffle(rng);
+    final colors = _uniqueColorsForCount(entries.length, rng);
 
     final asteroids = <Asteroid>[];
     for (var i = 0; i < entries.length; i++) {
@@ -120,7 +123,7 @@ abstract final class AsteroidField {
         placed: asteroids,
         rng: rng,
       );
-      final color = colors[i % colors.length];
+      final color = colors[i];
 
       asteroids.add(
         Asteroid(
@@ -166,6 +169,13 @@ abstract final class AsteroidField {
       return rng.nextBool() ? 4 : 5;
     }
     return rng.nextBool() ? 5 : 6;
+  }
+
+  /// One distinct color per asteroid in the level (no sky-like blues).
+  static List<Color> _uniqueColorsForCount(int count, Random rng) {
+    final pool = List<Color>.from(palette)..shuffle(rng);
+    final safeCount = count.clamp(1, pool.length);
+    return pool.sublist(0, safeCount);
   }
 
   static List<_AsteroidEntry> _uniqueNumberEntries(
@@ -292,24 +302,25 @@ abstract final class AsteroidField {
     return rng.nextBool() ? magnitude : -magnitude;
   }
 
+  /// Words longer than this get cramped inside typical asteroid radii.
+  static const int maxNumberWordLength = 6;
+
   static String _displayTextFor({
     required int value,
     required bool allowWords,
     required Random rng,
   }) {
-    if (!allowWords) {
+    if (!allowWords || value < 0) {
       return '$value';
     }
 
-    final absolute = value.abs();
-    final word = numberWords[absolute];
-    if (word == null || rng.nextDouble() > 0.34) {
+    final word = numberWords[value];
+    if (word == null ||
+        word.length > maxNumberWordLength ||
+        rng.nextDouble() > 0.34) {
       return '$value';
     }
 
-    if (value < 0) {
-      return 'MINUS $word';
-    }
     return word;
   }
 }
