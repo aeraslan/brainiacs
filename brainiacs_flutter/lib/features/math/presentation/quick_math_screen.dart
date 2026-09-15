@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
+import '../../../shared/widgets/answer_feedback_burst.dart';
 import '../../../shared/widgets/game_hud.dart';
 import '../../../shared/widgets/game_screen_background.dart';
 import '../../../shared/widgets/number_pad.dart';
@@ -33,11 +34,10 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
   bool _isAcceptingInput = true;
   String _input = '';
   _AnswerFeedback _feedback = _AnswerFeedback.none;
-  int _feedbackKey = 0;
 
   static const int correctPoints = 100;
   static const int incorrectPenalty = -20;
-  static const Duration feedbackDelay = Duration(milliseconds: 250);
+  static const Duration feedbackDelay = Duration(milliseconds: 500);
 
   final Map<int, GlobalKey> _digitKeys = {
     for (var digit = 0; digit <= 9; digit++) digit: GlobalKey(),
@@ -174,14 +174,21 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
 
     final equation = ref.read(quickMathProvider).equation;
     final isCorrect = entered == equation.correctAnswer;
+    final mathNotifier = ref.read(quickMathProvider.notifier);
 
     setState(() {
       _isAcceptingInput = false;
-      _feedback = isCorrect
-          ? _AnswerFeedback.correct
-          : _AnswerFeedback.incorrect;
-      _feedbackKey++;
+      _feedback =
+          isCorrect ? _AnswerFeedback.correct : _AnswerFeedback.incorrect;
     });
+
+    if (isCorrect) {
+      HapticFeedback.lightImpact();
+      mathNotifier.signalSuccess();
+    } else {
+      HapticFeedback.heavyImpact();
+      mathNotifier.signalError();
+    }
 
     ref
         .read(gameSessionProvider.notifier)
@@ -193,9 +200,9 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
     }
 
     if (isCorrect) {
-      ref.read(quickMathProvider.notifier).onCorrect();
+      mathNotifier.onCorrect();
     } else {
-      ref.read(quickMathProvider.notifier).onIncorrect();
+      mathNotifier.onIncorrect();
     }
     setState(() {
       _input = '';
@@ -209,10 +216,16 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
     final equation = ref.watch(
       quickMathProvider.select((state) => state.equation),
     );
+    final successToken = ref.watch(
+      quickMathProvider.select((state) => state.successToken),
+    );
+    final errorToken = ref.watch(
+      quickMathProvider.select((state) => state.errorToken),
+    );
 
-    Widget equationDisplay = SizedBox(
+    final equationDisplay = SizedBox(
       width: double.infinity,
-      height: 64,
+      height: 80,
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: RichText(
@@ -233,6 +246,7 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
                     _AnswerFeedback.incorrect => AppColors.incorrect,
                     _AnswerFeedback.none => AppColors.accent,
                   },
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ],
@@ -240,28 +254,6 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
         ),
       ),
     );
-
-    if (_feedback == _AnswerFeedback.correct) {
-      equationDisplay = equationDisplay
-          .animate(key: ValueKey(_feedbackKey))
-          .scale(
-            begin: const Offset(1, 1),
-            end: const Offset(1.06, 1.06),
-            duration: 120.ms,
-            curve: Curves.easeOut,
-          )
-          .then()
-          .scale(
-            begin: const Offset(1.06, 1.06),
-            end: const Offset(1, 1),
-            duration: 120.ms,
-          )
-          .tint(color: AppColors.correct, duration: 200.ms);
-    } else if (_feedback == _AnswerFeedback.incorrect) {
-      equationDisplay = equationDisplay
-          .animate(key: ValueKey(_feedbackKey))
-          .shakeX(amount: 8, duration: 250.ms, hz: 6);
-    }
 
     return Scaffold(
       backgroundColor: GameScreenBackground.scaffoldColorFor(
@@ -277,7 +269,14 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
                 if (!widget.isTutorial)
                   const GameHud(isOnLightBackground: true),
                 const Spacer(),
-                equationDisplay,
+                AnswerFeedbackBurst(
+                  successToken: successToken,
+                  errorToken: errorToken,
+                  contentKey: equation.displayText,
+                  points: correctPoints,
+                  penalty: incorrectPenalty,
+                  child: equationDisplay,
+                ),
                 const Spacer(),
                 Expanded(
                   flex: 5,

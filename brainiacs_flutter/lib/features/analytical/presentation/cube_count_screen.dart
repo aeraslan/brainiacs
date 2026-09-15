@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
+import '../../../shared/widgets/answer_feedback_burst.dart';
 import '../../../shared/widgets/game_hud.dart';
 import '../../../shared/widgets/game_screen_background.dart';
 import '../../../shared/widgets/number_pad.dart';
@@ -33,11 +34,10 @@ class CubeCountScreen extends ConsumerStatefulWidget {
 class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
   bool _isAcceptingInput = true;
   _AnswerFeedback _feedback = _AnswerFeedback.none;
-  int _feedbackKey = 0;
 
   static const int correctPoints = 100;
   static const int incorrectPenalty = -20;
-  static const Duration feedbackDelay = Duration(milliseconds: 250);
+  static const Duration feedbackDelay = Duration(milliseconds: 500);
 
   final Map<int, GlobalKey> _digitKeys = {
     for (var digit = 0; digit <= 9; digit++) digit: GlobalKey(),
@@ -168,14 +168,21 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
 
     final puzzleState = ref.read(cubeCountProvider);
     final isCorrect = entered == puzzleState.expectedTotal;
+    final cubeNotifier = ref.read(cubeCountProvider.notifier);
 
     setState(() {
       _isAcceptingInput = false;
-      _feedback = isCorrect
-          ? _AnswerFeedback.correct
-          : _AnswerFeedback.incorrect;
-      _feedbackKey++;
+      _feedback =
+          isCorrect ? _AnswerFeedback.correct : _AnswerFeedback.incorrect;
     });
+
+    if (isCorrect) {
+      HapticFeedback.lightImpact();
+      cubeNotifier.signalSuccess();
+    } else {
+      HapticFeedback.heavyImpact();
+      cubeNotifier.signalError();
+    }
 
     ref
         .read(gameSessionProvider.notifier)
@@ -187,9 +194,9 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
     }
 
     if (isCorrect) {
-      ref.read(cubeCountProvider.notifier).onCorrect();
+      cubeNotifier.onCorrect();
     } else {
-      ref.read(cubeCountProvider.notifier).onIncorrect();
+      cubeNotifier.onIncorrect();
     }
 
     setState(() {
@@ -200,51 +207,31 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cubeState = ref.watch(cubeCountProvider);
-    final input = cubeState.userInput;
+    final currentGrid = ref.watch(
+      cubeCountProvider.select((state) => state.currentGrid),
+    );
+    final input = ref.watch(
+      cubeCountProvider.select((state) => state.userInput),
+    );
+    final successToken = ref.watch(
+      cubeCountProvider.select((state) => state.successToken),
+    );
+    final errorToken = ref.watch(
+      cubeCountProvider.select((state) => state.errorToken),
+    );
 
-    Widget answerDisplay = Text(
+    final answerDisplay = Text(
       input.isEmpty ? '?' : input,
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.displayMedium?.copyWith(
-        color: switch (_feedback) {
-          _AnswerFeedback.correct => AppColors.correct,
-          _AnswerFeedback.incorrect => AppColors.incorrect,
-          _AnswerFeedback.none => AppColors.accent,
-        },
-        fontWeight: FontWeight.w800,
-      ),
+            color: switch (_feedback) {
+              _AnswerFeedback.correct => AppColors.correct,
+              _AnswerFeedback.incorrect => AppColors.incorrect,
+              _AnswerFeedback.none => AppColors.accent,
+            },
+            fontWeight: FontWeight.w800,
+          ),
     );
-
-    Widget numberPad = NumberPad(
-      enabled: _isAcceptingInput,
-      onDigit: _onDigit,
-      onClear: _onClear,
-      digitKeys: widget.isTutorial ? _digitKeys : null,
-    );
-
-    if (_feedback == _AnswerFeedback.correct) {
-      numberPad = numberPad
-          .animate(key: ValueKey(_feedbackKey))
-          .scale(
-            begin: const Offset(1, 1),
-            end: const Offset(1.06, 1.06),
-            duration: 120.ms,
-            curve: Curves.easeOut,
-          )
-          .then()
-          .scale(
-            begin: const Offset(1.06, 1.06),
-            end: const Offset(1, 1),
-            duration: 120.ms,
-          )
-          .tint(color: AppColors.correct, duration: 200.ms);
-    } else if (_feedback == _AnswerFeedback.incorrect) {
-      numberPad = numberPad
-          .animate(key: ValueKey(_feedbackKey))
-          .shakeX(amount: 8, duration: 250.ms, hz: 6)
-          .tint(color: AppColors.incorrect, duration: 200.ms);
-    }
 
     return Scaffold(
       backgroundColor: GameScreenBackground.scaffoldColorFor(
@@ -268,17 +255,35 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
                       Expanded(
                         child: ClipRect(
                           child: IsometricCubeBoard(
-                            puzzle: cubeState.currentGrid,
+                            puzzle: currentGrid,
                           ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      answerDisplay,
+                      AnswerFeedbackBurst(
+                        successToken: successToken,
+                        errorToken: errorToken,
+                        contentKey: Object.hash(
+                          currentGrid.expectedTotal,
+                          currentGrid.hashCode,
+                        ),
+                        points: correctPoints,
+                        penalty: incorrectPenalty,
+                        child: answerDisplay,
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Expanded(flex: widget.isTutorial ? 4 : 5, child: numberPad),
+                Expanded(
+                  flex: widget.isTutorial ? 4 : 5,
+                  child: NumberPad(
+                    enabled: _isAcceptingInput,
+                    onDigit: _onDigit,
+                    onClear: _onClear,
+                    digitKeys: widget.isTutorial ? _digitKeys : null,
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.sm),
               ],
             ),

@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
 import 'widgets/animated_background_elements.dart';
+import 'widgets/candy_new_game_button.dart';
 
 class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
@@ -22,7 +23,12 @@ class MainMenuScreen extends ConsumerWidget {
           const AnimatedBackgroundElements(),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.xxl,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -32,7 +38,7 @@ class MainMenuScreen extends ConsumerWidget {
                         tooltip: 'Leaderboard',
                         onPressed: () {},
                         icon: const Icon(Icons.leaderboard_outlined),
-                        color: AppColors.textSecondary,
+                        color: AppColors.textPrimary,
                       ),
                       const Spacer(),
                       TextButton.icon(
@@ -40,7 +46,7 @@ class MainMenuScreen extends ConsumerWidget {
                         icon: const Icon(Icons.person_outline),
                         label: const Text('Profile/Stats'),
                         style: TextButton.styleFrom(
-                          foregroundColor: AppColors.textSecondary,
+                          foregroundColor: AppColors.textPrimary,
                         ),
                       ),
                     ],
@@ -67,11 +73,10 @@ class MainMenuScreen extends ConsumerWidget {
                     style: textTheme.bodyLarge,
                   ),
                   const Spacer(),
-                  ElevatedButton(
+                  CandyNewGameButton(
                         onPressed: () {
                           ref.read(gameSessionProvider.notifier).startGame();
                         },
-                        child: const Text('New Game'),
                       )
                       .animate(
                         onPlay: (controller) =>
@@ -83,7 +88,6 @@ class MainMenuScreen extends ConsumerWidget {
                         duration: 700.ms,
                         curve: Curves.easeInOut,
                       ),
-                  const SizedBox(height: AppSpacing.xxl),
                 ],
               ),
             ),

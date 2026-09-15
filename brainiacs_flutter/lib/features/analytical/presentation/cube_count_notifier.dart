@@ -7,6 +7,8 @@ class CubeCountState {
     required this.currentGrid,
     required this.userInput,
     required this.currentLevel,
+    this.successToken = 0,
+    this.errorToken = 0,
   });
 
   factory CubeCountState.initial() {
@@ -21,6 +23,8 @@ class CubeCountState {
   final CubePuzzle currentGrid;
   final String userInput;
   final int currentLevel;
+  final int successToken;
+  final int errorToken;
 
   int get expectedTotal => currentGrid.expectedTotal;
 
@@ -30,11 +34,15 @@ class CubeCountState {
     CubePuzzle? currentGrid,
     String? userInput,
     int? currentLevel,
+    int? successToken,
+    int? errorToken,
   }) {
     return CubeCountState(
       currentGrid: currentGrid ?? this.currentGrid,
       userInput: userInput ?? this.userInput,
       currentLevel: currentLevel ?? this.currentLevel,
+      successToken: successToken ?? this.successToken,
+      errorToken: errorToken ?? this.errorToken,
     );
   }
 }
@@ -45,6 +53,14 @@ class CubeCountNotifier extends Notifier<CubeCountState> {
 
   void reset() {
     state = CubeCountState.initial();
+  }
+
+  void signalSuccess() {
+    state = state.copyWith(successToken: state.successToken + 1);
+  }
+
+  void signalError() {
+    state = state.copyWith(errorToken: state.errorToken + 1);
   }
 
   void appendDigit(int digit) {
@@ -70,6 +86,8 @@ class CubeCountNotifier extends Notifier<CubeCountState> {
       currentGrid: puzzle,
       userInput: '',
       currentLevel: nextLevel,
+      successToken: state.successToken,
+      errorToken: state.errorToken,
     );
   }
 

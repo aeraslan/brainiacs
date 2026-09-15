@@ -86,69 +86,105 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
 
     return Scaffold(
       backgroundColor: _scaffoldColorFor(currentGame),
-      body: Stack(
-        key: _overlayKey,
-        children: [
-          Positioned.fill(
-            child: Column(
-              children: [
-                SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.md,
-                      AppSpacing.md,
-                      AppSpacing.sm,
-                    ),
-                    child: _TutorialBanner(
-                      stageNumber: stageNumber,
-                      stageCount: stageCount,
-                      instruction: copy.instruction,
+      body: _TutorialPageBackground(
+        type: currentGame,
+        child: Stack(
+          key: _overlayKey,
+          children: [
+            Positioned.fill(
+              child: Column(
+                children: [
+                  SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                      ),
+                      child: _TutorialBanner(
+                        stageNumber: stageNumber,
+                        stageCount: stageCount,
+                        instruction: copy.instruction,
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: ClipRect(
-                    child: IgnorePointer(
-                      child: MediaQuery.removePadding(
-                        context: context,
-                        removeTop: true,
-                        removeBottom: true,
-                        child: _TutorialGameHost(
-                          type: currentGame,
-                          autoPlay: true,
-                          pointerController: _pointerController,
+                  Expanded(
+                    child: ClipRect(
+                      child: IgnorePointer(
+                        child: MediaQuery.removePadding(
+                          context: context,
+                          removeTop: true,
+                          removeBottom: true,
+                          child: _TutorialGameHost(
+                            type: currentGame,
+                            autoPlay: true,
+                            pointerController: _pointerController,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.sm,
-                      AppSpacing.md,
-                      AppSpacing.md,
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _onReady,
-                        child: const Text('Ready!'),
+                  SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _onReady,
+                          child: const Text('Ready!'),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          TutorialPointer(controller: _pointerController),
-        ],
+            TutorialPointer(controller: _pointerController),
+          ],
+        ),
       ),
     );
+  }
+}
+
+/// Full-bleed backdrop matching normal play screens (covers banner + Ready).
+class _TutorialPageBackground extends StatelessWidget {
+  const _TutorialPageBackground({
+    required this.type,
+    required this.child,
+  });
+
+  final MiniGameType type;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (type) {
+      MiniGameType.math => GameScreenBackground(
+          style: GameBackgroundStyle.mathYellow,
+          child: child,
+        ),
+      MiniGameType.memory => GameScreenBackground(
+          style: GameBackgroundStyle.memoryGreen,
+          child: child,
+        ),
+      MiniGameType.analytical => GameScreenBackground(
+          style: GameBackgroundStyle.cubeOrange,
+          child: child,
+        ),
+      MiniGameType.visual => ColoredBox(
+          color: VisualColors.sky,
+          child: child,
+        ),
+    };
   }
 }
 
