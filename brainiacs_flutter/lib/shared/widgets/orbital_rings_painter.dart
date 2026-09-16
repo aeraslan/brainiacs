@@ -3,9 +3,18 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class OrbitalRingsPainter extends CustomPainter {
-  const OrbitalRingsPainter({required this.ringColor});
+  const OrbitalRingsPainter({
+    required this.ringColor,
+    this.phase = 0,
+  });
 
   final Color ringColor;
+
+  /// Continuous loop progress in `[0, 1)`. Drives per-layer parallax.
+  final double phase;
+
+  static const List<double> _layerSpeeds = [0.55, 1.0, 1.35];
+  static const double _expandAmplitude = 0.03;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -25,6 +34,7 @@ class OrbitalRingsPainter extends CustomPainter {
       rotation: -0.42,
       start: -0.15,
       sweep: 2.9,
+      layerSpeed: _layerSpeeds[0],
     );
     _drawRing(
       canvas: canvas,
@@ -35,6 +45,7 @@ class OrbitalRingsPainter extends CustomPainter {
       rotation: -0.28,
       start: 0.2,
       sweep: 2.4,
+      layerSpeed: _layerSpeeds[1],
     );
     _drawRing(
       canvas: canvas,
@@ -45,6 +56,7 @@ class OrbitalRingsPainter extends CustomPainter {
       rotation: 0.18,
       start: 0.6,
       sweep: 2.0,
+      layerSpeed: _layerSpeeds[2],
     );
   }
 
@@ -57,13 +69,22 @@ class OrbitalRingsPainter extends CustomPainter {
     required double rotation,
     required double start,
     required double sweep,
+    required double layerSpeed,
   }) {
+    final layerPhase = phase * layerSpeed * math.pi * 2;
+    final expand =
+        1 + _expandAmplitude * math.sin(phase * layerSpeed * math.pi * 2);
+
     canvas.save();
     canvas.translate(center.dx, center.dy);
-    canvas.rotate(rotation);
+    canvas.rotate(rotation + layerPhase * 0.08);
     canvas.drawArc(
-      Rect.fromCenter(center: Offset.zero, width: width, height: height),
-      start,
+      Rect.fromCenter(
+        center: Offset.zero,
+        width: width * expand,
+        height: height * expand,
+      ),
+      start + layerPhase,
       sweep,
       false,
       paint,
@@ -73,6 +94,6 @@ class OrbitalRingsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant OrbitalRingsPainter oldDelegate) {
-    return oldDelegate.ringColor != ringColor;
+    return oldDelegate.ringColor != ringColor || oldDelegate.phase != phase;
   }
 }

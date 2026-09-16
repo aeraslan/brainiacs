@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/asteroid.dart';
 import '../visual_colors.dart';
 import '../visual_sort_notifier.dart';
-import '../../../../shared/widgets/orbital_rings_painter.dart';
+import '../../../../shared/widgets/animated_orbital_rings.dart';
 import 'asteroid_sprite.dart';
 
 class AsteroidPlayfield extends ConsumerStatefulWidget {
@@ -190,9 +190,7 @@ class _AsteroidPlayfieldState extends ConsumerState<AsteroidPlayfield>
           clipBehavior: Clip.none,
           children: [
             Positioned.fill(
-              child: CustomPaint(
-                painter: OrbitalRingsPainter(ringColor: VisualColors.ring),
-              ),
+              child: AnimatedOrbitalRings(ringColor: VisualColors.ring),
             ),
             for (final asteroid in asteroids)
               Positioned(

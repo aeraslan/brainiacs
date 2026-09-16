@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'orbital_rings_painter.dart';
+import 'animated_orbital_rings.dart';
 
 enum GameBackgroundStyle {
   mathYellow,
@@ -69,9 +69,7 @@ class GameScreenBackground extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          CustomPaint(
-            painter: OrbitalRingsPainter(ringColor: theme.ringColor),
-          ),
+          AnimatedOrbitalRings(ringColor: theme.ringColor),
           child,
         ],
       ),

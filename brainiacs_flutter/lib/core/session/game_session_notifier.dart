@@ -15,12 +15,15 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
 
   void startGame() {
     _cancelTimer();
-    state = const GameSessionState(
+    state = GameSessionState(
       totalScore: 0,
       timeRemaining: GameSessionState.maxTimeLimit,
       phase: GamePhase.tutorial,
       currentRunSequence: GameSessionState.defaultRunSequence,
       currentIndex: 0,
+      scoresByGame: Map<MiniGameType, int>.from(
+        GameSessionState.emptyScoresByGame,
+      ),
     );
   }
 
@@ -60,8 +63,17 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     if (state.phase != GamePhase.playing) {
       return;
     }
-    final nextScore = state.totalScore + delta;
-    state = state.copyWith(totalScore: nextScore < 0 ? 0 : nextScore);
+
+    final game = state.currentGame;
+    final nextGameScore = (state.scoreFor(game) + delta).clamp(0, 1 << 30);
+    final nextScores = Map<MiniGameType, int>.from(state.scoresByGame)
+      ..[game] = nextGameScore;
+    final nextTotal = nextScores.values.fold<int>(0, (sum, v) => sum + v);
+
+    state = state.copyWith(
+      scoresByGame: nextScores,
+      totalScore: nextTotal < 0 ? 0 : nextTotal,
+    );
   }
 
   void resetToMenu() {
