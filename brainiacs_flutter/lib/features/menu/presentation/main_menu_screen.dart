@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
+import '../../../shared/widgets/candy_button.dart';
 import 'widgets/animated_background_elements.dart';
 import 'widgets/candy_new_game_button.dart';
 
@@ -88,6 +89,14 @@ class MainMenuScreen extends ConsumerWidget {
                         duration: 700.ms,
                         curve: Curves.easeInOut,
                       ),
+                  const SizedBox(height: AppSpacing.md),
+                  CandyButton(
+                    label: 'Practice',
+                    variant: CandyButtonVariant.secondary,
+                    onPressed: () {
+                      ref.read(gameSessionProvider.notifier).openPracticeMenu();
+                    },
+                  ),
                 ],
               ),
             ),

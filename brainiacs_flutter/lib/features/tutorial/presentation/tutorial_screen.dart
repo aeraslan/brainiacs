@@ -9,6 +9,7 @@ import '../../../shared/tutorial/tutorial_pointer.dart';
 import '../../../shared/widgets/countdown_overlay.dart';
 import '../../../shared/widgets/game_screen_background.dart';
 import '../../analytical/presentation/cube_count_screen.dart';
+import '../../math/presentation/missing_operator_screen.dart';
 import '../../math/presentation/quick_math_screen.dart';
 import '../../memory/presentation/card_match_screen.dart';
 import '../../visual/presentation/visual_colors.dart';
@@ -66,13 +67,16 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     final currentGame = ref.watch(
       gameSessionProvider.select((state) => state.currentGame),
     );
+    final mathVariant = ref.watch(
+      gameSessionProvider.select((state) => state.mathVariant),
+    );
     final stageNumber = ref.watch(
       gameSessionProvider.select((state) => state.stageNumber),
     );
     final stageCount = ref.watch(
       gameSessionProvider.select((state) => state.stageCount),
     );
-    final copy = _TutorialCopy.forType(currentGame);
+    final copy = _TutorialCopy.forType(currentGame, mathVariant: mathVariant);
 
     if (_showCountdown) {
       return Scaffold(
@@ -119,6 +123,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                           removeBottom: true,
                           child: _TutorialGameHost(
                             type: currentGame,
+                            mathVariant: mathVariant,
                             autoPlay: true,
                             pointerController: _pointerController,
                           ),
@@ -157,10 +162,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
 
 /// Full-bleed backdrop matching normal play screens (covers banner + Ready).
 class _TutorialPageBackground extends StatelessWidget {
-  const _TutorialPageBackground({
-    required this.type,
-    required this.child,
-  });
+  const _TutorialPageBackground({required this.type, required this.child});
 
   final MiniGameType type;
   final Widget child;
@@ -169,21 +171,18 @@ class _TutorialPageBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (type) {
       MiniGameType.math => GameScreenBackground(
-          style: GameBackgroundStyle.mathYellow,
-          child: child,
-        ),
+        style: GameBackgroundStyle.mathYellow,
+        child: child,
+      ),
       MiniGameType.memory => GameScreenBackground(
-          style: GameBackgroundStyle.memoryGreen,
-          child: child,
-        ),
+        style: GameBackgroundStyle.memoryGreen,
+        child: child,
+      ),
       MiniGameType.analytical => GameScreenBackground(
-          style: GameBackgroundStyle.cubeOrange,
-          child: child,
-        ),
-      MiniGameType.visual => ColoredBox(
-          color: VisualColors.sky,
-          child: child,
-        ),
+        style: GameBackgroundStyle.cubeOrange,
+        child: child,
+      ),
+      MiniGameType.visual => ColoredBox(color: VisualColors.sky, child: child),
     };
   }
 }
@@ -206,22 +205,31 @@ Color _scaffoldColorFor(MiniGameType type) {
 class _TutorialGameHost extends StatelessWidget {
   const _TutorialGameHost({
     required this.type,
+    required this.mathVariant,
     required this.autoPlay,
     required this.pointerController,
   });
 
   final MiniGameType type;
+  final MathGameVariant mathVariant;
   final bool autoPlay;
   final TutorialPointerController pointerController;
 
   @override
   Widget build(BuildContext context) {
     return switch (type) {
-      MiniGameType.math => QuickMathScreen(
-        isTutorial: true,
-        autoPlay: autoPlay,
-        pointerController: pointerController,
-      ),
+      MiniGameType.math => switch (mathVariant) {
+        MathGameVariant.quickMath => QuickMathScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+        MathGameVariant.missingOperator => MissingOperatorScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+      },
       MiniGameType.memory => CardMatchScreen(
         isTutorial: true,
         autoPlay: autoPlay,
@@ -246,11 +254,19 @@ class _TutorialCopy {
 
   final String instruction;
 
-  static _TutorialCopy forType(MiniGameType type) {
+  static _TutorialCopy forType(
+    MiniGameType type, {
+    MathGameVariant mathVariant = MathGameVariant.quickMath,
+  }) {
     return switch (type) {
-      MiniGameType.math => const _TutorialCopy(
-        instruction: 'Find the correct answer.',
-      ),
+      MiniGameType.math => switch (mathVariant) {
+        MathGameVariant.quickMath => const _TutorialCopy(
+          instruction: 'Find the correct answer.',
+        ),
+        MathGameVariant.missingOperator => const _TutorialCopy(
+          instruction: 'Pick the missing operator.',
+        ),
+      },
       MiniGameType.memory => const _TutorialCopy(
         instruction: 'Memorize the cards and match them.',
       ),

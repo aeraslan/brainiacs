@@ -1,6 +1,17 @@
-enum GamePhase { menu, tutorial, playing, timesUp, scoreScreen }
+enum GamePhase {
+  menu,
+  practiceMenu,
+  tutorial,
+  countdown,
+  playing,
+  timesUp,
+  scoreScreen,
+}
 
 enum MiniGameType { math, memory, analytical, visual }
+
+/// Which Math family game fills the Math stage for this run.
+enum MathGameVariant { quickMath, missingOperator }
 
 class GameSessionState {
   const GameSessionState({
@@ -10,6 +21,9 @@ class GameSessionState {
     required this.currentRunSequence,
     required this.currentIndex,
     required this.scoresByGame,
+    required this.mathVariant,
+    this.isPracticeMode = false,
+    this.isPaused = false,
   });
 
   factory GameSessionState.initial() {
@@ -20,6 +34,7 @@ class GameSessionState {
       currentRunSequence: defaultRunSequence,
       currentIndex: 0,
       scoresByGame: emptyScoresByGame,
+      mathVariant: MathGameVariant.quickMath,
     );
   }
 
@@ -46,6 +61,9 @@ class GameSessionState {
   final List<MiniGameType> currentRunSequence;
   final int currentIndex;
   final Map<MiniGameType, int> scoresByGame;
+  final MathGameVariant mathVariant;
+  final bool isPracticeMode;
+  final bool isPaused;
 
   MiniGameType get currentGame => currentRunSequence[currentIndex];
 
@@ -64,6 +82,9 @@ class GameSessionState {
     List<MiniGameType>? currentRunSequence,
     int? currentIndex,
     Map<MiniGameType, int>? scoresByGame,
+    MathGameVariant? mathVariant,
+    bool? isPracticeMode,
+    bool? isPaused,
   }) {
     return GameSessionState(
       totalScore: totalScore ?? this.totalScore,
@@ -72,6 +93,9 @@ class GameSessionState {
       currentRunSequence: currentRunSequence ?? this.currentRunSequence,
       currentIndex: currentIndex ?? this.currentIndex,
       scoresByGame: scoresByGame ?? this.scoresByGame,
+      mathVariant: mathVariant ?? this.mathVariant,
+      isPracticeMode: isPracticeMode ?? this.isPracticeMode,
+      isPaused: isPaused ?? this.isPaused,
     );
   }
 }

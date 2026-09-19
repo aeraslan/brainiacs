@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +16,9 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
 
   void startGame() {
     _cancelTimer();
+    final mathVariant = Random().nextBool()
+        ? MathGameVariant.quickMath
+        : MathGameVariant.missingOperator;
     state = GameSessionState(
       totalScore: 0,
       timeRemaining: GameSessionState.maxTimeLimit,
@@ -24,11 +28,48 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       scoresByGame: Map<MiniGameType, int>.from(
         GameSessionState.emptyScoresByGame,
       ),
+      mathVariant: mathVariant,
+    );
+  }
+
+  void openPracticeMenu() {
+    _cancelTimer();
+    state = GameSessionState(
+      totalScore: 0,
+      timeRemaining: GameSessionState.maxTimeLimit,
+      phase: GamePhase.practiceMenu,
+      currentRunSequence: GameSessionState.defaultRunSequence,
+      currentIndex: 0,
+      scoresByGame: Map<MiniGameType, int>.from(
+        GameSessionState.emptyScoresByGame,
+      ),
+      mathVariant: MathGameVariant.quickMath,
+      isPracticeMode: true,
+    );
+  }
+
+  void startPractice({
+    required MiniGameType type,
+    MathGameVariant mathVariant = MathGameVariant.quickMath,
+  }) {
+    _cancelTimer();
+    state = GameSessionState(
+      totalScore: 0,
+      timeRemaining: GameSessionState.maxTimeLimit,
+      phase: GamePhase.countdown,
+      currentRunSequence: [type],
+      currentIndex: 0,
+      scoresByGame: Map<MiniGameType, int>.from(
+        GameSessionState.emptyScoresByGame,
+      ),
+      mathVariant: mathVariant,
+      isPracticeMode: true,
     );
   }
 
   void beginPlaying() {
-    if (state.phase != GamePhase.tutorial) {
+    if (state.phase != GamePhase.tutorial &&
+        state.phase != GamePhase.countdown) {
       return;
     }
 
@@ -36,12 +77,34 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     state = state.copyWith(
       timeRemaining: GameSessionState.maxTimeLimit,
       phase: GamePhase.playing,
+      isPaused: false,
     );
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
+    _startPeriodicTimer();
+  }
+
+  void pauseGame() {
+    if (state.phase != GamePhase.playing || state.isPaused) {
+      return;
+    }
+    _cancelTimer();
+    state = state.copyWith(isPaused: true);
+  }
+
+  void resumeGame() {
+    if (state.phase != GamePhase.playing || !state.isPaused) {
+      return;
+    }
+    state = state.copyWith(isPaused: false);
+    _startPeriodicTimer();
   }
 
   void nextGame() {
     _cancelTimer();
+    if (state.isPracticeMode) {
+      openPracticeMenu();
+      return;
+    }
+
     if (state.isLastGame) {
       endRun();
       return;
@@ -51,16 +114,17 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       currentIndex: state.currentIndex + 1,
       timeRemaining: GameSessionState.maxTimeLimit,
       phase: GamePhase.tutorial,
+      isPaused: false,
     );
   }
 
   void endRun() {
     _cancelTimer();
-    state = state.copyWith(phase: GamePhase.scoreScreen);
+    state = state.copyWith(phase: GamePhase.scoreScreen, isPaused: false);
   }
 
   void addScore(int delta) {
-    if (state.phase != GamePhase.playing) {
+    if (state.phase != GamePhase.playing || state.isPaused) {
       return;
     }
 
@@ -85,11 +149,15 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     if (state.phase != GamePhase.playing) {
       return;
     }
+    if (state.isPracticeMode) {
+      openPracticeMenu();
+      return;
+    }
     endRun();
   }
 
   void _onTick() {
-    if (state.phase != GamePhase.playing) {
+    if (state.phase != GamePhase.playing || state.isPaused) {
       _cancelTimer();
       return;
     }
@@ -97,12 +165,21 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     final nextTime = state.timeRemaining - 1;
     if (nextTime <= 0) {
       _cancelTimer();
-      state = state.copyWith(timeRemaining: 0, phase: GamePhase.timesUp);
+      state = state.copyWith(
+        timeRemaining: 0,
+        phase: GamePhase.timesUp,
+        isPaused: false,
+      );
       _timer = Timer(GameSessionState.timesUpDuration, _afterTimesUp);
       return;
     }
 
     state = state.copyWith(timeRemaining: nextTime);
+  }
+
+  void _startPeriodicTimer() {
+    _cancelTimer();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
   }
 
   void _afterTimesUp() {

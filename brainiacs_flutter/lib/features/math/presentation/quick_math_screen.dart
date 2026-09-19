@@ -3,14 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
 import '../../../shared/widgets/answer_feedback_burst.dart';
-import '../../../shared/widgets/game_hud.dart';
-import '../../../shared/widgets/game_screen_background.dart';
 import '../../../shared/widgets/number_pad.dart';
 import 'quick_math_notifier.dart';
+import 'widgets/math_game_scaffold.dart';
 
 enum _AnswerFeedback { none, correct, incorrect }
 
@@ -178,8 +176,9 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
 
     setState(() {
       _isAcceptingInput = false;
-      _feedback =
-          isCorrect ? _AnswerFeedback.correct : _AnswerFeedback.incorrect;
+      _feedback = isCorrect
+          ? _AnswerFeedback.correct
+          : _AnswerFeedback.incorrect;
     });
 
     if (isCorrect) {
@@ -233,9 +232,9 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
           maxLines: 1,
           softWrap: false,
           text: TextSpan(
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  color: AppColors.textPrimary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.displayLarge?.copyWith(color: AppColors.textPrimary),
             children: [
               TextSpan(text: '${equation.displayText} '),
               TextSpan(
@@ -255,43 +254,21 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
       ),
     );
 
-    return Scaffold(
-      backgroundColor: GameScreenBackground.scaffoldColorFor(
-        GameBackgroundStyle.mathYellow,
+    return MathGameScaffold(
+      isTutorial: widget.isTutorial,
+      board: AnswerFeedbackBurst(
+        successToken: successToken,
+        errorToken: errorToken,
+        contentKey: equation.displayText,
+        points: correctPoints,
+        penalty: incorrectPenalty,
+        child: equationDisplay,
       ),
-      body: GameScreenBackground(
-        style: GameBackgroundStyle.mathYellow,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              children: [
-                if (!widget.isTutorial)
-                  const GameHud(isOnLightBackground: true),
-                const Spacer(),
-                AnswerFeedbackBurst(
-                  successToken: successToken,
-                  errorToken: errorToken,
-                  contentKey: equation.displayText,
-                  points: correctPoints,
-                  penalty: incorrectPenalty,
-                  child: equationDisplay,
-                ),
-                const Spacer(),
-                Expanded(
-                  flex: 5,
-                  child: NumberPad(
-                    enabled: _isAcceptingInput,
-                    onDigit: _onDigit,
-                    onClear: _onClear,
-                    digitKeys: widget.isTutorial ? _digitKeys : null,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-            ),
-          ),
-        ),
+      controls: NumberPad(
+        enabled: _isAcceptingInput,
+        onDigit: _onDigit,
+        onClear: _onClear,
+        digitKeys: widget.isTutorial ? _digitKeys : null,
       ),
     );
   }

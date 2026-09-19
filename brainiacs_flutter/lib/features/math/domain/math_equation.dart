@@ -4,17 +4,14 @@ enum MathOperator {
   add('+'),
   subtract('-'),
   multiply('×'),
-  divide('÷');
+  divide('/');
 
   const MathOperator(this.symbol);
 
   final String symbol;
 }
 
-enum _GroupedLayout {
-  multiplierFirst,
-  multiplierLast,
-}
+enum _GroupedLayout { multiplierFirst, multiplierLast }
 
 sealed class MathEquation {
   const MathEquation();
@@ -184,7 +181,7 @@ final class _GroupedMathEquation extends MathEquation {
       MathOperator.add => '$innerLeft+$innerRight',
       MathOperator.subtract => '$innerLeft-$innerRight',
       MathOperator.multiply => '$innerLeft×$innerRight',
-      MathOperator.divide => '$innerLeft÷$innerRight',
+      MathOperator.divide => '$innerLeft/$innerRight',
     };
 
     return switch (layout) {
@@ -195,15 +192,11 @@ final class _GroupedMathEquation extends MathEquation {
 
   @override
   int get difficultyScore {
-    final magnitude =
-        multiplier + innerLeft + innerRight + correctAnswer.abs();
+    final magnitude = multiplier + innerLeft + innerRight + correctAnswer.abs();
     return 48 + (magnitude ~/ 3);
   }
 
-  static _GroupedMathEquation generate(
-    _DifficultyConfig config,
-    Random rng,
-  ) {
+  static _GroupedMathEquation generate(_DifficultyConfig config, Random rng) {
     final layout = rng.nextBool()
         ? _GroupedLayout.multiplierFirst
         : _GroupedLayout.multiplierLast;
@@ -221,10 +214,16 @@ final class _GroupedMathEquation extends MathEquation {
     late final int innerRight;
 
     if (innerOperator == MathOperator.add) {
-      innerLeft =
-          _randomInRange(config.minGroupedInner, config.maxGroupedInner, rng);
-      innerRight =
-          _randomInRange(config.minGroupedInner, config.maxGroupedInner, rng);
+      innerLeft = _randomInRange(
+        config.minGroupedInner,
+        config.maxGroupedInner,
+        rng,
+      );
+      innerRight = _randomInRange(
+        config.minGroupedInner,
+        config.maxGroupedInner,
+        rng,
+      );
     } else {
       innerLeft = _randomInRange(
         config.minGroupedInner + 2,
@@ -337,32 +336,32 @@ MathOperator _pickOperator(int level, _DifficultyConfig config, Random rng) {
     MathOperator.add: level <= 1
         ? 1
         : level <= 3
-            ? 0.55
-            : level <= 7
-                ? 0.28
-                : 0.14,
+        ? 0.55
+        : level <= 7
+        ? 0.28
+        : 0.14,
     MathOperator.subtract: level <= 1
         ? 0
         : level <= 3
-            ? 0.45
-            : level <= 7
-                ? 0.28
-                : 0.16,
+        ? 0.45
+        : level <= 7
+        ? 0.28
+        : 0.16,
   };
 
   if (config.allowMultiply) {
     weights[MathOperator.multiply] = level <= 5
         ? 0.35
         : level <= 9
-            ? 0.34
-            : 0.32;
+        ? 0.34
+        : 0.32;
   }
   if (config.allowDivide) {
     weights[MathOperator.divide] = level <= 8
         ? 0.22
         : level <= 12
-            ? 0.28
-            : 0.32;
+        ? 0.28
+        : 0.32;
   }
 
   final total = weights.values.fold<double>(0, (sum, w) => sum + w);

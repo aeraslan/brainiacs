@@ -11,10 +11,7 @@ class QuickMathState {
   });
 
   factory QuickMathState.initial() {
-    return QuickMathState(
-      currentLevel: 1,
-      equation: MathEquation.forLevel(1),
-    );
+    return QuickMathState(currentLevel: 1, equation: MathEquation.forLevel(1));
   }
 
   final MathEquation equation;
@@ -76,7 +73,6 @@ class QuickMathNotifier extends Notifier<QuickMathState> {
   }
 }
 
-final quickMathProvider =
-    NotifierProvider<QuickMathNotifier, QuickMathState>(
+final quickMathProvider = NotifierProvider<QuickMathNotifier, QuickMathState>(
   QuickMathNotifier.new,
 );
