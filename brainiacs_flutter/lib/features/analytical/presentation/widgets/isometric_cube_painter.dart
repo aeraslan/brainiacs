@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../domain/cube_puzzle.dart';
+import 'cube_drop.dart';
 
 class IsometricCubePainter extends CustomPainter {
-  IsometricCubePainter({required this.puzzle});
+  IsometricCubePainter({
+    required this.puzzle,
+    required this.progress,
+  }) : super(repaint: progress);
 
   final CubePuzzle puzzle;
+  final Animation<double> progress;
 
   static const List<Color> _baseColors = [
     AppColors.electricBlue,
@@ -119,6 +124,7 @@ class IsometricCubePainter extends CustomPainter {
       return;
     }
 
+    // Paint order: back-to-front, then bottom-to-top.
     cubes.sort((a, b) {
       final depthA = a.row + a.col;
       final depthB = b.row + b.col;
@@ -127,6 +133,27 @@ class IsometricCubePainter extends CustomPainter {
       }
       return a.layer.compareTo(b.layer);
     });
+
+    // Within each layer, stagger back→front then left→right so drops cascade.
+    final staggerIndexByCube = <_CubeInstance, int>{};
+    final nextStagger = <int, int>{};
+    final staggerOrder = List<_CubeInstance>.from(cubes)
+      ..sort((a, b) {
+        if (a.layer != b.layer) {
+          return a.layer.compareTo(b.layer);
+        }
+        final depthA = a.row + a.col;
+        final depthB = b.row + b.col;
+        if (depthA != depthB) {
+          return depthA.compareTo(depthB);
+        }
+        return (a.col - a.row).compareTo(b.col - b.row);
+      });
+    for (final cube in staggerOrder) {
+      final index = nextStagger[cube.layer] ?? 0;
+      staggerIndexByCube[cube] = index;
+      nextStagger[cube.layer] = index + 1;
+    }
 
     // Center the actual puzzle footprint (full grid cells, not only occupied).
     final puzzleBounds = boundsForGrid(
@@ -141,14 +168,28 @@ class IsometricCubePainter extends CustomPainter {
     final originY =
         (size.height - puzzleH) * 0.5 - puzzleBounds.$3 * scale;
 
+    final fallDistance = rise * CubeDrop.fallDistanceRiseFactor;
+    final t = progress.value.clamp(0.0, 1.0);
+    final totalMs = CubeDrop.durationForPuzzle(puzzle).inMilliseconds;
+
     canvas.save();
     canvas.clipRect(Offset.zero & size);
 
     for (final cube in cubes) {
+      final dropOffset = CubeDrop.offsetY(
+        layer: cube.layer,
+        staggerIndex: staggerIndexByCube[cube] ?? 0,
+        t: t,
+        totalMs: totalMs,
+        fallDistance: fallDistance,
+      );
+      if (dropOffset == null) {
+        continue;
+      }
       final unit = unitCellCenter(cube.row, cube.col, cube.layer);
       final center = Offset(
         originX + unit.dx * scale,
-        originY + unit.dy * scale,
+        originY + unit.dy * scale + dropOffset,
       );
       _drawCube(canvas, center, tileW, tileH, rise, cube.color);
     }
@@ -219,7 +260,8 @@ class IsometricCubePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant IsometricCubePainter oldDelegate) {
-    return !identical(oldDelegate.puzzle, puzzle);
+    return !identical(oldDelegate.puzzle, puzzle) ||
+        oldDelegate.progress.value != progress.value;
   }
 }
 

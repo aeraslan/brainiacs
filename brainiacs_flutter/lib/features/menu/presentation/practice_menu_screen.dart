@@ -88,12 +88,25 @@ class PracticeMenuScreen extends ConsumerWidget {
       label: 'Asteroids',
       icon: Icons.rocket_launch_rounded,
       type: MiniGameType.visual,
+      visualVariant: VisualGameVariant.visualSort,
       gradientColors: [
         Color(0xFF7EE8E0),
         AppColors.mint,
         Color(0xFF2BA89F),
       ],
       softShadowColor: Color(0x334ECDC4),
+    ),
+    _PracticeGameCatalogItem(
+      label: 'Color Clash',
+      icon: Icons.palette_rounded,
+      type: MiniGameType.visual,
+      visualVariant: VisualGameVariant.colorClash,
+      gradientColors: [
+        Color(0xFF9AD8F0),
+        Color(0xFF7EC8E3),
+        Color(0xFF4ECDC4),
+      ],
+      softShadowColor: Color(0x337EC8E3),
     ),
   ];
 
@@ -157,6 +170,7 @@ class PracticeMenuScreen extends ConsumerWidget {
                                   mathVariant: _catalog[i].mathVariant,
                                   analyticVariant: _catalog[i].analyticVariant,
                                   memoryVariant: _catalog[i].memoryVariant,
+                                  visualVariant: _catalog[i].visualVariant,
                                 );
                           },
                         )
@@ -192,6 +206,7 @@ class _PracticeGameCatalogItem {
     this.mathVariant = MathGameVariant.quickMath,
     this.analyticVariant = AnalyticGameVariant.cubeCount,
     this.memoryVariant = MemoryGameVariant.cardMatch,
+    this.visualVariant = VisualGameVariant.visualSort,
   });
 
   final String label;
@@ -200,6 +215,7 @@ class _PracticeGameCatalogItem {
   final MathGameVariant mathVariant;
   final AnalyticGameVariant analyticVariant;
   final MemoryGameVariant memoryVariant;
+  final VisualGameVariant visualVariant;
   final List<Color> gradientColors;
   final Color softShadowColor;
 }

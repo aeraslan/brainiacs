@@ -19,6 +19,9 @@ enum AnalyticGameVariant { cubeCount, balanceLogic }
 /// Which Memory family game fills the Memory stage for this run.
 enum MemoryGameVariant { cardMatch, matrixRecall }
 
+/// Which Visual family game fills the Visual stage for this run.
+enum VisualGameVariant { visualSort, colorClash }
+
 class GameSessionState {
   const GameSessionState({
     required this.totalScore,
@@ -30,6 +33,7 @@ class GameSessionState {
     required this.mathVariant,
     required this.analyticVariant,
     required this.memoryVariant,
+    required this.visualVariant,
     this.isPracticeMode = false,
     this.isPaused = false,
   });
@@ -45,6 +49,7 @@ class GameSessionState {
       mathVariant: MathGameVariant.quickMath,
       analyticVariant: AnalyticGameVariant.cubeCount,
       memoryVariant: MemoryGameVariant.cardMatch,
+      visualVariant: VisualGameVariant.visualSort,
     );
   }
 
@@ -74,6 +79,7 @@ class GameSessionState {
   final MathGameVariant mathVariant;
   final AnalyticGameVariant analyticVariant;
   final MemoryGameVariant memoryVariant;
+  final VisualGameVariant visualVariant;
   final bool isPracticeMode;
   final bool isPaused;
 
@@ -97,6 +103,7 @@ class GameSessionState {
     MathGameVariant? mathVariant,
     AnalyticGameVariant? analyticVariant,
     MemoryGameVariant? memoryVariant,
+    VisualGameVariant? visualVariant,
     bool? isPracticeMode,
     bool? isPaused,
   }) {
@@ -110,6 +117,7 @@ class GameSessionState {
       mathVariant: mathVariant ?? this.mathVariant,
       analyticVariant: analyticVariant ?? this.analyticVariant,
       memoryVariant: memoryVariant ?? this.memoryVariant,
+      visualVariant: visualVariant ?? this.visualVariant,
       isPracticeMode: isPracticeMode ?? this.isPracticeMode,
       isPaused: isPaused ?? this.isPaused,
     );

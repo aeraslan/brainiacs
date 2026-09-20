@@ -61,6 +61,21 @@ void main() {
     expect(state.memoryVariant, MemoryGameVariant.matrixRecall);
   });
 
+  test('startPractice with colorClash sets visualVariant', () {
+    final notifier = container.read(gameSessionProvider.notifier);
+
+    notifier.startPractice(
+      type: MiniGameType.visual,
+      visualVariant: VisualGameVariant.colorClash,
+    );
+
+    final state = container.read(gameSessionProvider);
+    expect(state.phase, GamePhase.countdown);
+    expect(state.isPracticeMode, isTrue);
+    expect(state.currentGame, MiniGameType.visual);
+    expect(state.visualVariant, VisualGameVariant.colorClash);
+  });
+
   test('beginPlaying after practice countdown starts the timer phase', () {
     final notifier = container.read(gameSessionProvider.notifier);
 

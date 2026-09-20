@@ -14,6 +14,7 @@ import '../../math/presentation/missing_operator_screen.dart';
 import '../../math/presentation/quick_math_screen.dart';
 import '../../memory/presentation/card_match_screen.dart';
 import '../../memory/presentation/matrix_recall_screen.dart';
+import '../../visual/presentation/color_clash_screen.dart';
 import '../../visual/presentation/visual_colors.dart';
 import '../../visual/presentation/visual_sort_screen.dart';
 
@@ -78,6 +79,9 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     final memoryVariant = ref.watch(
       gameSessionProvider.select((state) => state.memoryVariant),
     );
+    final visualVariant = ref.watch(
+      gameSessionProvider.select((state) => state.visualVariant),
+    );
     final stageNumber = ref.watch(
       gameSessionProvider.select((state) => state.stageNumber),
     );
@@ -89,6 +93,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
       mathVariant: mathVariant,
       analyticVariant: analyticVariant,
       memoryVariant: memoryVariant,
+      visualVariant: visualVariant,
     );
 
     if (_showCountdown) {
@@ -139,6 +144,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                             mathVariant: mathVariant,
                             analyticVariant: analyticVariant,
                             memoryVariant: memoryVariant,
+                            visualVariant: visualVariant,
                             autoPlay: true,
                             pointerController: _pointerController,
                           ),
@@ -223,6 +229,7 @@ class _TutorialGameHost extends StatelessWidget {
     required this.mathVariant,
     required this.analyticVariant,
     required this.memoryVariant,
+    required this.visualVariant,
     required this.autoPlay,
     required this.pointerController,
   });
@@ -231,6 +238,7 @@ class _TutorialGameHost extends StatelessWidget {
   final MathGameVariant mathVariant;
   final AnalyticGameVariant analyticVariant;
   final MemoryGameVariant memoryVariant;
+  final VisualGameVariant visualVariant;
   final bool autoPlay;
   final TutorialPointerController pointerController;
 
@@ -273,11 +281,18 @@ class _TutorialGameHost extends StatelessWidget {
           pointerController: pointerController,
         ),
       },
-      MiniGameType.visual => VisualSortScreen(
-        isTutorial: true,
-        autoPlay: autoPlay,
-        pointerController: pointerController,
-      ),
+      MiniGameType.visual => switch (visualVariant) {
+        VisualGameVariant.visualSort => VisualSortScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+        VisualGameVariant.colorClash => ColorClashScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+      },
     };
   }
 }
@@ -292,6 +307,7 @@ class _TutorialCopy {
     MathGameVariant mathVariant = MathGameVariant.quickMath,
     AnalyticGameVariant analyticVariant = AnalyticGameVariant.cubeCount,
     MemoryGameVariant memoryVariant = MemoryGameVariant.cardMatch,
+    VisualGameVariant visualVariant = VisualGameVariant.visualSort,
   }) {
     return switch (type) {
       MiniGameType.math => switch (mathVariant) {
@@ -318,9 +334,14 @@ class _TutorialCopy {
           instruction: 'Pick the heaviest object.',
         ),
       },
-      MiniGameType.visual => const _TutorialCopy(
-        instruction: 'Tap the asteroids in ascending order.',
-      ),
+      MiniGameType.visual => switch (visualVariant) {
+        VisualGameVariant.visualSort => const _TutorialCopy(
+          instruction: 'Tap the asteroids in ascending order.',
+        ),
+        VisualGameVariant.colorClash => const _TutorialCopy(
+          instruction: 'Follow the rule: match the ink or the word.',
+        ),
+      },
     };
   }
 }

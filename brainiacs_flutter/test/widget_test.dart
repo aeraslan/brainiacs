@@ -58,6 +58,14 @@ void main() {
     await tester.pump();
     expect(find.text('Asteroids'), findsOneWidget);
 
+    await tester.scrollUntilVisible(
+      find.text('Color Clash'),
+      80,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pump();
+    expect(find.text('Color Clash'), findsOneWidget);
+
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 2));
   });

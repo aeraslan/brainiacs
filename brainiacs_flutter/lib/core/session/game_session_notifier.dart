@@ -26,6 +26,9 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     final memoryVariant = rng.nextBool()
         ? MemoryGameVariant.cardMatch
         : MemoryGameVariant.matrixRecall;
+    final visualVariant = rng.nextBool()
+        ? VisualGameVariant.visualSort
+        : VisualGameVariant.colorClash;
     state = GameSessionState(
       totalScore: 0,
       timeRemaining: GameSessionState.maxTimeLimit,
@@ -38,6 +41,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       mathVariant: mathVariant,
       analyticVariant: analyticVariant,
       memoryVariant: memoryVariant,
+      visualVariant: visualVariant,
     );
   }
 
@@ -55,6 +59,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       mathVariant: MathGameVariant.quickMath,
       analyticVariant: AnalyticGameVariant.cubeCount,
       memoryVariant: MemoryGameVariant.cardMatch,
+      visualVariant: VisualGameVariant.visualSort,
       isPracticeMode: true,
     );
   }
@@ -64,6 +69,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     MathGameVariant mathVariant = MathGameVariant.quickMath,
     AnalyticGameVariant analyticVariant = AnalyticGameVariant.cubeCount,
     MemoryGameVariant memoryVariant = MemoryGameVariant.cardMatch,
+    VisualGameVariant visualVariant = VisualGameVariant.visualSort,
   }) {
     _cancelTimer();
     state = GameSessionState(
@@ -78,6 +84,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       mathVariant: mathVariant,
       analyticVariant: analyticVariant,
       memoryVariant: memoryVariant,
+      visualVariant: visualVariant,
       isPracticeMode: true,
     );
   }

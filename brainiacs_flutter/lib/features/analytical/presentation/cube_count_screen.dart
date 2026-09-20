@@ -32,7 +32,7 @@ class CubeCountScreen extends ConsumerStatefulWidget {
 }
 
 class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
-  bool _isAcceptingInput = true;
+  bool _isAcceptingInput = false;
   _AnswerFeedback _feedback = _AnswerFeedback.none;
 
   static const int correctPoints = 100;
@@ -201,8 +201,16 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
 
     setState(() {
       _feedback = _AnswerFeedback.none;
-      _isAcceptingInput = true;
+      // Keep the pad locked until the next puzzle's drop finishes.
+      _isAcceptingInput = false;
     });
+  }
+
+  void _onDropComplete() {
+    if (!mounted || _feedback != _AnswerFeedback.none) {
+      return;
+    }
+    setState(() => _isAcceptingInput = true);
   }
 
   @override
@@ -256,6 +264,7 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
                         child: ClipRect(
                           child: IsometricCubeBoard(
                             puzzle: currentGrid,
+                            onDropComplete: _onDropComplete,
                           ),
                         ),
                       ),

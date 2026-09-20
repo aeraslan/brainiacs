@@ -16,6 +16,7 @@ import 'features/menu/presentation/practice_menu_screen.dart';
 import 'features/score/presentation/score_screen.dart';
 import 'features/score/presentation/times_up_screen.dart';
 import 'features/tutorial/presentation/tutorial_screen.dart';
+import 'features/visual/presentation/color_clash_screen.dart';
 import 'features/visual/presentation/visual_sort_screen.dart';
 
 void main() {
@@ -54,6 +55,9 @@ class HomeShell extends ConsumerWidget {
     final memoryVariant = ref.watch(
       gameSessionProvider.select((state) => state.memoryVariant),
     );
+    final visualVariant = ref.watch(
+      gameSessionProvider.select((state) => state.visualVariant),
+    );
 
     return switch (phase) {
       GamePhase.menu => const MainMenuScreen(),
@@ -73,7 +77,10 @@ class HomeShell extends ConsumerWidget {
           AnalyticGameVariant.cubeCount => const CubeCountScreen(),
           AnalyticGameVariant.balanceLogic => const BalanceLogicScreen(),
         },
-        MiniGameType.visual => const VisualSortScreen(),
+        MiniGameType.visual => switch (visualVariant) {
+          VisualGameVariant.visualSort => const VisualSortScreen(),
+          VisualGameVariant.colorClash => const ColorClashScreen(),
+        },
       },
       GamePhase.timesUp => const TimesUpScreen(),
       GamePhase.scoreScreen => const ScoreScreen(),
