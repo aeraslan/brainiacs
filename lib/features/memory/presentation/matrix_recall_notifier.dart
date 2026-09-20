@@ -19,7 +19,6 @@ class MatrixRecallState {
     required this.gridSize,
     this.litTileIndex,
     this.wrongTileIndex,
-    this.shakeToken = 0,
     this.successToken = 0,
     this.errorToken = 0,
     this.roundToken = 0,
@@ -56,7 +55,6 @@ class MatrixRecallState {
   final int gridSize;
   final int? litTileIndex;
   final int? wrongTileIndex;
-  final int shakeToken;
   final int successToken;
   final int errorToken;
   final int roundToken;
@@ -75,7 +73,6 @@ class MatrixRecallState {
     int? gridSize,
     int? litTileIndex,
     int? wrongTileIndex,
-    int? shakeToken,
     int? successToken,
     int? errorToken,
     int? roundToken,
@@ -92,7 +89,6 @@ class MatrixRecallState {
       litTileIndex: clearLitTile ? null : (litTileIndex ?? this.litTileIndex),
       wrongTileIndex:
           clearWrongTile ? null : (wrongTileIndex ?? this.wrongTileIndex),
-      shakeToken: shakeToken ?? this.shakeToken,
       successToken: successToken ?? this.successToken,
       errorToken: errorToken ?? this.errorToken,
       roundToken: roundToken ?? this.roundToken,
@@ -275,7 +271,6 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
 
     state = state.copyWith(
       wrongTileIndex: index,
-      shakeToken: state.shakeToken + 1,
       errorToken: state.errorToken + 1,
       isEvaluating: true,
       clearLitTile: true,

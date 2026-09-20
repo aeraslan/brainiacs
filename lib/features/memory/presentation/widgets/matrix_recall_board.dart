@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import 'candy_memory_tile.dart';
@@ -11,7 +10,6 @@ class MatrixRecallBoard extends StatelessWidget {
     required this.litTileIndex,
     required this.wrongTileIndex,
     required this.inputUnlocked,
-    required this.shakeToken,
     required this.onTileTapped,
     this.tileKeys,
   });
@@ -20,7 +18,6 @@ class MatrixRecallBoard extends StatelessWidget {
   final int? litTileIndex;
   final int? wrongTileIndex;
   final bool inputUnlocked;
-  final int shakeToken;
   final ValueChanged<int> onTileTapped;
   final List<GlobalKey>? tileKeys;
 
@@ -50,41 +47,35 @@ class MatrixRecallBoard extends StatelessWidget {
         final boardSide = (maxSide / popScale).clamp(140.0, 400.0);
         final cellInset = spacing * 0.35;
 
-        Widget grid = SizedBox(
-          width: boardSide,
-          height: boardSide,
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            clipBehavior: Clip.none,
-            itemCount: _tileCount,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: gridSize,
-              crossAxisSpacing: spacing,
-              mainAxisSpacing: spacing,
+        return Center(
+          child: SizedBox(
+            width: boardSide,
+            height: boardSide,
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              clipBehavior: Clip.none,
+              itemCount: _tileCount,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: gridSize,
+                crossAxisSpacing: spacing,
+                mainAxisSpacing: spacing,
+              ),
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: EdgeInsets.all(cellInset),
+                  child: CandyMemoryTile(
+                    key: _keyForTile(index),
+                    index: index,
+                    isLit: litTileIndex == index,
+                    isWrong: wrongTileIndex == index,
+                    enabled: inputUnlocked,
+                    onTap: () => onTileTapped(index),
+                  ),
+                );
+              },
             ),
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.all(cellInset),
-                child: CandyMemoryTile(
-                  key: _keyForTile(index),
-                  index: index,
-                  isLit: litTileIndex == index,
-                  isWrong: wrongTileIndex == index,
-                  enabled: inputUnlocked,
-                  onTap: () => onTileTapped(index),
-                ),
-              );
-            },
           ),
         );
-
-        if (shakeToken > 0) {
-          grid = grid
-              .animate(key: ValueKey('matrix-shake-$shakeToken'))
-              .shakeX(amount: 8, duration: 250.ms, hz: 6);
-        }
-
-        return Center(child: grid);
       },
     );
   }

@@ -187,9 +187,6 @@ class _MatrixRecallScreenState extends ConsumerState<MatrixRecallScreen> {
     final inputUnlocked = ref.watch(
       matrixRecallProvider.select((state) => state.inputUnlocked),
     );
-    final shakeToken = ref.watch(
-      matrixRecallProvider.select((state) => state.shakeToken),
-    );
     final phase = ref.watch(
       matrixRecallProvider.select((state) => state.phase),
     );
@@ -248,7 +245,6 @@ class _MatrixRecallScreenState extends ConsumerState<MatrixRecallScreen> {
                             litTileIndex: litTileIndex,
                             wrongTileIndex: wrongTileIndex,
                             inputUnlocked: inputUnlocked,
-                            shakeToken: shakeToken,
                             onTileTapped: _onTileTapped,
                             tileKeys: widget.isTutorial ? _tileKeys : null,
                           ),
