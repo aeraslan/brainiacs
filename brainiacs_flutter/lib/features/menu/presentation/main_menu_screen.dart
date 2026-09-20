@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/rank/title_progress_notifier.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../shared/widgets/candy_button.dart';
 import 'widgets/animated_background_elements.dart';
 import 'widgets/candy_new_game_button.dart';
+import 'widgets/current_rank_pill.dart';
 
 class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
@@ -15,6 +17,9 @@ class MainMenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
+    final highestTitle = ref.watch(
+      titleProgressProvider.select((s) => s.highestTitle),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -73,6 +78,8 @@ class MainMenuScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                     style: textTheme.bodyLarge,
                   ),
+                  const SizedBox(height: AppSpacing.md),
+                  Center(child: CurrentRankPill(tier: highestTitle)),
                   const Spacer(),
                   CandyNewGameButton(
                         onPressed: () {

@@ -4,14 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/rank/title_progress_notifier.dart';
+import '../../../core/rank/title_tier.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../core/session/game_session_state.dart';
 import '../../../shared/widgets/candy_button.dart';
-import 'widgets/daily_streak_chip.dart';
-import 'widgets/end_match_celebration.dart';
 import 'widgets/personal_best_badge.dart';
+import 'widgets/end_match_celebration.dart';
+import 'widgets/rank_defend_chip.dart';
 import 'widgets/score_breakdown_panel.dart';
 import 'widgets/score_count_up.dart';
+import 'widgets/title_reveal_pill.dart';
 
 class ScoreScreen extends ConsumerWidget {
   const ScoreScreen({super.key});
@@ -27,6 +30,10 @@ class ScoreScreen extends ConsumerWidget {
     final scoresByGame = ref.watch(
       gameSessionProvider.select((s) => s.scoresByGame),
     );
+    final titleProgress = ref.watch(titleProgressProvider);
+    final sessionTitle =
+        titleProgress.lastSessionTitle ?? TitleTier.fromScore(totalScore);
+    final daysLeft = titleProgress.daysLeftToDefend(ref.read(clockProvider)());
     final headline = timeRemaining > 0 ? 'Game Over' : "Time's Up!";
 
     return Scaffold(
@@ -49,6 +56,9 @@ class ScoreScreen extends ConsumerWidget {
                         headline: headline,
                         totalScore: totalScore,
                         scoresByGame: scoresByGame,
+                        sessionTitle: sessionTitle,
+                        unlockedNewRank: titleProgress.unlockedNewRank,
+                        daysLeftToDefend: daysLeft,
                         onPlayAgain: () {
                           ref.read(gameSessionProvider.notifier).startGame();
                         },
@@ -73,6 +83,9 @@ class _ScoreHubContent extends StatelessWidget {
     required this.headline,
     required this.totalScore,
     required this.scoresByGame,
+    required this.sessionTitle,
+    required this.unlockedNewRank,
+    required this.daysLeftToDefend,
     required this.onPlayAgain,
     required this.onMenu,
   });
@@ -80,6 +93,9 @@ class _ScoreHubContent extends StatelessWidget {
   final String headline;
   final int totalScore;
   final Map<MiniGameType, int> scoresByGame;
+  final TitleTier sessionTitle;
+  final bool unlockedNewRank;
+  final int? daysLeftToDefend;
   final VoidCallback onPlayAgain;
   final VoidCallback onMenu;
 
@@ -102,12 +118,23 @@ class _ScoreHubContent extends StatelessWidget {
               duration: 320.ms,
               curve: Curves.easeOutBack,
             ),
-        const SizedBox(height: AppSpacing.md),
-        const Center(child: PersonalBestBadge()),
+        if (unlockedNewRank) ...[
+          const SizedBox(height: AppSpacing.md),
+          const Center(child: PersonalBestBadge()),
+        ],
         const SizedBox(height: AppSpacing.lg),
         ScoreCountUp(target: totalScore),
         const SizedBox(height: AppSpacing.md),
-        const Center(child: DailyStreakChip()),
+        Center(
+          child: TitleRevealPill(
+            tier: sessionTitle,
+            revealDelay: ScoreCountUp.countDuration,
+          ),
+        ),
+        if (daysLeftToDefend != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          Center(child: RankDefendChip(daysLeft: daysLeftToDefend!)),
+        ],
         const SizedBox(height: AppSpacing.lg),
         ScoreBreakdownPanel(scoresByGame: scoresByGame),
         const SizedBox(height: AppSpacing.xl),

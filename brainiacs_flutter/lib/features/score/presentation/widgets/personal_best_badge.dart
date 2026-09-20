@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 
-/// Placeholder retention badge — always shown with a continuous shimmer.
+/// Candy "New Rank Unlocked!" badge shown when the player breaks their record.
 class PersonalBestBadge extends StatelessWidget {
   const PersonalBestBadge({super.key});
 
@@ -43,7 +43,7 @@ class PersonalBestBadge extends StatelessWidget {
             ),
             SizedBox(width: AppSpacing.xs),
             Text(
-              'New Personal Best!',
+              'New Rank Unlocked!',
               style: TextStyle(
                 color: AppColors.onAccent,
                 fontWeight: FontWeight.w800,

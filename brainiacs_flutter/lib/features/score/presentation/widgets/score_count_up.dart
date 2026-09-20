@@ -13,6 +13,9 @@ class ScoreCountUp extends StatelessWidget {
 
   final int target;
 
+  /// Duration of the count-up — title reveal should start after this.
+  static const Duration countDuration = Duration(milliseconds: 900);
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -34,7 +37,7 @@ class ScoreCountUp extends StatelessWidget {
           )
               .animate()
               .custom(
-                duration: 900.ms,
+                duration: countDuration,
                 curve: Curves.easeOutCubic,
                 begin: 0,
                 end: target.toDouble(),

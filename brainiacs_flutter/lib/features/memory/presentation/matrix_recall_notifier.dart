@@ -238,6 +238,11 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
       clearWrongTile: true,
     );
 
+    // Pay per correct tile so Matrix Recall matches Card Match granularity.
+    ref
+        .read(gameSessionProvider.notifier)
+        .addScore(MatrixRecallState.correctPoints);
+
     if (!completed) {
       final generation = _generation;
       Future<void>.delayed(const Duration(milliseconds: 180), () {
@@ -253,10 +258,6 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
       });
       return;
     }
-
-    ref
-        .read(gameSessionProvider.notifier)
-        .addScore(MatrixRecallState.correctPoints);
 
     final generation = _generation;
     Future<void>(() async {

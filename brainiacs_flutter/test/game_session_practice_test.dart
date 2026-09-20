@@ -1,7 +1,10 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:brainiacs_flutter/core/rank/title_progress_notifier.dart';
+import 'package:brainiacs_flutter/core/rank/title_tier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_notifier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_state.dart';
 
@@ -9,6 +12,7 @@ void main() {
   late ProviderContainer container;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     container = ProviderContainer();
   });
 
@@ -140,6 +144,43 @@ void main() {
 
     notifier.nextGame();
     expect(container.read(gameSessionProvider).phase, GamePhase.scoreScreen);
+  });
+
+  test('practice endSessionEarly does not record rank progress', () async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    final session = container.read(gameSessionProvider.notifier);
+    session.startPractice(type: MiniGameType.math);
+    session.beginPlaying();
+    session.addScore(5000);
+    session.endSessionEarly();
+
+    expect(container.read(gameSessionProvider).phase, GamePhase.practiceMenu);
+    final title = container.read(titleProgressProvider);
+    expect(title.highestTitle, TitleTier.dormantMind);
+    expect(title.lastSessionTitle, isNull);
+    expect(title.unlockedNewRank, isFalse);
+  });
+
+  test('core-loop endRun records session title from totalScore', () async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    final session = container.read(gameSessionProvider.notifier);
+    session.startGame();
+    session.beginPlaying();
+    // Drive enough score for Active Neuron (4500+).
+    for (var i = 0; i < 45; i++) {
+      session.addScore(100);
+    }
+    session.endRun();
+
+    expect(container.read(gameSessionProvider).phase, GamePhase.scoreScreen);
+    final title = container.read(titleProgressProvider);
+    expect(title.lastSessionTitle, TitleTier.activeNeuron);
+    expect(title.highestTitle, TitleTier.activeNeuron);
+    expect(title.unlockedNewRank, isTrue);
   });
 
   test('pause freezes timer; resume continues from frozen value', () {

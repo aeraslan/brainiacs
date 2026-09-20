@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../rank/title_progress_notifier.dart';
 import 'game_session_state.dart';
 
 class GameSessionNotifier extends Notifier<GameSessionState> {
@@ -16,6 +17,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
 
   void startGame() {
     _cancelTimer();
+    ref.read(titleProgressProvider.notifier).applyDecayIfNeeded();
     final rng = Random();
     final mathVariant = rng.nextBool()
         ? MathGameVariant.quickMath
@@ -142,6 +144,11 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
 
   void endRun() {
     _cancelTimer();
+    if (!state.isPracticeMode) {
+      ref
+          .read(titleProgressProvider.notifier)
+          .recordLoopScore(state.totalScore);
+    }
     state = state.copyWith(phase: GamePhase.scoreScreen, isPaused: false);
   }
 

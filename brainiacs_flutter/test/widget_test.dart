@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:brainiacs_flutter/main.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('Brainiacs app loads menu screen', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: BrainiacsApp()));
 
@@ -13,6 +18,7 @@ void main() {
     expect(find.text('Practice'), findsOneWidget);
     expect(find.byTooltip('Leaderboard'), findsOneWidget);
     expect(find.text('Profile/Stats'), findsOneWidget);
+    expect(find.text('Dormant Mind'), findsOneWidget);
 
     // Repeating flutter_animate timers / delayed starts must be disposed before teardown.
     await tester.pumpWidget(const SizedBox.shrink());
