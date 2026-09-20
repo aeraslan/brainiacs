@@ -40,6 +40,7 @@ class PracticeMenuScreen extends ConsumerWidget {
       label: 'Cards',
       icon: Icons.style_rounded,
       type: MiniGameType.memory,
+      memoryVariant: MemoryGameVariant.cardMatch,
       gradientColors: [
         Color(0xFF7DD3E8),
         AppColors.electricBlue,
@@ -48,15 +49,40 @@ class PracticeMenuScreen extends ConsumerWidget {
       softShadowColor: Color(0x3345B7D1),
     ),
     _PracticeGameCatalogItem(
+      label: 'Recall',
+      icon: Icons.grid_view_rounded,
+      type: MiniGameType.memory,
+      memoryVariant: MemoryGameVariant.matrixRecall,
+      gradientColors: [
+        Color(0xFFA8E6A3),
+        AppColors.mint,
+        Color(0xFF2BA89F),
+      ],
+      softShadowColor: Color(0x334ECDC4),
+    ),
+    _PracticeGameCatalogItem(
       label: 'Cube Count',
       icon: Icons.view_in_ar_rounded,
       type: MiniGameType.analytical,
+      analyticVariant: AnalyticGameVariant.cubeCount,
       gradientColors: [
         Color(0xFFB57AEE),
         AppColors.vibrantPurple,
         Color(0xFF7A45C4),
       ],
       softShadowColor: Color(0x339B5DE5),
+    ),
+    _PracticeGameCatalogItem(
+      label: 'Balance',
+      icon: Icons.balance_rounded,
+      type: MiniGameType.analytical,
+      analyticVariant: AnalyticGameVariant.balanceLogic,
+      gradientColors: [
+        Color(0xFFFFBE7D),
+        AppColors.coral,
+        Color(0xFFE84E4E),
+      ],
+      softShadowColor: Color(0x33FF6B6B),
     ),
     _PracticeGameCatalogItem(
       label: 'Asteroids',
@@ -129,6 +155,8 @@ class PracticeMenuScreen extends ConsumerWidget {
                                 .startPractice(
                                   type: _catalog[i].type,
                                   mathVariant: _catalog[i].mathVariant,
+                                  analyticVariant: _catalog[i].analyticVariant,
+                                  memoryVariant: _catalog[i].memoryVariant,
                                 );
                           },
                         )
@@ -162,12 +190,16 @@ class _PracticeGameCatalogItem {
     required this.gradientColors,
     required this.softShadowColor,
     this.mathVariant = MathGameVariant.quickMath,
+    this.analyticVariant = AnalyticGameVariant.cubeCount,
+    this.memoryVariant = MemoryGameVariant.cardMatch,
   });
 
   final String label;
   final IconData icon;
   final MiniGameType type;
   final MathGameVariant mathVariant;
+  final AnalyticGameVariant analyticVariant;
+  final MemoryGameVariant memoryVariant;
   final List<Color> gradientColors;
   final Color softShadowColor;
 }

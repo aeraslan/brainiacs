@@ -13,6 +13,12 @@ enum MiniGameType { math, memory, analytical, visual }
 /// Which Math family game fills the Math stage for this run.
 enum MathGameVariant { quickMath, missingOperator }
 
+/// Which Analytic family game fills the Analytic stage for this run.
+enum AnalyticGameVariant { cubeCount, balanceLogic }
+
+/// Which Memory family game fills the Memory stage for this run.
+enum MemoryGameVariant { cardMatch, matrixRecall }
+
 class GameSessionState {
   const GameSessionState({
     required this.totalScore,
@@ -22,6 +28,8 @@ class GameSessionState {
     required this.currentIndex,
     required this.scoresByGame,
     required this.mathVariant,
+    required this.analyticVariant,
+    required this.memoryVariant,
     this.isPracticeMode = false,
     this.isPaused = false,
   });
@@ -35,6 +43,8 @@ class GameSessionState {
       currentIndex: 0,
       scoresByGame: emptyScoresByGame,
       mathVariant: MathGameVariant.quickMath,
+      analyticVariant: AnalyticGameVariant.cubeCount,
+      memoryVariant: MemoryGameVariant.cardMatch,
     );
   }
 
@@ -62,6 +72,8 @@ class GameSessionState {
   final int currentIndex;
   final Map<MiniGameType, int> scoresByGame;
   final MathGameVariant mathVariant;
+  final AnalyticGameVariant analyticVariant;
+  final MemoryGameVariant memoryVariant;
   final bool isPracticeMode;
   final bool isPaused;
 
@@ -83,6 +95,8 @@ class GameSessionState {
     int? currentIndex,
     Map<MiniGameType, int>? scoresByGame,
     MathGameVariant? mathVariant,
+    AnalyticGameVariant? analyticVariant,
+    MemoryGameVariant? memoryVariant,
     bool? isPracticeMode,
     bool? isPaused,
   }) {
@@ -94,6 +108,8 @@ class GameSessionState {
       currentIndex: currentIndex ?? this.currentIndex,
       scoresByGame: scoresByGame ?? this.scoresByGame,
       mathVariant: mathVariant ?? this.mathVariant,
+      analyticVariant: analyticVariant ?? this.analyticVariant,
+      memoryVariant: memoryVariant ?? this.memoryVariant,
       isPracticeMode: isPracticeMode ?? this.isPracticeMode,
       isPaused: isPaused ?? this.isPaused,
     );

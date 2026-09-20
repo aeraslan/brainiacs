@@ -27,6 +27,19 @@ class TutorialPointerController {
   }
 
   Future<bool> tapKey(GlobalKey key) async {
+    final moved = await moveToKey(key);
+    if (!moved) {
+      return false;
+    }
+
+    isPressing.value = true;
+    await Future<void>.delayed(pressDuration);
+    isPressing.value = false;
+    return true;
+  }
+
+  /// Moves the pointer to [key] without pressing (e.g. rest spot off the board).
+  Future<bool> moveToKey(GlobalKey key) async {
     final target = centerOf(key);
     if (target == null) {
       return false;
@@ -38,9 +51,6 @@ class TutorialPointerController {
     if (settled != null) {
       position.value = settled;
     }
-    isPressing.value = true;
-    await Future<void>.delayed(pressDuration);
-    isPressing.value = false;
     return true;
   }
 

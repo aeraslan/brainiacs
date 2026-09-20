@@ -6,7 +6,8 @@ import '../../core/constants/app_spacing.dart';
 
 /// One-shot correct/wrong juice on the answer display, driven by Riverpod tokens.
 ///
-/// - Correct: pop/bounce + shimmer + floating "+points" rising up
+/// - Correct (default): pop/bounce + shimmer + tint on [child] + floating "+points"
+/// - Correct ([successOverlay]): leave [child] untouched; show overlay (e.g. checkmark)
 /// - Wrong: shakeX + floating penalty dropping down
 ///
 /// Pass a stable [contentKey] for the current question so leftover juice is
@@ -20,6 +21,8 @@ class AnswerFeedbackBurst extends StatefulWidget {
     this.errorToken = 0,
     this.points = 100,
     this.penalty = -20,
+    this.applySuccessEffectsToChild = true,
+    this.successOverlay,
   });
 
   final Widget child;
@@ -28,6 +31,12 @@ class AnswerFeedbackBurst extends StatefulWidget {
   final int errorToken;
   final int points;
   final int penalty;
+
+  /// When false, success juice does not scale/tint [child] (use [successOverlay]).
+  final bool applySuccessEffectsToChild;
+
+  /// Optional overlay shown on success (e.g. a large checkmark). Centered in stack.
+  final Widget? successOverlay;
 
   @override
   State<AnswerFeedbackBurst> createState() => _AnswerFeedbackBurstState();
@@ -82,7 +91,7 @@ class _AnswerFeedbackBurstState extends State<AnswerFeedbackBurst> {
       child: widget.child,
     );
 
-    if (successToken != null) {
+    if (successToken != null && widget.applySuccessEffectsToChild) {
       content = content
           .animate(
             key: ValueKey('correct-burst-$successToken'),
@@ -115,11 +124,32 @@ class _AnswerFeedbackBurstState extends State<AnswerFeedbackBurst> {
           .shakeX(amount: 8, duration: 250.ms, hz: 6);
     }
 
+    final overlay = widget.successOverlay;
+    final showSuccessOverlay =
+        successToken != null && overlay != null && !widget.applySuccessEffectsToChild;
+
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
         content,
+        if (showSuccessOverlay)
+          IgnorePointer(
+            child: overlay
+                .animate(
+                  key: ValueKey('correct-overlay-$successToken'),
+                  onComplete: (_) => _onSuccessComplete(),
+                )
+                .fadeIn(duration: 80.ms)
+                .scale(
+                  begin: const Offset(0.35, 0.35),
+                  end: const Offset(1, 1),
+                  duration: 320.ms,
+                  curve: Curves.easeOutBack,
+                )
+                .then(delay: 120.ms)
+                .fadeOut(duration: 180.ms),
+          ),
         if (successToken != null)
           Positioned(
             top: -AppSpacing.lg,

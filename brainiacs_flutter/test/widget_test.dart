@@ -19,7 +19,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
   });
 
-  testWidgets('Practice button opens practice menu with five game tiles', (
+  testWidgets('Practice button opens practice menu with game tiles', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const ProviderScope(child: BrainiacsApp()));
@@ -32,7 +32,23 @@ void main() {
     expect(find.text('Quick Ops'), findsOneWidget);
     expect(find.text('Missing Op'), findsOneWidget);
     expect(find.text('Cards'), findsOneWidget);
+    expect(find.text('Recall'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Cube Count'),
+      80,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pump();
     expect(find.text('Cube Count'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Balance'),
+      80,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pump();
+    expect(find.text('Balance'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Asteroids'),

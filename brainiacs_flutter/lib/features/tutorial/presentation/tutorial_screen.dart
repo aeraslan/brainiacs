@@ -8,10 +8,12 @@ import '../../../core/session/game_session_state.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
 import '../../../shared/widgets/countdown_overlay.dart';
 import '../../../shared/widgets/game_screen_background.dart';
+import '../../analytical/presentation/balance_logic_screen.dart';
 import '../../analytical/presentation/cube_count_screen.dart';
 import '../../math/presentation/missing_operator_screen.dart';
 import '../../math/presentation/quick_math_screen.dart';
 import '../../memory/presentation/card_match_screen.dart';
+import '../../memory/presentation/matrix_recall_screen.dart';
 import '../../visual/presentation/visual_colors.dart';
 import '../../visual/presentation/visual_sort_screen.dart';
 
@@ -70,13 +72,24 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     final mathVariant = ref.watch(
       gameSessionProvider.select((state) => state.mathVariant),
     );
+    final analyticVariant = ref.watch(
+      gameSessionProvider.select((state) => state.analyticVariant),
+    );
+    final memoryVariant = ref.watch(
+      gameSessionProvider.select((state) => state.memoryVariant),
+    );
     final stageNumber = ref.watch(
       gameSessionProvider.select((state) => state.stageNumber),
     );
     final stageCount = ref.watch(
       gameSessionProvider.select((state) => state.stageCount),
     );
-    final copy = _TutorialCopy.forType(currentGame, mathVariant: mathVariant);
+    final copy = _TutorialCopy.forType(
+      currentGame,
+      mathVariant: mathVariant,
+      analyticVariant: analyticVariant,
+      memoryVariant: memoryVariant,
+    );
 
     if (_showCountdown) {
       return Scaffold(
@@ -124,6 +137,8 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                           child: _TutorialGameHost(
                             type: currentGame,
                             mathVariant: mathVariant,
+                            analyticVariant: analyticVariant,
+                            memoryVariant: memoryVariant,
                             autoPlay: true,
                             pointerController: _pointerController,
                           ),
@@ -206,12 +221,16 @@ class _TutorialGameHost extends StatelessWidget {
   const _TutorialGameHost({
     required this.type,
     required this.mathVariant,
+    required this.analyticVariant,
+    required this.memoryVariant,
     required this.autoPlay,
     required this.pointerController,
   });
 
   final MiniGameType type;
   final MathGameVariant mathVariant;
+  final AnalyticGameVariant analyticVariant;
+  final MemoryGameVariant memoryVariant;
   final bool autoPlay;
   final TutorialPointerController pointerController;
 
@@ -230,16 +249,30 @@ class _TutorialGameHost extends StatelessWidget {
           pointerController: pointerController,
         ),
       },
-      MiniGameType.memory => CardMatchScreen(
-        isTutorial: true,
-        autoPlay: autoPlay,
-        pointerController: pointerController,
-      ),
-      MiniGameType.analytical => CubeCountScreen(
-        isTutorial: true,
-        autoPlay: autoPlay,
-        pointerController: pointerController,
-      ),
+      MiniGameType.memory => switch (memoryVariant) {
+        MemoryGameVariant.cardMatch => CardMatchScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+        MemoryGameVariant.matrixRecall => MatrixRecallScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+      },
+      MiniGameType.analytical => switch (analyticVariant) {
+        AnalyticGameVariant.cubeCount => CubeCountScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+        AnalyticGameVariant.balanceLogic => BalanceLogicScreen(
+          isTutorial: true,
+          autoPlay: autoPlay,
+          pointerController: pointerController,
+        ),
+      },
       MiniGameType.visual => VisualSortScreen(
         isTutorial: true,
         autoPlay: autoPlay,
@@ -257,6 +290,8 @@ class _TutorialCopy {
   static _TutorialCopy forType(
     MiniGameType type, {
     MathGameVariant mathVariant = MathGameVariant.quickMath,
+    AnalyticGameVariant analyticVariant = AnalyticGameVariant.cubeCount,
+    MemoryGameVariant memoryVariant = MemoryGameVariant.cardMatch,
   }) {
     return switch (type) {
       MiniGameType.math => switch (mathVariant) {
@@ -267,12 +302,22 @@ class _TutorialCopy {
           instruction: 'Pick the missing operator.',
         ),
       },
-      MiniGameType.memory => const _TutorialCopy(
-        instruction: 'Memorize the cards and match them.',
-      ),
-      MiniGameType.analytical => const _TutorialCopy(
-        instruction: 'Count how many cubes are on the screen.',
-      ),
+      MiniGameType.memory => switch (memoryVariant) {
+        MemoryGameVariant.cardMatch => const _TutorialCopy(
+          instruction: 'Memorize the cards and match them.',
+        ),
+        MemoryGameVariant.matrixRecall => const _TutorialCopy(
+          instruction: 'Watch the sequence, then tap it back.',
+        ),
+      },
+      MiniGameType.analytical => switch (analyticVariant) {
+        AnalyticGameVariant.cubeCount => const _TutorialCopy(
+          instruction: 'Count how many cubes are on the screen.',
+        ),
+        AnalyticGameVariant.balanceLogic => const _TutorialCopy(
+          instruction: 'Pick the heaviest object.',
+        ),
+      },
       MiniGameType.visual => const _TutorialCopy(
         instruction: 'Tap the asteroids in ascending order.',
       ),

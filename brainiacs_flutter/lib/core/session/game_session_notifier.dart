@@ -16,9 +16,16 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
 
   void startGame() {
     _cancelTimer();
-    final mathVariant = Random().nextBool()
+    final rng = Random();
+    final mathVariant = rng.nextBool()
         ? MathGameVariant.quickMath
         : MathGameVariant.missingOperator;
+    final analyticVariant = rng.nextBool()
+        ? AnalyticGameVariant.cubeCount
+        : AnalyticGameVariant.balanceLogic;
+    final memoryVariant = rng.nextBool()
+        ? MemoryGameVariant.cardMatch
+        : MemoryGameVariant.matrixRecall;
     state = GameSessionState(
       totalScore: 0,
       timeRemaining: GameSessionState.maxTimeLimit,
@@ -29,6 +36,8 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
         GameSessionState.emptyScoresByGame,
       ),
       mathVariant: mathVariant,
+      analyticVariant: analyticVariant,
+      memoryVariant: memoryVariant,
     );
   }
 
@@ -44,6 +53,8 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
         GameSessionState.emptyScoresByGame,
       ),
       mathVariant: MathGameVariant.quickMath,
+      analyticVariant: AnalyticGameVariant.cubeCount,
+      memoryVariant: MemoryGameVariant.cardMatch,
       isPracticeMode: true,
     );
   }
@@ -51,6 +62,8 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
   void startPractice({
     required MiniGameType type,
     MathGameVariant mathVariant = MathGameVariant.quickMath,
+    AnalyticGameVariant analyticVariant = AnalyticGameVariant.cubeCount,
+    MemoryGameVariant memoryVariant = MemoryGameVariant.cardMatch,
   }) {
     _cancelTimer();
     state = GameSessionState(
@@ -63,6 +76,8 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
         GameSessionState.emptyScoresByGame,
       ),
       mathVariant: mathVariant,
+      analyticVariant: analyticVariant,
+      memoryVariant: memoryVariant,
       isPracticeMode: true,
     );
   }

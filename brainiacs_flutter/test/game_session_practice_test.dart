@@ -31,6 +31,36 @@ void main() {
     expect(state.currentRunSequence, [MiniGameType.memory]);
   });
 
+  test('startPractice with balanceLogic sets analyticVariant', () {
+    final notifier = container.read(gameSessionProvider.notifier);
+
+    notifier.startPractice(
+      type: MiniGameType.analytical,
+      analyticVariant: AnalyticGameVariant.balanceLogic,
+    );
+
+    final state = container.read(gameSessionProvider);
+    expect(state.phase, GamePhase.countdown);
+    expect(state.isPracticeMode, isTrue);
+    expect(state.currentGame, MiniGameType.analytical);
+    expect(state.analyticVariant, AnalyticGameVariant.balanceLogic);
+  });
+
+  test('startPractice with matrixRecall sets memoryVariant', () {
+    final notifier = container.read(gameSessionProvider.notifier);
+
+    notifier.startPractice(
+      type: MiniGameType.memory,
+      memoryVariant: MemoryGameVariant.matrixRecall,
+    );
+
+    final state = container.read(gameSessionProvider);
+    expect(state.phase, GamePhase.countdown);
+    expect(state.isPracticeMode, isTrue);
+    expect(state.currentGame, MiniGameType.memory);
+    expect(state.memoryVariant, MemoryGameVariant.matrixRecall);
+  });
+
   test('beginPlaying after practice countdown starts the timer phase', () {
     final notifier = container.read(gameSessionProvider.notifier);
 

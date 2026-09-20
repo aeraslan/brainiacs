@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/session/game_session_notifier.dart';
 import 'core/session/game_session_state.dart';
 import 'core/theme/app_theme.dart';
+import 'features/analytical/presentation/balance_logic_screen.dart';
 import 'features/analytical/presentation/cube_count_screen.dart';
 import 'features/math/presentation/missing_operator_screen.dart';
 import 'features/math/presentation/quick_math_screen.dart';
 import 'features/memory/presentation/card_match_screen.dart';
+import 'features/memory/presentation/matrix_recall_screen.dart';
 import 'features/menu/presentation/main_menu_screen.dart';
 import 'features/menu/presentation/practice_countdown_screen.dart';
 import 'features/menu/presentation/practice_menu_screen.dart';
@@ -46,6 +48,12 @@ class HomeShell extends ConsumerWidget {
     final mathVariant = ref.watch(
       gameSessionProvider.select((state) => state.mathVariant),
     );
+    final analyticVariant = ref.watch(
+      gameSessionProvider.select((state) => state.analyticVariant),
+    );
+    final memoryVariant = ref.watch(
+      gameSessionProvider.select((state) => state.memoryVariant),
+    );
 
     return switch (phase) {
       GamePhase.menu => const MainMenuScreen(),
@@ -57,8 +65,14 @@ class HomeShell extends ConsumerWidget {
           MathGameVariant.quickMath => const QuickMathScreen(),
           MathGameVariant.missingOperator => const MissingOperatorScreen(),
         },
-        MiniGameType.memory => const CardMatchScreen(),
-        MiniGameType.analytical => const CubeCountScreen(),
+        MiniGameType.memory => switch (memoryVariant) {
+          MemoryGameVariant.cardMatch => const CardMatchScreen(),
+          MemoryGameVariant.matrixRecall => const MatrixRecallScreen(),
+        },
+        MiniGameType.analytical => switch (analyticVariant) {
+          AnalyticGameVariant.cubeCount => const CubeCountScreen(),
+          AnalyticGameVariant.balanceLogic => const BalanceLogicScreen(),
+        },
         MiniGameType.visual => const VisualSortScreen(),
       },
       GamePhase.timesUp => const TimesUpScreen(),
