@@ -12,6 +12,7 @@ import '../../../shared/widgets/candy_button.dart';
 import 'widgets/personal_best_badge.dart';
 import 'widgets/end_match_celebration.dart';
 import 'widgets/rank_defend_chip.dart';
+import 'widgets/rank_reveal_dialog.dart';
 import 'widgets/score_breakdown_panel.dart';
 import 'widgets/score_count_up.dart';
 import 'widgets/title_reveal_pill.dart';
@@ -125,12 +126,7 @@ class _ScoreHubContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         ScoreCountUp(target: totalScore),
         const SizedBox(height: AppSpacing.md),
-        Center(
-          child: TitleRevealPill(
-            tier: sessionTitle,
-            revealDelay: ScoreCountUp.countDuration,
-          ),
-        ),
+        _RankRevealHost(earnedTitle: sessionTitle),
         if (daysLeftToDefend != null) ...[
           const SizedBox(height: AppSpacing.md),
           Center(child: RankDefendChip(daysLeft: daysLeftToDefend!)),
@@ -148,5 +144,63 @@ class _ScoreHubContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl),
       ],
     );
+  }
+}
+
+/// Opens [RankRevealDialog] once after the score count-up, then shows a
+/// static [TitleRevealPill] so the hub still displays the earned rank.
+class _RankRevealHost extends StatefulWidget {
+  const _RankRevealHost({required this.earnedTitle});
+
+  final TitleTier earnedTitle;
+
+  @override
+  State<_RankRevealHost> createState() => _RankRevealHostState();
+}
+
+class _RankRevealHostState extends State<_RankRevealHost> {
+  /// Approximate height of [TitleRevealPill] to avoid layout jump.
+  static const double _pillPlaceholderHeight = 56;
+
+  /// Extra beat after the score finishes counting so the total can land
+  /// before the rank spin steals focus.
+  static const Duration _postScorePause = Duration(milliseconds: 900);
+
+  bool _dialogShown = false;
+  bool _revealComplete = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleReveal());
+  }
+
+  Future<void> _scheduleReveal() async {
+    if (_dialogShown || !mounted) {
+      return;
+    }
+    await Future<void>.delayed(ScoreCountUp.countDuration + _postScorePause);
+    if (!mounted || _dialogShown) {
+      return;
+    }
+    _dialogShown = true;
+    await RankRevealDialog.show(context, earnedTitle: widget.earnedTitle);
+    if (!mounted) {
+      return;
+    }
+    setState(() => _revealComplete = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_revealComplete) {
+      return Center(
+        child: TitleRevealPill(
+          tier: widget.earnedTitle,
+          revealDelay: Duration.zero,
+        ),
+      );
+    }
+    return const SizedBox(height: _pillPlaceholderHeight);
   }
 }

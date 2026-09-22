@@ -101,6 +101,11 @@ class CubeCountNotifier extends Notifier<CubeCountState> {
       userInput: '',
     );
   }
+
+  /// Discard the current puzzle and generate a new one at the same level.
+  void rerollCurrent() {
+    onIncorrect();
+  }
 }
 
 final cubeCountProvider =

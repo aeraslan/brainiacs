@@ -102,6 +102,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       timeRemaining: GameSessionState.maxTimeLimit,
       phase: GamePhase.playing,
       isPaused: false,
+      pauseCount: 0,
     );
     _startPeriodicTimer();
   }
@@ -111,13 +112,42 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       return;
     }
     _cancelTimer();
-    state = state.copyWith(isPaused: true);
+    state = state.copyWith(
+      isPaused: true,
+      pauseCount: state.pauseCount + 1,
+    );
   }
 
   void resumeGame() {
     if (state.phase != GamePhase.playing || !state.isPaused) {
       return;
     }
+
+    final applyPenalty = state.pauseCount >= 2;
+    if (applyPenalty) {
+      final nextTime = state.timeRemaining -
+          GameSessionState.pauseTimePenaltySeconds;
+      if (nextTime <= 0) {
+        _cancelTimer();
+        state = state.copyWith(
+          timeRemaining: 0,
+          phase: GamePhase.timesUp,
+          isPaused: false,
+          timePenaltyToken: state.timePenaltyToken + 1,
+        );
+        _timer = Timer(GameSessionState.timesUpDuration, _afterTimesUp);
+        return;
+      }
+
+      state = state.copyWith(
+        isPaused: false,
+        timeRemaining: nextTime,
+        timePenaltyToken: state.timePenaltyToken + 1,
+      );
+      _startPeriodicTimer();
+      return;
+    }
+
     state = state.copyWith(isPaused: false);
     _startPeriodicTimer();
   }
@@ -139,6 +169,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       timeRemaining: GameSessionState.maxTimeLimit,
       phase: GamePhase.tutorial,
       isPaused: false,
+      pauseCount: 0,
     );
   }
 

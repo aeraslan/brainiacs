@@ -36,6 +36,8 @@ class GameSessionState {
     required this.visualVariant,
     this.isPracticeMode = false,
     this.isPaused = false,
+    this.pauseCount = 0,
+    this.timePenaltyToken = 0,
   });
 
   factory GameSessionState.initial() {
@@ -54,6 +56,7 @@ class GameSessionState {
   }
 
   static const int maxTimeLimit = 60;
+  static const int pauseTimePenaltySeconds = 3;
   static const Duration timesUpDuration = Duration(seconds: 2);
 
   static const List<MiniGameType> defaultRunSequence = [
@@ -82,6 +85,8 @@ class GameSessionState {
   final VisualGameVariant visualVariant;
   final bool isPracticeMode;
   final bool isPaused;
+  final int pauseCount;
+  final int timePenaltyToken;
 
   MiniGameType get currentGame => currentRunSequence[currentIndex];
 
@@ -106,6 +111,8 @@ class GameSessionState {
     VisualGameVariant? visualVariant,
     bool? isPracticeMode,
     bool? isPaused,
+    int? pauseCount,
+    int? timePenaltyToken,
   }) {
     return GameSessionState(
       totalScore: totalScore ?? this.totalScore,
@@ -120,6 +127,8 @@ class GameSessionState {
       visualVariant: visualVariant ?? this.visualVariant,
       isPracticeMode: isPracticeMode ?? this.isPracticeMode,
       isPaused: isPaused ?? this.isPaused,
+      pauseCount: pauseCount ?? this.pauseCount,
+      timePenaltyToken: timePenaltyToken ?? this.timePenaltyToken,
     );
   }
 }

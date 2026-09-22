@@ -225,7 +225,9 @@ class _BalanceLogicScreenState extends ConsumerState<BalanceLogicScreen> {
                   const SizedBox(height: AppSpacing.md),
                 ],
                 Expanded(
-                  flex: widget.isTutorial ? 5 : 4,
+                  // Board needs the larger share so L3/L4 trees (3 scales) fit
+                  // under the HUD without clipping tilted pans.
+                  flex: 5,
                   child: AnswerFeedbackBurst(
                     successToken: successToken,
                     errorToken: errorToken,
@@ -250,7 +252,7 @@ class _BalanceLogicScreenState extends ConsumerState<BalanceLogicScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Expanded(
-                  flex: widget.isTutorial ? 4 : 5,
+                  flex: 4,
                   child: ObjectPad(
                     choices: puzzle.choices,
                     enabled: _isAcceptingInput,

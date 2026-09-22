@@ -201,6 +201,12 @@ class VisualSortNotifier extends Notifier<VisualSortState> {
       boardGeneration: state.boardGeneration + 1,
     );
   }
+
+  /// Discard the current board and spawn a new one at the same level.
+  void rerollCurrent() {
+    _evaluationGeneration++;
+    _spawnBoard(state.currentLevel);
+  }
 }
 
 final visualSortProvider =

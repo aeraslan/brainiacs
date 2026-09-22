@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -78,7 +80,12 @@ class CandyScale extends StatelessWidget {
 
     final panStackHeight = itemSize + panHeight * 0.45;
     final armHeight = panStackHeight + beamHeight * 0.5;
-    final tiltMargin = scaleWidth * 0.12;
+    // Rotation about the arm base lifts the high pan; reserve that rise at the
+    // *top* of the box (see Align below). θ = tiltTurns * 2π.
+    final tiltRadians = tiltTurns * 2 * math.pi;
+    final tiltRise = (scaleWidth * 0.5) * math.sin(tiltRadians) +
+        armHeight * (1 - math.cos(tiltRadians));
+    final tiltMargin = tiltRise + itemSize * 0.15;
     final totalHeight =
         armHeight + fulcrumHeight + baseHeight + tiltMargin + AppSpacing.sm;
 
@@ -89,25 +96,29 @@ class CandyScale extends StatelessWidget {
     return SizedBox(
       width: scaleWidth + tiltMargin,
       height: totalHeight,
-      child: _HangingScaleBody(
-        comparison: comparison,
-        accentColor: accentColor,
-        darkAccent: _darkAccent,
-        itemSize: itemSize,
-        scaleWidth: scaleWidth,
-        leftPanWidth: leftPanWidth,
-        rightPanWidth: rightPanWidth,
-        panHeight: panHeight,
-        panStackHeight: panStackHeight,
-        beamHeight: beamHeight,
-        armHeight: armHeight,
-        fulcrumWidth: fulcrumWidth,
-        fulcrumHeight: fulcrumHeight,
-        baseWidth: baseWidth,
-        baseHeight: baseHeight,
-        tiltTurns: tilt,
-        animateDrop: !comparison.isBalanced,
-        animateWobble: comparison.isBalanced,
+      // Spare height must sit above the arm so elevated pans stay in-bounds.
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: _HangingScaleBody(
+          comparison: comparison,
+          accentColor: accentColor,
+          darkAccent: _darkAccent,
+          itemSize: itemSize,
+          scaleWidth: scaleWidth,
+          leftPanWidth: leftPanWidth,
+          rightPanWidth: rightPanWidth,
+          panHeight: panHeight,
+          panStackHeight: panStackHeight,
+          beamHeight: beamHeight,
+          armHeight: armHeight,
+          fulcrumWidth: fulcrumWidth,
+          fulcrumHeight: fulcrumHeight,
+          baseWidth: baseWidth,
+          baseHeight: baseHeight,
+          tiltTurns: tilt,
+          animateDrop: !comparison.isBalanced,
+          animateWobble: comparison.isBalanced,
+        ),
       ),
     );
   }

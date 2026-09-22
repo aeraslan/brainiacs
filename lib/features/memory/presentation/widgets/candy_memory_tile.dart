@@ -9,6 +9,9 @@ import '../../../../core/constants/app_spacing.dart';
 ///
 /// Face is isolated in [_CandyTileFace] so it can later be swapped for a
 /// rabbit-in-hole visual without rewriting interaction or animation shell.
+///
+/// All tiles share identical dim and lit colors so the game tests spatial
+/// memory only — never color identity.
 class CandyMemoryTile extends StatefulWidget {
   const CandyMemoryTile({
     super.key,
@@ -51,7 +54,6 @@ class _CandyMemoryTileState extends State<CandyMemoryTile> {
       child: AspectRatio(
         aspectRatio: 1,
         child: _CandyTileFace(
-          index: widget.index,
           isLit: widget.isLit,
           isWrong: widget.isWrong,
         )
@@ -59,7 +61,8 @@ class _CandyMemoryTileState extends State<CandyMemoryTile> {
             .scale(
               begin: const Offset(1, 1),
               end: const Offset(1.1, 1.1),
-              duration: active ? 120.ms : 180.ms,
+              // Deactivate must finish within Watch Phase min gap (80ms).
+              duration: active ? 120.ms : 70.ms,
               curve: active ? Curves.easeOut : Curves.easeIn,
             ),
       ),
@@ -69,12 +72,10 @@ class _CandyMemoryTileState extends State<CandyMemoryTile> {
 
 class _CandyTileFace extends StatelessWidget {
   const _CandyTileFace({
-    required this.index,
     required this.isLit,
     required this.isWrong,
   });
 
-  final int index;
   final bool isLit;
   final bool isWrong;
 
@@ -83,10 +84,8 @@ class _CandyTileFace extends StatelessWidget {
   static const Color _dimEnd = Color(0xFF8A919C);
   static const Color _dimBorder = Color(0xFF6E7580);
 
-  Color get _accent {
-    final palette = AppColors.accentPalette;
-    return palette[index % palette.length];
-  }
+  /// Shared lit accent for every tile (candy yellow — high contrast on green).
+  static const Color _litAccent = AppColors.sunnyYellow;
 
   List<Color> get _gradientColors {
     if (isWrong) {
@@ -97,11 +96,10 @@ class _CandyTileFace extends StatelessWidget {
       ];
     }
     if (isLit) {
-      final accent = _accent;
       return [
-        Color.lerp(Colors.white, accent, 0.25) ?? accent,
-        accent,
-        Color.lerp(accent, Colors.black, 0.28) ?? accent,
+        Color.lerp(Colors.white, _litAccent, 0.25) ?? _litAccent,
+        _litAccent,
+        Color.lerp(_litAccent, Colors.black, 0.28) ?? _litAccent,
       ];
     }
     return const [_dimStart, _dimEnd];
@@ -112,7 +110,7 @@ class _CandyTileFace extends StatelessWidget {
       return const Color(0xFF9E0018);
     }
     if (isLit) {
-      return Color.lerp(_accent, Colors.black, 0.35) ?? _accent;
+      return Color.lerp(_litAccent, Colors.black, 0.35) ?? _litAccent;
     }
     return _dimBorder;
   }

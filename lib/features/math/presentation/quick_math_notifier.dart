@@ -71,6 +71,11 @@ class QuickMathNotifier extends Notifier<QuickMathState> {
       ),
     );
   }
+
+  /// Discard the current puzzle and generate a new one at the same level.
+  void rerollCurrent() {
+    onIncorrect();
+  }
 }
 
 final quickMathProvider = NotifierProvider<QuickMathNotifier, QuickMathState>(

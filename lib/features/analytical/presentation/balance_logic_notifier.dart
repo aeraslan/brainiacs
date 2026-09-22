@@ -74,6 +74,11 @@ class BalanceLogicNotifier extends Notifier<BalanceLogicState> {
       ),
     );
   }
+
+  /// Discard the current puzzle and generate a new one at the same difficulty.
+  void rerollCurrent() {
+    onIncorrect();
+  }
 }
 
 final balanceLogicProvider =

@@ -1,12 +1,13 @@
 import 'dart:math';
+import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import '../../analytical/domain/balance_assets.dart';
 
 class MemoryCard {
   const MemoryCard({
     required this.id,
     required this.pairId,
-    required this.icon,
+    required this.assetPath,
     required this.isFaceUp,
     required this.isMatched,
     required this.rotationRadians,
@@ -15,7 +16,7 @@ class MemoryCard {
 
   final int id;
   final int pairId;
-  final IconData icon;
+  final String assetPath;
   final bool isFaceUp;
   final bool isMatched;
   final double rotationRadians;
@@ -24,7 +25,7 @@ class MemoryCard {
   MemoryCard copyWith({
     int? id,
     int? pairId,
-    IconData? icon,
+    String? assetPath,
     bool? isFaceUp,
     bool? isMatched,
     double? rotationRadians,
@@ -33,7 +34,7 @@ class MemoryCard {
     return MemoryCard(
       id: id ?? this.id,
       pairId: pairId ?? this.pairId,
-      icon: icon ?? this.icon,
+      assetPath: assetPath ?? this.assetPath,
       isFaceUp: isFaceUp ?? this.isFaceUp,
       isMatched: isMatched ?? this.isMatched,
       rotationRadians: rotationRadians ?? this.rotationRadians,
@@ -43,15 +44,10 @@ class MemoryCard {
 }
 
 abstract final class MemoryCardDeck {
-  static const List<IconData> iconPool = [
-    Icons.star_rounded,
-    Icons.circle,
-    Icons.change_history_rounded,
-    Icons.diamond_rounded,
-    Icons.favorite_rounded,
-    Icons.bolt_rounded,
-    Icons.nightlight_rounded,
-    Icons.wb_sunny_rounded,
+  /// Combined animal + food stickers used for Card Match pairs.
+  static const List<String> imagePool = [
+    ...BalanceAssets.animals,
+    ...BalanceAssets.foods,
   ];
 
   static const double minRotationRadians = -0.262;
@@ -63,20 +59,20 @@ abstract final class MemoryCardDeck {
     Random? random,
   }) {
     final rng = random ?? Random();
-    final safePairCount = pairCount.clamp(1, iconPool.length);
-    final selectedIcons = List<IconData>.from(iconPool)..shuffle(rng);
+    final safePairCount = pairCount.clamp(1, imagePool.length);
+    final selectedPaths = List<String>.from(imagePool)..shuffle(rng);
 
     final cards = <MemoryCard>[];
     var id = 0;
 
     for (var pairId = 0; pairId < safePairCount; pairId++) {
-      final icon = selectedIcons[pairId];
+      final assetPath = selectedPaths[pairId];
       for (var copy = 0; copy < 2; copy++) {
         cards.add(
           MemoryCard(
             id: id,
             pairId: pairId,
-            icon: icon,
+            assetPath: assetPath,
             isFaceUp: false,
             isMatched: false,
             rotationRadians: _randomRotation(rng),

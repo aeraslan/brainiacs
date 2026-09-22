@@ -11,7 +11,7 @@ void main() {
   });
 
   Future<void> waitUntilPlay(ProviderContainer container) async {
-    // Length-3 watch: 3×600ms lit + 2×200ms gap ≈ 2200ms.
+    // Length-3 watch (base timings): 3×600ms lit + 2×200ms gap ≈ 2200ms.
     for (var i = 0; i < 50; i++) {
       if (container.read(matrixRecallProvider).phase == MatrixRecallPhase.play) {
         return;
@@ -20,7 +20,7 @@ void main() {
     }
   }
 
-  test('each correct Matrix Recall tile awards 100 points', () async {
+  test('each correct Matrix Recall tile awards 40 points', () async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
@@ -43,10 +43,10 @@ void main() {
       recall.onTileTapped(tile);
     }
 
-    expect(container.read(gameSessionProvider).totalScore, 300);
+    expect(container.read(gameSessionProvider).totalScore, 120);
     expect(
       container.read(gameSessionProvider).scoreFor(MiniGameType.memory),
-      300,
+      120,
     );
   });
 
@@ -70,7 +70,7 @@ void main() {
     expect(state.phase, MatrixRecallPhase.play);
 
     recall.onTileTapped(state.sequence[0]);
-    expect(container.read(gameSessionProvider).totalScore, 100);
+    expect(container.read(gameSessionProvider).totalScore, 40);
 
     var miss = (state.sequence[1] + 1) % state.tileCount;
     if (miss == state.sequence[1]) {
@@ -78,6 +78,6 @@ void main() {
     }
     recall.onTileTapped(miss);
 
-    expect(container.read(gameSessionProvider).totalScore, 80);
+    expect(container.read(gameSessionProvider).totalScore, 20);
   });
 }

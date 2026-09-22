@@ -37,16 +37,39 @@ class MatrixRecallState {
 
   static const int defaultGridSize = MatrixRecallSequence.defaultGridSize;
   static const int initialSequenceLength = MatrixRecallSequence.initialLength;
-  static const int correctPoints = 100;
+  static const int correctPoints = 40;
   static const int incorrectPenalty = -20;
+  /// Length-3 baseline lit duration; see [watchDurationsFor].
   static const Duration tileLitDuration = Duration(milliseconds: 600);
+  /// Length-3 baseline gap duration; see [watchDurationsFor].
   static const Duration tileGapDuration = Duration(milliseconds: 200);
+  static const int tileLitStepMs = 80;
+  static const int tileGapStepMs = 25;
+  static const int minTileLitMs = 250;
+  static const int minTileGapMs = 80;
   static const Duration feedbackHoldDelay = Duration(milliseconds: 650);
   /// Covers most of [CountdownOverlay.dissolveDuration] so playback starts
   /// after the GO! cover has largely faded.
   static const Duration introDelay = Duration(milliseconds: 1200);
   static const Duration interRoundDelay = Duration(milliseconds: 550);
   static const Duration pausePollInterval = Duration(milliseconds: 50);
+
+  /// Watch Phase lit/gap timings scaled by [sequenceLength].
+  ///
+  /// Anchored at [initialSequenceLength] (600ms lit / 200ms gap). Each extra
+  /// item shortens lit by [tileLitStepMs] and gap by [tileGapStepMs], clamped
+  /// to [minTileLitMs] / [minTileGapMs].
+  static ({Duration lit, Duration gap}) watchDurationsFor(int sequenceLength) {
+    final steps = (sequenceLength - initialSequenceLength).clamp(0, 1 << 30);
+    final litMs = (tileLitDuration.inMilliseconds - steps * tileLitStepMs)
+        .clamp(minTileLitMs, tileLitDuration.inMilliseconds);
+    final gapMs = (tileGapDuration.inMilliseconds - steps * tileGapStepMs)
+        .clamp(minTileGapMs, tileGapDuration.inMilliseconds);
+    return (
+      lit: Duration(milliseconds: litMs),
+      gap: Duration(milliseconds: gapMs),
+    );
+  }
 
   final MatrixRecallPhase phase;
   final List<int> sequence;
@@ -144,6 +167,16 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
     _beginWatchAfterLeadIn(generation, leadIn);
   }
 
+  /// Discard the current sequence and generate a new one at the same length.
+  void rerollCurrent() {
+    final previous = state.sequence;
+    startRound(
+      length: state.sequenceLength,
+      excluding: previous.isEmpty ? null : previous,
+      leadIn: MatrixRecallState.interRoundDelay,
+    );
+  }
+
   Future<void> _beginWatchAfterLeadIn(
     int generation,
     Duration leadIn,
@@ -161,6 +194,7 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
 
   Future<void> _playWatchSequence(int generation) async {
     final sequence = state.sequence;
+    final timings = MatrixRecallState.watchDurationsFor(sequence.length);
     for (var i = 0; i < sequence.length; i++) {
       if (!_isActive(generation)) {
         return;
@@ -178,7 +212,7 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
         clearWrongTile: true,
       );
 
-      await _delay(MatrixRecallState.tileLitDuration, generation);
+      await _delay(timings.lit, generation);
       if (!_isActive(generation)) {
         return;
       }
@@ -186,7 +220,7 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
       state = state.copyWith(clearLitTile: true);
 
       if (i < sequence.length - 1) {
-        await _delay(MatrixRecallState.tileGapDuration, generation);
+        await _delay(timings.gap, generation);
         if (!_isActive(generation)) {
           return;
         }
@@ -234,7 +268,7 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
       clearWrongTile: true,
     );
 
-    // Pay per correct tile so Matrix Recall matches Card Match granularity.
+    // Pay per correct tile slightly below Card Match match magnitude (+50).
     ref
         .read(gameSessionProvider.notifier)
         .addScore(MatrixRecallState.correctPoints);

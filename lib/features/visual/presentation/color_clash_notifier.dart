@@ -81,6 +81,11 @@ class ColorClashNotifier extends Notifier<ColorClashState> {
     );
   }
 
+  /// Discard the current round and generate a new one at the same difficulty.
+  void rerollCurrent() {
+    onIncorrect();
+  }
+
   ColorClashRound _nextRound({required int correctCount}) {
     if (_isTutorial) {
       _tutorialBeat++;

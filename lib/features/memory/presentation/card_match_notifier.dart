@@ -37,7 +37,11 @@ class CardMatchState {
   static const int matchPoints = 50;
   static const int mismatchPenalty = -20;
   static const Duration memorizeDuration = Duration(seconds: 2);
-  static const Duration mismatchDelay = Duration(milliseconds: 500);
+  /// Pause after both cards are face-up so stickers can be read before wrong juice.
+  static const Duration mismatchRevealDelay = Duration(milliseconds: 175);
+
+  /// Hold with wrong feedback before flipping cards face-down again.
+  static const Duration mismatchDelay = Duration(milliseconds: 625);
   static const Duration levelCompleteDelay = Duration(milliseconds: 600);
 
   final int currentLevel;
@@ -112,6 +116,11 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
     );
 
     _memorizeTimer = Timer(CardMatchState.memorizeDuration, endMemorize);
+  }
+
+  /// Discard the current board and deal a new one at the same level.
+  void rerollCurrent() {
+    startLevel(state.currentLevel);
   }
 
   void skipMemorize() {
@@ -209,6 +218,12 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
     ref
         .read(gameSessionProvider.notifier)
         .addScore(CardMatchState.mismatchPenalty);
+
+    // Let the face-up stickers register before the red flash/shake.
+    await Future<void>.delayed(CardMatchState.mismatchRevealDelay);
+    if (generation != _evaluationGeneration) {
+      return;
+    }
 
     state = state.copyWith(
       mismatchToken: state.mismatchToken + 1,

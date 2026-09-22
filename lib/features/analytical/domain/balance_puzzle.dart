@@ -66,13 +66,13 @@ class BalancePuzzle {
   }
 
   static BalanceLevel levelForCorrectCount(int correctCount) {
-    if (correctCount >= 8) {
+    if (correctCount >= 10) {
       return BalanceLevel.four;
     }
-    if (correctCount >= 5) {
+    if (correctCount >= 6) {
       return BalanceLevel.three;
     }
-    if (correctCount >= 2) {
+    if (correctCount >= 3) {
       return BalanceLevel.two;
     }
     return BalanceLevel.one;
@@ -202,7 +202,8 @@ class BalancePuzzle {
     );
   }
 
-  /// Cancellation tree: at least two compound pans, still unique heaviest A.
+  /// Harder tree: pans share no object (no cancel shortcut). The object that
+  /// sits on the heavy side most often is not uniquely the answer.
   static BalancePuzzle? _generateLevelFour(
     Random rng,
     BalanceObjectSet objectSet,
@@ -218,31 +219,35 @@ class BalancePuzzle {
 
     late final Map<String, int> weights;
     late final List<BalanceScaleComparison> scales;
+    late final String heaviest;
 
     switch (rng.nextInt(3)) {
       case 0:
-        // Double cancel + championship: 2A vs A+B, 2C vs C+D, A vs C.
-        weights = {a: 4, b: 2, c: 3, d: 1};
+        // Pair chain: 2A>2B, 2C>2A, A>D. A looks frequent; C is heaviest.
+        weights = {a: 3, b: 2, c: 4, d: 1};
+        heaviest = c;
         scales = [
-          _orientedSides([a, a], [a, b], weights, rng),
-          _orientedSides([c, c], [c, d], weights, rng),
-          _orientedSides([a], [c], weights, rng),
-        ];
-      case 1:
-        // Chain cancel: 2A vs A+B => A>B, 2B vs B+C => B>C, A vs D.
-        weights = {a: 4, b: 3, c: 1, d: 2};
-        scales = [
-          _orientedSides([a, a], [a, b], weights, rng),
-          _orientedSides([b, b], [b, c], weights, rng),
+          _orientedSides([a, a], [b, b], weights, rng),
+          _orientedSides([c, c], [a, a], weights, rng),
           _orientedSides([a], [d], weights, rng),
         ];
-      default:
-        // Championship is also a cancel: 2A vs A+B, C vs D, 2A vs A+C.
-        weights = {a: 4, b: 2, c: 3, d: 1};
+      case 1:
+        // Balance decoy: 2A=B+C, A>C, 2B>2D. Doubled A is a trap; B wins.
+        weights = {a: 3, b: 4, c: 2, d: 1};
+        heaviest = b;
         scales = [
-          _orientedSides([a, a], [a, b], weights, rng),
-          _orientedSides([c], [d], weights, rng),
-          _orientedSides([a, a], [a, c], weights, rng),
+          _orientedSides([a, a], [b, c], weights, rng),
+          _orientedSides([a], [c], weights, rng),
+          _orientedSides([b, b], [d, d], weights, rng),
+        ];
+      default:
+        // Mixed group: 2C>2A, A+B>2D, A>B. A wins two scales; C is heaviest.
+        weights = {a: 3, b: 2, c: 4, d: 1};
+        heaviest = c;
+        scales = [
+          _orientedSides([c, c], [a, a], weights, rng),
+          _orientedSides([a, b], [d, d], weights, rng),
+          _orientedSides([a], [b], weights, rng),
         ];
     }
 
@@ -251,7 +256,7 @@ class BalancePuzzle {
       objectSet: objectSet,
       level: BalanceLevel.four,
       objects: objects,
-      heaviest: a,
+      heaviest: heaviest,
       weights: weights,
       scales: scales,
     );
@@ -456,10 +461,10 @@ class BalancePuzzle {
   }
 
   static BalancePuzzle _fallbackFor(BalanceLevel level) {
-    const a = 'assets/balance/animals/bear.png';
-    const b = 'assets/balance/animals/rabbit.png';
-    const c = 'assets/balance/animals/penguin.png';
-    const d = 'assets/balance/animals/frog.png';
+    const a = 'assets/images/animals/bear.png';
+    const b = 'assets/images/animals/rabbit.png';
+    const c = 'assets/images/animals/penguin.png';
+    const d = 'assets/images/animals/frog.png';
 
     return switch (level) {
       BalanceLevel.one => const BalancePuzzle(
@@ -525,32 +530,33 @@ class BalancePuzzle {
         correctObjectId: a,
         weightsByObject: {a: 4, b: 2, c: 3, d: 1},
       ),
+      // Pair-chain fallback: 2A>2B, 2C>2A, A>D — C is heaviest.
       BalanceLevel.four => const BalancePuzzle(
         level: BalanceLevel.four,
         objectSet: BalanceObjectSet.animals,
         scales: [
           BalanceScaleComparison(
             leftItems: [a, a],
-            rightItems: [a, b],
-            leftWeight: 8,
-            rightWeight: 6,
-          ),
-          BalanceScaleComparison(
-            leftItems: [c, c],
-            rightItems: [c, d],
+            rightItems: [b, b],
             leftWeight: 6,
             rightWeight: 4,
           ),
           BalanceScaleComparison(
+            leftItems: [c, c],
+            rightItems: [a, a],
+            leftWeight: 8,
+            rightWeight: 6,
+          ),
+          BalanceScaleComparison(
             leftItems: [a],
-            rightItems: [c],
-            leftWeight: 4,
-            rightWeight: 3,
+            rightItems: [d],
+            leftWeight: 3,
+            rightWeight: 1,
           ),
         ],
         choices: [a, b, c, d],
-        correctObjectId: a,
-        weightsByObject: {a: 4, b: 2, c: 3, d: 1},
+        correctObjectId: c,
+        weightsByObject: {a: 3, b: 2, c: 4, d: 1},
       ),
     };
   }

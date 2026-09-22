@@ -107,7 +107,7 @@ class _FlippingCard extends StatelessWidget {
                     transform: Matrix4.identity()..rotateY(math.pi),
                     child: _CardFace(
                       size: size,
-                      icon: card.icon,
+                      assetPath: card.assetPath,
                       isFront: true,
                       isMatched: card.isMatched,
                     ),
@@ -129,18 +129,16 @@ class _CardFace extends StatelessWidget {
     required this.size,
     required this.isFront,
     required this.isMatched,
-    this.icon,
+    this.assetPath,
   });
 
   final double size;
   final bool isFront;
   final bool isMatched;
-  final IconData? icon;
+  final String? assetPath;
 
-  Color _iconColor(IconData iconData) {
-    return AppColors.accentPalette[
-        iconData.hashCode.abs() % AppColors.accentPalette.length];
-  }
+  static const double _imagePadding = 12;
+  static const double _glossStop = 0.18;
 
   @override
   Widget build(BuildContext context) {
@@ -185,12 +183,9 @@ class _CardFace extends StatelessWidget {
             ),
             child: CustomPaint(
               painter: _MatchedBorderOrnamentPainter(),
-              child: Center(
-                child: Icon(
-                  icon,
-                  size: size * 0.4,
-                  color: Colors.white.withValues(alpha: 0.92),
-                ),
+              child: _StickerImage(
+                assetPath: assetPath,
+                padding: _imagePadding,
               ),
             ),
           ),
@@ -198,47 +193,134 @@ class _CardFace extends StatelessWidget {
       );
     }
 
+    if (isFront) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFFFFFFF),
+              Color(0xFFF7F8FC),
+              Color(0xFFE8ECF4),
+            ],
+            stops: [0.0, _glossStop, 1.0],
+          ),
+          border: Border.all(
+            color: AppColors.electricBlue.withValues(alpha: 0.35),
+            width: 2,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(2.5),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.sm - 2),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.7),
+                width: 1.25,
+              ),
+            ),
+            child: _StickerImage(
+              assetPath: assetPath,
+              padding: _imagePadding,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Face-down: candy glossy gradient with centered mark.
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: radius,
-        color: isFront ? AppColors.surface : AppColors.vibrantPurple,
-        border: Border.all(
-          color: isFront
-              ? AppColors.electricBlue.withValues(alpha: 0.4)
-              : AppColors.vibrantPurple,
-          width: 2,
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFE8C4FF),
+            AppColors.vibrantPurple,
+            Color(0xFF6B2FB5),
+          ],
+          stops: [0.0, _glossStop, 1.0],
         ),
-        boxShadow: const [
+        border: Border.all(
+          color: const Color(0xFF6B2FB5),
+          width: 2.5,
+        ),
+        boxShadow: [
           BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 8,
-            offset: Offset(0, 4),
+            color: AppColors.vibrantPurple.withValues(alpha: 0.35),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
-      child: isFront
-          ? Center(
-              child: Icon(
-                icon,
-                size: size * 0.45,
-                color: icon != null ? _iconColor(icon!) : AppColors.accent,
-              ),
-            )
-          : Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _CardBackPatternPainter(),
-                  ),
-                ),
-                Icon(
-                  Icons.psychology_rounded,
-                  size: size * 0.4,
-                  color: AppColors.onAccent,
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.all(2.5),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSpacing.sm - 2),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.45),
+              width: 1.25,
             ),
+          ),
+          child: Center(
+            child: Text(
+              '?',
+              style: TextStyle(
+                fontSize: math.max(size * 0.42, 22),
+                fontWeight: FontWeight.w800,
+                color: AppColors.onAccent.withValues(alpha: 0.95),
+                height: 1,
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StickerImage extends StatelessWidget {
+  const _StickerImage({
+    required this.assetPath,
+    required this.padding,
+  });
+
+  final String? assetPath;
+  final double padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final path = assetPath;
+    if (path == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(padding),
+      child: Image.asset(
+        path,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
+      ),
     );
   }
 }
@@ -264,28 +346,6 @@ class _MatchedBorderOrnamentPainter extends CustomPainter {
     corner(Offset(size.width - inset, inset), -1, 1);
     corner(Offset(inset, size.height - inset), 1, -1);
     corner(Offset(size.width - inset, size.height - inset), -1, -1);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _CardBackPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = AppColors.onAccent.withValues(alpha: 0.18)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    const spacing = 12.0;
-    for (var x = -size.height; x < size.width + size.height; x += spacing) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(x + size.height, size.height),
-        paint,
-      );
-    }
   }
 
   @override

@@ -7,12 +7,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('levels map from correctCount', () {
     expect(BalancePuzzle.levelForCorrectCount(0), BalanceLevel.one);
-    expect(BalancePuzzle.levelForCorrectCount(1), BalanceLevel.one);
-    expect(BalancePuzzle.levelForCorrectCount(2), BalanceLevel.two);
-    expect(BalancePuzzle.levelForCorrectCount(4), BalanceLevel.two);
-    expect(BalancePuzzle.levelForCorrectCount(5), BalanceLevel.three);
-    expect(BalancePuzzle.levelForCorrectCount(7), BalanceLevel.three);
-    expect(BalancePuzzle.levelForCorrectCount(8), BalanceLevel.four);
+    expect(BalancePuzzle.levelForCorrectCount(2), BalanceLevel.one);
+    expect(BalancePuzzle.levelForCorrectCount(3), BalanceLevel.two);
+    expect(BalancePuzzle.levelForCorrectCount(5), BalanceLevel.two);
+    expect(BalancePuzzle.levelForCorrectCount(6), BalanceLevel.three);
+    expect(BalancePuzzle.levelForCorrectCount(9), BalanceLevel.three);
+    expect(BalancePuzzle.levelForCorrectCount(10), BalanceLevel.four);
     expect(BalancePuzzle.levelForCorrectCount(20), BalanceLevel.four);
   });
 
@@ -79,7 +79,7 @@ void main() {
     final seedRng = Random(7);
     for (var i = 0; i < 40; i++) {
       final puzzle = BalancePuzzle.forCorrectCount(
-        5 + (i % 3),
+        6 + (i % 4),
         random: Random(seedRng.nextInt(1 << 30)),
       );
       expect(puzzle.level, BalanceLevel.three);
@@ -98,11 +98,11 @@ void main() {
     }
   });
 
-  test('level 4 uses two or more cancellation compounds', () {
+  test('level 4 uses disjoint compound pans that defeat frequency guessing', () {
     final seedRng = Random(21);
     for (var i = 0; i < 40; i++) {
       final puzzle = BalancePuzzle.forCorrectCount(
-        8 + (i % 8),
+        10 + (i % 8),
         random: Random(seedRng.nextInt(1 << 30)),
       );
       expect(puzzle.level, BalanceLevel.four);
@@ -122,20 +122,33 @@ void main() {
             (scale.leftItems.length >= 3 && scale.rightItems.length == 1) ||
             (scale.rightItems.length >= 3 && scale.leftItems.length == 1);
         expect(pileVsSingle, isFalse, reason: puzzle.identityKey);
+        final shared = scale.leftItems.toSet().intersection(
+          scale.rightItems.toSet(),
+        );
+        expect(
+          shared,
+          isEmpty,
+          reason: 'cancel shortcut pans: ${puzzle.identityKey}',
+        );
       }
       expect(
         BalancePuzzle.uniqueHeaviestImpliedBy(puzzle.choices, puzzle.scales),
         puzzle.correctObjectId,
         reason: puzzle.identityKey,
       );
+      expect(
+        _heavySideFrequencyUniquelyPicksAnswer(puzzle),
+        isFalse,
+        reason: 'frequency heuristic solved ${puzzle.identityKey}',
+      );
     }
   });
 
   test('compound heavier-than-single without a unique max is ambiguous', () {
-    const chocolate = 'assets/balance/foods/Chocolate.png';
-    const broccoli = 'assets/balance/foods/Broccoli.png';
-    const chicken = 'assets/balance/foods/Drumstick.png';
-    const coconut = 'assets/balance/foods/Coconut.png';
+    const chocolate = 'assets/images/foods/Chocolate.png';
+    const broccoli = 'assets/images/foods/Broccoli.png';
+    const chicken = 'assets/images/foods/Drumstick.png';
+    const coconut = 'assets/images/foods/Coconut.png';
     final scales = [
       const BalanceScaleComparison(
         leftItems: [broccoli, chicken],
@@ -244,4 +257,32 @@ void _expectSingleObjectSet(BalancePuzzle puzzle) {
       expect(id.startsWith(expectedPrefix), isTrue, reason: id);
     }
   }
+}
+
+/// True when one object uniquely appears most often on the heavy side of
+/// unbalanced scales and that object is the correct answer.
+bool _heavySideFrequencyUniquelyPicksAnswer(BalancePuzzle puzzle) {
+  final counts = <String, int>{
+    for (final id in puzzle.choices) id: 0,
+  };
+  for (final scale in puzzle.scales) {
+    if (scale.isBalanced) {
+      continue;
+    }
+    final heavierItems = scale.leftWeight > scale.rightWeight
+        ? scale.leftItems
+        : scale.rightItems;
+    for (final id in heavierItems.toSet()) {
+      counts[id] = (counts[id] ?? 0) + 1;
+    }
+  }
+  final maxCount = counts.values.reduce((a, b) => a > b ? a : b);
+  if (maxCount == 0) {
+    return false;
+  }
+  final tops = counts.entries
+      .where((e) => e.value == maxCount)
+      .map((e) => e.key)
+      .toList();
+  return tops.length == 1 && tops.single == puzzle.correctObjectId;
 }

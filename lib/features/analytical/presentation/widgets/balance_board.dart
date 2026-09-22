@@ -25,12 +25,20 @@ class BalanceBoard extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.contain,
               alignment: Alignment.center,
-              child: switch (puzzle.level) {
-                BalanceLevel.one => _buildLevelOne(constraints),
-                BalanceLevel.two => _buildTwoScales(constraints),
-                BalanceLevel.three || BalanceLevel.four =>
-                  _buildTree(constraints),
-              },
+              clipBehavior: Clip.none,
+              child: Padding(
+                // Keep tilted pan sprites inside the board after fitting.
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.md,
+                ),
+                child: switch (puzzle.level) {
+                  BalanceLevel.one => _buildLevelOne(constraints),
+                  BalanceLevel.two => _buildTwoScales(constraints),
+                  BalanceLevel.three || BalanceLevel.four =>
+                    _buildTree(constraints),
+                },
+              ),
             ),
           ),
         );

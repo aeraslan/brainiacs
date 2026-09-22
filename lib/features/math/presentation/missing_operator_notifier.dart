@@ -68,6 +68,11 @@ class MissingOperatorNotifier extends Notifier<MissingOperatorState> {
       equation: MissingOperatorEquation.forCorrectCount(state.correctCount),
     );
   }
+
+  /// Discard the current puzzle and generate a new one at the same difficulty.
+  void rerollCurrent() {
+    onIncorrect();
+  }
 }
 
 final missingOperatorProvider =

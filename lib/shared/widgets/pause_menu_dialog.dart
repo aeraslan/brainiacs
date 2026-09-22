@@ -75,9 +75,9 @@ class _PauseMenuOverlay extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: () => onAction(PauseMenuAction.resume),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
               child: ColoredBox(
-                color: Colors.black.withValues(alpha: 0.45),
+                color: Colors.black.withValues(alpha: 0.58),
               ),
             ),
           ),
