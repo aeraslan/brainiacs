@@ -30,6 +30,9 @@ class _CountdownOverlayState extends State<CountdownOverlay> {
   static const double _countdownFontSize = 112;
   static final Color _ringColor = Colors.white.withValues(alpha: 0.10);
 
+  /// Stretch each step so the UI tracks the 3-2-1-GO audio clip.
+  static const double _paceFactor = 1.39;
+
   final GlobalKey<AnimatedOrbitalRingsState> _ringsKey =
       GlobalKey<AnimatedOrbitalRingsState>();
 
@@ -38,6 +41,17 @@ class _CountdownOverlayState extends State<CountdownOverlay> {
 
   /// Sound-friendly count: 3, 2, 1, then 0 for GO!.
   int get _countForStep => _steps.length - 1 - _index;
+
+  Duration get _fadeInDuration =>
+      Duration(milliseconds: (140 * _paceFactor).round());
+  Duration get _scaleDuration =>
+      Duration(milliseconds: (400 * _paceFactor).round());
+  Duration get _digitHoldDelay =>
+      Duration(milliseconds: (100 * _paceFactor).round());
+  Duration get _fadeOutDuration =>
+      Duration(milliseconds: (200 * _paceFactor).round());
+  Duration get _goHoldDelay =>
+      Duration(milliseconds: (420 * _paceFactor).round());
 
   void _advance() {
     if (!mounted || _completed) {
@@ -129,19 +143,21 @@ class _CountdownOverlayState extends State<CountdownOverlay> {
           onPlay: (_) => widget.onCountChanged?.call(_countForStep),
           onComplete: (_) => _advance(),
         )
-        .fadeIn(duration: 140.ms)
+        .fadeIn(duration: _fadeInDuration)
         .scale(
           begin: const Offset(0.3, 0.3),
           end: const Offset(1.0, 1.0),
-          duration: 400.ms,
+          duration: _scaleDuration,
           curve: Curves.easeOutBack,
         );
 
     if (_isGo) {
-      return entrance.then(delay: 420.ms);
+      return entrance.then(delay: _goHoldDelay);
     }
 
-    return entrance.then(delay: 100.ms).fadeOut(duration: 200.ms);
+    return entrance
+        .then(delay: _digitHoldDelay)
+        .fadeOut(duration: _fadeOutDuration);
   }
 }
 

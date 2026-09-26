@@ -7,13 +7,18 @@ import 'package:brainiacs_flutter/core/rank/title_progress_notifier.dart';
 import 'package:brainiacs_flutter/core/rank/title_tier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_notifier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_state.dart';
+import 'package:brainiacs_flutter/core/storage/local_storage_provider.dart';
 
 void main() {
   late ProviderContainer container;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    container = ProviderContainer();
+    container = ProviderContainer(
+      overrides: [
+        localStorageProvider.overrideWithValue(LocalStorageService.memory()),
+      ],
+    );
   });
 
   tearDown(() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../core/session/game_session_state.dart';
@@ -8,8 +9,26 @@ import '../../../shared/widgets/countdown_overlay.dart';
 import '../../visual/presentation/visual_colors.dart';
 
 /// 3-2-1-GO countdown shown before a practice run starts.
-class PracticeCountdownScreen extends ConsumerWidget {
+class PracticeCountdownScreen extends ConsumerStatefulWidget {
   const PracticeCountdownScreen({super.key});
+
+  @override
+  ConsumerState<PracticeCountdownScreen> createState() =>
+      _PracticeCountdownScreenState();
+}
+
+class _PracticeCountdownScreenState
+    extends ConsumerState<PracticeCountdownScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      ref.read(audioControllerProvider.notifier).playCountdown();
+    });
+  }
 
   Color _accentFor(MiniGameType type) {
     return switch (type) {
@@ -21,7 +40,7 @@ class PracticeCountdownScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final currentGame = ref.watch(
       gameSessionProvider.select((state) => state.currentGame),
     );

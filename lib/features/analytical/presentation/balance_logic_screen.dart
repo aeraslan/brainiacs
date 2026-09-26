@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
@@ -38,6 +39,8 @@ class _BalanceLogicScreenState extends ConsumerState<BalanceLogicScreen> {
   static const int incorrectPenalty = -20;
   static const Duration feedbackDelay = Duration(milliseconds: 500);
 
+  /// Preserves tilted scale animations when wrong-answer shake wraps the board.
+  final GlobalKey _boardKey = GlobalKey();
   final Map<String, GlobalKey> _choiceKeys = {};
   int _tutorialToken = 0;
 
@@ -163,11 +166,14 @@ class _BalanceLogicScreenState extends ConsumerState<BalanceLogicScreen> {
           : ObjectPadFeedback.incorrect;
     });
 
+    final audio = ref.read(audioControllerProvider.notifier);
     if (isCorrect) {
       HapticFeedback.lightImpact();
+      audio.playCorrect();
       notifier.signalSuccess();
     } else {
       HapticFeedback.heavyImpact();
+      audio.playWrong();
       notifier.signalError();
     }
 
@@ -235,6 +241,7 @@ class _BalanceLogicScreenState extends ConsumerState<BalanceLogicScreen> {
                     points: correctPoints,
                     penalty: incorrectPenalty,
                     applySuccessEffectsToChild: false,
+                    showErrorBorder: false,
                     successOverlay: const Icon(
                       Icons.check_rounded,
                       size: 168,
@@ -247,7 +254,10 @@ class _BalanceLogicScreenState extends ConsumerState<BalanceLogicScreen> {
                         ),
                       ],
                     ),
-                    child: BalanceBoard(puzzle: puzzle),
+                    child: BalanceBoard(
+                      key: _boardKey,
+                      puzzle: puzzle,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),

@@ -37,6 +37,19 @@ class ScoreScreen extends ConsumerWidget {
     final daysLeft = titleProgress.daysLeftToDefend(ref.read(clockProvider)());
     final headline = timeRemaining > 0 ? 'Game Over' : "Time's Up!";
 
+    final RankDefendOutcome? defendOutcome;
+    if (daysLeft == null ||
+        (titleProgress.highestTitle == TitleTier.dormantMind &&
+            !titleProgress.unlockedNewRank)) {
+      defendOutcome = null;
+    } else if (titleProgress.unlockedNewRank) {
+      defendOutcome = RankDefendOutcome.unlocked;
+    } else if (sessionTitle == titleProgress.highestTitle) {
+      defendOutcome = RankDefendOutcome.defended;
+    } else {
+      defendOutcome = RankDefendOutcome.pending;
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -57,9 +70,12 @@ class ScoreScreen extends ConsumerWidget {
                         headline: headline,
                         totalScore: totalScore,
                         scoresByGame: scoresByGame,
+                        newCategoryHighs: titleProgress.newCategoryHighs,
                         sessionTitle: sessionTitle,
+                        heldTitle: titleProgress.highestTitle,
                         unlockedNewRank: titleProgress.unlockedNewRank,
                         daysLeftToDefend: daysLeft,
+                        defendOutcome: defendOutcome,
                         onPlayAgain: () {
                           ref.read(gameSessionProvider.notifier).startGame();
                         },
@@ -84,9 +100,12 @@ class _ScoreHubContent extends StatelessWidget {
     required this.headline,
     required this.totalScore,
     required this.scoresByGame,
+    required this.newCategoryHighs,
     required this.sessionTitle,
+    required this.heldTitle,
     required this.unlockedNewRank,
     required this.daysLeftToDefend,
+    required this.defendOutcome,
     required this.onPlayAgain,
     required this.onMenu,
   });
@@ -94,14 +113,19 @@ class _ScoreHubContent extends StatelessWidget {
   final String headline;
   final int totalScore;
   final Map<MiniGameType, int> scoresByGame;
+  final Set<MiniGameType> newCategoryHighs;
   final TitleTier sessionTitle;
+  final TitleTier heldTitle;
   final bool unlockedNewRank;
   final int? daysLeftToDefend;
+  final RankDefendOutcome? defendOutcome;
   final VoidCallback onPlayAgain;
   final VoidCallback onMenu;
 
   @override
   Widget build(BuildContext context) {
+    final showThisRunCaption = defendOutcome == RankDefendOutcome.pending;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -126,13 +150,33 @@ class _ScoreHubContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         ScoreCountUp(target: totalScore),
         const SizedBox(height: AppSpacing.md),
+        if (showThisRunCaption) ...[
+          Text(
+            'This run',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+        ],
         _RankRevealHost(earnedTitle: sessionTitle),
-        if (daysLeftToDefend != null) ...[
+        if (defendOutcome != null && daysLeftToDefend != null) ...[
           const SizedBox(height: AppSpacing.md),
-          Center(child: RankDefendChip(daysLeft: daysLeftToDefend!)),
+          Center(
+            child: RankDefendChip(
+              heldTitle: heldTitle,
+              daysLeft: daysLeftToDefend!,
+              outcome: defendOutcome!,
+            ),
+          ),
         ],
         const SizedBox(height: AppSpacing.lg),
-        ScoreBreakdownPanel(scoresByGame: scoresByGame),
+        ScoreBreakdownPanel(
+          scoresByGame: scoresByGame,
+          newCategoryHighs: newCategoryHighs,
+        ),
         const SizedBox(height: AppSpacing.xl),
         CandyButton(label: 'Play Again', onPressed: onPlayAgain),
         const SizedBox(height: AppSpacing.md),

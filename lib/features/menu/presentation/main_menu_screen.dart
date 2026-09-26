@@ -10,16 +10,41 @@ import '../../../shared/widgets/candy_button.dart';
 import 'widgets/animated_background_elements.dart';
 import 'widgets/candy_new_game_button.dart';
 import 'widgets/current_rank_pill.dart';
+import 'widgets/rank_decay_dialog.dart';
 
-class MainMenuScreen extends ConsumerWidget {
+class MainMenuScreen extends ConsumerStatefulWidget {
   const MainMenuScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainMenuScreen> createState() => _MainMenuScreenState();
+}
+
+class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
+  bool _decayDialogQueued = false;
+
+  @override
+  Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final highestTitle = ref.watch(
       titleProgressProvider.select((s) => s.highestTitle),
     );
+
+    ref.listen(titleProgressProvider, (previous, next) {
+      if (!next.isHydrated || !next.hasDecayed || _decayDialogQueued) {
+        return;
+      }
+      _decayDialogQueued = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          return;
+        }
+        await RankDecayDialog.show(context);
+        if (!mounted) {
+          return;
+        }
+        ref.read(titleProgressProvider.notifier).acknowledgeDecay();
+      });
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,

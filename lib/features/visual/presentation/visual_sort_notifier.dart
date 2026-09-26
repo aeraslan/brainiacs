@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../domain/asteroid.dart';
 
@@ -142,6 +143,7 @@ class VisualSortNotifier extends Notifier<VisualSortState> {
       return;
     }
 
+    ref.read(audioControllerProvider.notifier).playCorrect();
     ref
         .read(gameSessionProvider.notifier)
         .addScore(VisualSortState.completePoints);
@@ -162,6 +164,8 @@ class VisualSortNotifier extends Notifier<VisualSortState> {
         .read(gameSessionProvider.notifier)
         .addScore(VisualSortState.incorrectPenalty);
 
+    HapticFeedback.heavyImpact();
+    ref.read(audioControllerProvider.notifier).playWrong();
     state = state.copyWith(
       isInputLocked: true,
       shakingAsteroidId: id,

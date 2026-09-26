@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
@@ -50,6 +51,8 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     setState(() {
       _showCountdown = true;
     });
+    // Play as soon as the overlay is shown (reliable after Play Again too).
+    ref.read(audioControllerProvider.notifier).playCountdown();
   }
 
   void _onCountdownComplete() {

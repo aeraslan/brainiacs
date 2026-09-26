@@ -1,3 +1,4 @@
+import '../session/game_session_state.dart';
 import 'title_tier.dart';
 
 class TitleProgressState {
@@ -7,6 +8,11 @@ class TitleProgressState {
     this.lastSessionTitle,
     this.unlockedNewRank = false,
     this.isHydrated = false,
+    this.highestScore = 0,
+    this.highestScoresByGame = GameSessionState.emptyScoresByGame,
+    this.newCategoryHighs = const <MiniGameType>{},
+    this.totalGamesPlayed = 0,
+    this.hasDecayed = false,
   });
 
   factory TitleProgressState.initial() {
@@ -26,8 +32,23 @@ class TitleProgressState {
   /// True when the latest loop raised [highestTitle] (ephemeral).
   final bool unlockedNewRank;
 
-  /// True after prefs have been loaded (or mocked) at least once.
+  /// True after storage has been loaded (or mocked) at least once.
   final bool isHydrated;
+
+  /// Personal-best full-loop score.
+  final int highestScore;
+
+  /// Personal-best score per mini-game area.
+  final Map<MiniGameType, int> highestScoresByGame;
+
+  /// Categories whose personal best was beaten on the latest recorded loop.
+  final Set<MiniGameType> newCategoryHighs;
+
+  /// Count of completed non-practice core loops.
+  final int totalGamesPlayed;
+
+  /// True when rank decay ran this session and the UI has not acknowledged it.
+  final bool hasDecayed;
 
   /// Days remaining before the next decay, or null if no date is stored.
   int? daysLeftToDefend(DateTime now) {
@@ -46,14 +67,24 @@ class TitleProgressState {
     return remaining;
   }
 
+  int get currentRankIndex => highestTitle.index;
+
+  int highestScoreFor(MiniGameType type) => highestScoresByGame[type] ?? 0;
+
   TitleProgressState copyWith({
     TitleTier? highestTitle,
     DateTime? lastEarnedDate,
     TitleTier? lastSessionTitle,
     bool? unlockedNewRank,
     bool? isHydrated,
+    int? highestScore,
+    Map<MiniGameType, int>? highestScoresByGame,
+    Set<MiniGameType>? newCategoryHighs,
+    int? totalGamesPlayed,
+    bool? hasDecayed,
     bool clearLastEarnedDate = false,
     bool clearLastSessionTitle = false,
+    bool clearNewCategoryHighs = false,
   }) {
     return TitleProgressState(
       highestTitle: highestTitle ?? this.highestTitle,
@@ -65,6 +96,13 @@ class TitleProgressState {
           : (lastSessionTitle ?? this.lastSessionTitle),
       unlockedNewRank: unlockedNewRank ?? this.unlockedNewRank,
       isHydrated: isHydrated ?? this.isHydrated,
+      highestScore: highestScore ?? this.highestScore,
+      highestScoresByGame: highestScoresByGame ?? this.highestScoresByGame,
+      newCategoryHighs: clearNewCategoryHighs
+          ? const <MiniGameType>{}
+          : (newCategoryHighs ?? this.newCategoryHighs),
+      totalGamesPlayed: totalGamesPlayed ?? this.totalGamesPlayed,
+      hasDecayed: hasDecayed ?? this.hasDecayed,
     );
   }
 }

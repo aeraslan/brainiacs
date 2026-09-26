@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
@@ -46,6 +47,9 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
   static const Duration postCorrectBeat = Duration(milliseconds: 700);
   static const Duration correctHintDuration = Duration(milliseconds: 1200);
 
+  /// Keeps the target word mounted across wrong-answer shake so entrance
+  /// animation does not replay as a second tilt.
+  final GlobalKey _targetWordKey = GlobalKey();
   final Map<String, GlobalKey> _choiceKeys = {};
   int _tutorialToken = 0;
 
@@ -202,11 +206,14 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
           : StroopPadFeedback.incorrect;
     });
 
+    final audio = ref.read(audioControllerProvider.notifier);
     if (isCorrect) {
       HapticFeedback.lightImpact();
+      audio.playCorrect();
       notifier.signalSuccess();
     } else {
       HapticFeedback.heavyImpact();
+      audio.playWrong();
       notifier.signalError();
     }
 
@@ -295,6 +302,9 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
                       points: correctPoints,
                       penalty: incorrectPenalty,
                       applySuccessEffectsToChild: false,
+                      applyErrorTint: false,
+                      showErrorBorder: false,
+                      errorShakeAmount: 14,
                       successOverlay: const Icon(
                         Icons.check_rounded,
                         size: 168,
@@ -307,7 +317,12 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
                           ),
                         ],
                       ),
-                      child: Center(child: StroopTargetWord(round: round)),
+                      child: Center(
+                        child: StroopTargetWord(
+                          key: _targetWordKey,
+                          round: round,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),

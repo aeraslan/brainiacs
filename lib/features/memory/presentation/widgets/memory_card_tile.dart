@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/answer_feedback_burst.dart';
 import '../../domain/memory_card.dart';
 
 class MemoryCardTile extends StatelessWidget {
@@ -67,8 +68,16 @@ class MemoryCardTile extends StatelessWidget {
     } else if (isShaking) {
       tile = tile
           .animate(key: ValueKey('shake-$shakeKey-${card.id}'))
-          .shakeX(amount: 8, duration: 250.ms, hz: 6)
-          .tint(color: AppColors.incorrect, duration: 200.ms);
+          .shakeX(
+            amount: WrongAnswerShake.amount,
+            duration: WrongAnswerShake.duration,
+            hz: WrongAnswerShake.hz,
+            curve: WrongAnswerShake.curve,
+          )
+          .tint(
+            color: AppColors.incorrect.withValues(alpha: 0.35),
+            duration: WrongAnswerShake.duration,
+          );
     }
 
     return tile;

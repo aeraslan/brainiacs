@@ -3,7 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:brainiacs_flutter/core/storage/local_storage_provider.dart';
 import 'package:brainiacs_flutter/main.dart';
+
+ProviderScope testApp() {
+  return ProviderScope(
+    overrides: [
+      localStorageProvider.overrideWithValue(LocalStorageService.memory()),
+    ],
+    child: const BrainiacsApp(),
+  );
+}
 
 void main() {
   setUp(() {
@@ -11,7 +21,7 @@ void main() {
   });
 
   testWidgets('Brainiacs app loads menu screen', (WidgetTester tester) async {
-    await tester.pumpWidget(const ProviderScope(child: BrainiacsApp()));
+    await tester.pumpWidget(testApp());
 
     expect(find.text('Brainiacs'), findsOneWidget);
     expect(find.text('New Game'), findsOneWidget);
@@ -28,7 +38,7 @@ void main() {
   testWidgets('Practice button opens practice menu with game tiles', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const ProviderScope(child: BrainiacsApp()));
+    await tester.pumpWidget(testApp());
 
     await tester.tap(find.text('Practice'));
     await tester.pump();

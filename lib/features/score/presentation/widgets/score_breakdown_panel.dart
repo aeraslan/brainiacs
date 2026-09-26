@@ -10,11 +10,14 @@ class ScoreBreakdownPanel extends StatelessWidget {
   const ScoreBreakdownPanel({
     super.key,
     required this.scoresByGame,
+    this.newCategoryHighs = const <MiniGameType>{},
   });
 
   final Map<MiniGameType, int> scoresByGame;
+  final Set<MiniGameType> newCategoryHighs;
 
-  static const int maxSkillScore = 1000;
+  /// Excellent-play ceiling (~25 corrects at 100 pts in a 60s stage).
+  static const int maxSkillScore = 2500;
   static const double barHeight = 60;
   static const Color _trackGrey = Color(0xFFE8EAF0);
   static const double _barGap = AppSpacing.sm + AppSpacing.xs;
@@ -60,6 +63,7 @@ class ScoreBreakdownPanel extends StatelessWidget {
           _ChunkyCandyBar(
             data: _rows[i],
             score: scoresByGame[_rows[i].type] ?? 0,
+            isNewHigh: newCategoryHighs.contains(_rows[i].type),
             index: i,
           ),
         ],
@@ -86,11 +90,13 @@ class _ChunkyCandyBar extends StatelessWidget {
   const _ChunkyCandyBar({
     required this.data,
     required this.score,
+    required this.isNewHigh,
     required this.index,
   });
 
   final _CandyBarData data;
   final int score;
+  final bool isNewHigh;
   final int index;
 
   static const List<Shadow> _contentShadow = [
@@ -192,6 +198,10 @@ class _ChunkyCandyBar extends StatelessWidget {
                           ),
                         ),
                       ),
+                      if (isNewHigh) ...[
+                        const _NewHighChip(),
+                        const SizedBox(width: AppSpacing.xs),
+                      ],
                       Text(
                         '$score',
                         style: const TextStyle(
@@ -221,6 +231,53 @@ class _ChunkyCandyBar extends StatelessWidget {
           delay: entryDelayMs.ms,
           duration: 380.ms,
           curve: Curves.easeOut,
+        );
+  }
+}
+
+class _NewHighChip extends StatelessWidget {
+  const _NewHighChip();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.coral, AppColors.sunnyYellow],
+        ),
+        borderRadius: BorderRadius.circular(AppSpacing.sm),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x33FF6B6B),
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: 2,
+        ),
+        child: Text(
+          'New high score',
+          style: TextStyle(
+            color: AppColors.onAccent,
+            fontWeight: FontWeight.w900,
+            fontSize: 10,
+            letterSpacing: 0.2,
+          ),
+        ),
+      ),
+    )
+        .animate(
+          onPlay: (controller) => controller.repeat(reverse: true),
+        )
+        .scale(
+          begin: const Offset(1, 1),
+          end: const Offset(1.08, 1.08),
+          duration: 700.ms,
+          curve: Curves.easeInOut,
         );
   }
 }

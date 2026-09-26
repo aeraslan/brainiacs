@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../audio/audio_controller_provider.dart';
 import '../rank/title_progress_notifier.dart';
 import 'game_session_state.dart';
 
@@ -64,6 +65,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       visualVariant: VisualGameVariant.visualSort,
       isPracticeMode: true,
     );
+    ref.read(audioControllerProvider.notifier).playMenuBGM();
   }
 
   void startPractice({
@@ -104,6 +106,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       isPaused: false,
       pauseCount: 0,
     );
+    ref.read(audioControllerProvider.notifier).playGameBGM();
     _startPeriodicTimer();
   }
 
@@ -125,7 +128,8 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
 
     final applyPenalty = state.pauseCount >= 2;
     if (applyPenalty) {
-      final nextTime = state.timeRemaining -
+      final previousTime = state.timeRemaining;
+      final nextTime = previousTime -
           GameSessionState.pauseTimePenaltySeconds;
       if (nextTime <= 0) {
         _cancelTimer();
@@ -135,6 +139,8 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
           isPaused: false,
           timePenaltyToken: state.timePenaltyToken + 1,
         );
+        // Penalty skipped the 3s warning window — still fire the alarm.
+        ref.read(audioControllerProvider.notifier).playTimeUpAlarm();
         _timer = Timer(GameSessionState.timesUpDuration, _afterTimesUp);
         return;
       }
@@ -144,6 +150,9 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
         timeRemaining: nextTime,
         timePenaltyToken: state.timePenaltyToken + 1,
       );
+      if (previousTime > 3 && nextTime <= 3) {
+        ref.read(audioControllerProvider.notifier).playTimeUpAlarm();
+      }
       _startPeriodicTimer();
       return;
     }
@@ -178,9 +187,13 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     if (!state.isPracticeMode) {
       ref
           .read(titleProgressProvider.notifier)
-          .recordLoopScore(state.totalScore);
+          .recordLoopScore(
+            totalScore: state.totalScore,
+            scoresByGame: state.scoresByGame,
+          );
     }
     state = state.copyWith(phase: GamePhase.scoreScreen, isPaused: false);
+    ref.read(audioControllerProvider.notifier).playResultBGM();
   }
 
   void addScore(int delta) {
@@ -203,6 +216,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
   void resetToMenu() {
     _cancelTimer();
     state = GameSessionState.initial();
+    ref.read(audioControllerProvider.notifier).playMenuBGM();
   }
 
   void endSessionEarly() {
@@ -223,6 +237,9 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     }
 
     final nextTime = state.timeRemaining - 1;
+    if (nextTime == 3) {
+      ref.read(audioControllerProvider.notifier).playTimeUpAlarm();
+    }
     if (nextTime <= 0) {
       _cancelTimer();
       state = state.copyWith(

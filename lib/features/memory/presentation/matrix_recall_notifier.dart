@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../domain/matrix_recall_sequence.dart';
 
@@ -260,6 +261,9 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
     final nextIndex = state.currentSequenceIndex + 1;
     final completed = nextIndex >= state.sequence.length;
 
+    if (completed) {
+      ref.read(audioControllerProvider.notifier).playCorrect();
+    }
     state = state.copyWith(
       litTileIndex: index,
       currentSequenceIndex: nextIndex,
@@ -303,6 +307,7 @@ class MatrixRecallNotifier extends Notifier<MatrixRecallState> {
     final generation = ++_generation;
     final previousSequence = List<int>.from(state.sequence);
 
+    ref.read(audioControllerProvider.notifier).playWrong();
     state = state.copyWith(
       wrongTileIndex: index,
       errorToken: state.errorToken + 1,

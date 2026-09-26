@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/audio/audio_controller_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import 'candy_pad_button.dart';
@@ -98,7 +100,7 @@ class _PauseMenuOverlay extends StatelessWidget {
   }
 }
 
-class _PauseMenuCard extends StatelessWidget {
+class _PauseMenuCard extends ConsumerWidget {
   const _PauseMenuCard({
     required this.isPracticeMode,
     required this.onAction,
@@ -114,7 +116,12 @@ class _PauseMenuCard extends StatelessWidget {
   static const double _buttonHeight = AppSpacing.xxl + AppSpacing.sm;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bgmEnabled = ref.watch(
+      audioControllerProvider.select((state) => state.bgmEnabled),
+    );
+    final musicDelayMs = isPracticeMode ? 240 : 160;
+
     final buttons = <Widget>[
       _PauseActionButton(
         label: 'Resume',
@@ -139,6 +146,16 @@ class _PauseMenuCard extends StatelessWidget {
         darkColor: darken(AppColors.coral),
         onPressed: () => onAction(PauseMenuAction.quitToMenu),
         delayMs: isPracticeMode ? 160 : 80,
+        height: _buttonHeight,
+      ),
+      _PauseActionButton(
+        label: bgmEnabled ? 'Music: On' : 'Music: Off',
+        color: AppColors.electricBlue,
+        darkColor: darken(AppColors.electricBlue),
+        onPressed: () {
+          ref.read(audioControllerProvider.notifier).toggleBGM();
+        },
+        delayMs: musicDelayMs,
         height: _buttonHeight,
       ),
     ];

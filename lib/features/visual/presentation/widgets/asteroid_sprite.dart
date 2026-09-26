@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/answer_feedback_burst.dart';
 import '../../domain/asteroid.dart';
 import '../visual_colors.dart';
 import 'asteroid_painter.dart';
@@ -69,13 +69,16 @@ class AsteroidSprite extends StatelessWidget {
             end: Offset.zero,
             duration: 280.ms,
             curve: Curves.easeIn,
-          )
-          .tint(color: AppColors.correct, duration: 200.ms);
+          );
     } else if (isShaking) {
       sprite = sprite
           .animate(key: ValueKey('shake-$shakeToken'))
-          .shakeX(amount: 8, duration: 250.ms, hz: 6)
-          .tint(color: AppColors.incorrect, duration: 200.ms);
+          .shakeX(
+            amount: WrongAnswerShake.amount,
+            duration: WrongAnswerShake.duration,
+            hz: WrongAnswerShake.hz,
+            curve: WrongAnswerShake.curve,
+          );
     }
 
     return sprite;

@@ -25,6 +25,7 @@ abstract final class AppColors {
   // Feedback
   static const Color correct = Color(0xFF00C853);
   static const Color incorrect = Color(0xFFFF1744);
+  static const Color scoreGold = Color(0xFFFFC400);
 
   // Shadows
   static const Color shadow = Color(0x1A000000);

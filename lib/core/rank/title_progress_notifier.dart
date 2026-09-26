@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../session/game_session_state.dart';
+import '../storage/local_storage_provider.dart';
 import 'title_progress_state.dart';
 import 'title_tier.dart';
 
@@ -8,9 +9,6 @@ import 'title_tier.dart';
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 class TitleProgressNotifier extends Notifier<TitleProgressState> {
-  static const String highestTitleKey = 'highest_title';
-  static const String lastEarnedDateKey = 'last_earned_date';
-
   @override
   TitleProgressState build() {
     // Fire-and-forget hydrate; UI starts with in-memory defaults.
@@ -20,25 +18,29 @@ class TitleProgressNotifier extends Notifier<TitleProgressState> {
 
   DateTime get _now => ref.read(clockProvider)();
 
+  LocalStorageService get _storage => ref.read(localStorageProvider);
+
   Future<void> _hydrate() async {
-    final prefs = await SharedPreferences.getInstance();
+    final storage = _storage;
+    await storage.migrateFromSharedPreferencesIfNeeded();
     if (!ref.mounted) {
       return;
     }
 
-    final storedTitle =
-        TitleTier.tryParse(prefs.getString(highestTitleKey)) ??
-            TitleTier.dormantMind;
-    final storedDateRaw = prefs.getString(lastEarnedDateKey);
-    final storedDate =
-        storedDateRaw == null ? null : DateTime.tryParse(storedDateRaw);
+    final rankIndex = storage.currentRankIndex;
+    final highestTitle = TitleTier.values[rankIndex];
 
     state = state.copyWith(
-      highestTitle: storedTitle,
-      lastEarnedDate: storedDate,
+      highestTitle: highestTitle,
+      lastEarnedDate: storage.lastPlayedDate,
+      highestScore: storage.highestScore,
+      highestScoresByGame: storage.highestScoresByGame,
+      totalGamesPlayed: storage.totalGamesPlayed,
       isHydrated: true,
       unlockedNewRank: false,
+      hasDecayed: false,
       clearLastSessionTitle: true,
+      clearNewCategoryHighs: true,
     );
 
     applyDecayIfNeeded();
@@ -65,50 +67,99 @@ class TitleProgressNotifier extends Notifier<TitleProgressState> {
       highestTitle: next,
       lastEarnedDate: resetDate,
       unlockedNewRank: false,
+      hasDecayed: true,
       clearLastSessionTitle: true,
     );
-    _persist(next, resetDate);
+    _persist();
   }
 
   /// Records the title earned from a completed 4-game core loop.
-  void recordLoopScore(int totalScore) {
+  ///
+  /// The defend timer only resets when this run matches or beats the held rank.
+  /// Category highs update whenever a per-area score beats its stored best.
+  void recordLoopScore({
+    required int totalScore,
+    required Map<MiniGameType, int> scoresByGame,
+  }) {
     final sessionTitle = TitleTier.fromScore(totalScore);
     final highest = state.highestTitle;
+    final playedAt = _now;
+    final nextGamesPlayed = state.totalGamesPlayed + 1;
+    final nextHighestScore =
+        totalScore > state.highestScore ? totalScore : state.highestScore;
+
+    final nextCategoryHighs =
+        Map<MiniGameType, int>.from(state.highestScoresByGame);
+    final beaten = <MiniGameType>{};
+    for (final type in MiniGameType.values) {
+      final runScore = scoresByGame[type] ?? 0;
+      final held = nextCategoryHighs[type] ?? 0;
+      if (runScore > held) {
+        nextCategoryHighs[type] = runScore;
+        beaten.add(type);
+      }
+    }
 
     if (sessionTitle.isHigherThan(highest)) {
-      final earnedAt = _now;
       state = state.copyWith(
         highestTitle: sessionTitle,
-        lastEarnedDate: earnedAt,
+        lastEarnedDate: playedAt,
         lastSessionTitle: sessionTitle,
         unlockedNewRank: true,
+        highestScore: nextHighestScore,
+        highestScoresByGame: nextCategoryHighs,
+        newCategoryHighs: beaten,
+        totalGamesPlayed: nextGamesPlayed,
+        hasDecayed: false,
       );
-      _persist(sessionTitle, earnedAt);
+      _persist();
       return;
     }
 
     if (sessionTitle == highest) {
-      final earnedAt = _now;
       state = state.copyWith(
-        lastEarnedDate: earnedAt,
+        lastEarnedDate: playedAt,
         lastSessionTitle: sessionTitle,
         unlockedNewRank: false,
+        highestScore: nextHighestScore,
+        highestScoresByGame: nextCategoryHighs,
+        newCategoryHighs: beaten,
+        totalGamesPlayed: nextGamesPlayed,
+        hasDecayed: false,
       );
-      _persist(highest, earnedAt);
+      _persist();
       return;
     }
 
-    // Lower than stored highest — keep date and rank untouched.
+    // Below held rank — progress counters update, defend window untouched.
     state = state.copyWith(
       lastSessionTitle: sessionTitle,
       unlockedNewRank: false,
+      highestScore: nextHighestScore,
+      highestScoresByGame: nextCategoryHighs,
+      newCategoryHighs: beaten,
+      totalGamesPlayed: nextGamesPlayed,
+      hasDecayed: false,
     );
+    _persist();
   }
 
-  Future<void> _persist(TitleTier title, DateTime date) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(highestTitleKey, title.name);
-    await prefs.setString(lastEarnedDateKey, date.toIso8601String());
+  /// Clears the one-shot decay dialog flag after the UI has shown it.
+  void acknowledgeDecay() {
+    if (!state.hasDecayed) {
+      return;
+    }
+    state = state.copyWith(hasDecayed: false);
+  }
+
+  Future<void> _persist() {
+    return _storage.persistProgress(
+      highestScore: state.highestScore,
+      highestScoresByGame: state.highestScoresByGame,
+      currentRankIndex: state.currentRankIndex,
+      totalGamesPlayed: state.totalGamesPlayed,
+      lastPlayedDate: state.lastEarnedDate,
+    );
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
@@ -181,11 +182,14 @@ class _QuickMathScreenState extends ConsumerState<QuickMathScreen> {
           : _AnswerFeedback.incorrect;
     });
 
+    final audio = ref.read(audioControllerProvider.notifier);
     if (isCorrect) {
       HapticFeedback.lightImpact();
+      audio.playCorrect();
       mathNotifier.signalSuccess();
     } else {
       HapticFeedback.heavyImpact();
+      audio.playWrong();
       mathNotifier.signalError();
     }
 

@@ -33,7 +33,7 @@ class StroopTargetWord extends StatelessWidget {
           ],
         ),
       )
-          .animate()
+          .animate(key: ValueKey('stroop-enter-${round.identityKey}'))
           .fadeIn(duration: 220.ms, curve: Curves.easeOut)
           .slideY(
             begin: 0.28,

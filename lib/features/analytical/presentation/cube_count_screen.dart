@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
@@ -176,11 +177,14 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
           isCorrect ? _AnswerFeedback.correct : _AnswerFeedback.incorrect;
     });
 
+    final audio = ref.read(audioControllerProvider.notifier);
     if (isCorrect) {
       HapticFeedback.lightImpact();
+      audio.playCorrect();
       cubeNotifier.signalSuccess();
     } else {
       HapticFeedback.heavyImpact();
+      audio.playWrong();
       cubeNotifier.signalError();
     }
 
@@ -278,6 +282,7 @@ class _CubeCountScreenState extends ConsumerState<CubeCountScreen> {
                         ),
                         points: correctPoints,
                         penalty: incorrectPenalty,
+                        showErrorBorder: false,
                         child: answerDisplay,
                       ),
                     ],

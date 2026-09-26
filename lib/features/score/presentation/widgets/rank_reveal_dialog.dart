@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/audio/audio_controller_provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_tier.dart';
@@ -196,9 +198,9 @@ class _RankSlotMachineState extends State<_RankSlotMachine>
   static const double _itemExtent = 72;
   static const double _viewportHeight = _itemExtent * 3.5;
 
-  /// One continuous spin: fast blur → smooth decelerate → readable crawl.
-  static const Duration _spinDuration = Duration(milliseconds: 5200);
-  static const int _spinLoops = 5;
+  /// One continuous spin timed to the spin→win combined SFX (~5s).
+  static const Duration _spinDuration = Duration(milliseconds: 5000);
+  static const int _spinLoops = 4;
 
   /// Highest at top → lowest at bottom.
   static final List<TitleTier> _ladder = TitleTier.values.reversed.toList();
@@ -265,6 +267,11 @@ class _RankSlotMachineState extends State<_RankSlotMachine>
     }
     _spinStarted = true;
 
+    final audio = ProviderScope.containerOf(context)
+        .read(audioControllerProvider.notifier);
+    // Combined spin + win clip — let it run through; do not cut on lock.
+    audio.playSlotSpin();
+
     final itemCount = _ladder.length;
     final earnedIndex = _ladder.indexOf(widget.earnedTitle);
     final startItem = _controller.selectedItem.toDouble();
@@ -303,12 +310,14 @@ class _RankSlotMachineState extends State<_RankSlotMachine>
     try {
       await spinController.forward();
     } catch (_) {
+      await audio.stopSlotSpin();
       return;
     } finally {
       curved.removeListener(applySpin);
     }
 
     if (!mounted || _isDisposed) {
+      await audio.stopSlotSpin();
       return;
     }
 
@@ -326,6 +335,7 @@ class _RankSlotMachineState extends State<_RankSlotMachine>
 
   void _lockOntoEarned() {
     HapticFeedback.heavyImpact();
+    // Win sting lives inside sfx_slot_spin.mp3 — do not stop or play a second clip.
     setState(() => _landingPop = true);
     widget.onLocked();
   }

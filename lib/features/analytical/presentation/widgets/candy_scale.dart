@@ -313,7 +313,7 @@ class _ScaleArm extends StatelessWidget {
 
     if (animateDrop) {
       arm = arm
-          .animate()
+          .animate(key: ValueKey('scale-drop-${comparison.identityKey}'))
           .rotate(
             begin: 0,
             end: tiltTurns,
@@ -324,7 +324,10 @@ class _ScaleArm extends StatelessWidget {
           );
     } else if (animateWobble) {
       arm = arm
-          .animate(onPlay: (controller) => controller.repeat(reverse: true))
+          .animate(
+            key: ValueKey('scale-wobble-${comparison.identityKey}'),
+            onPlay: (controller) => controller.repeat(reverse: true),
+          )
           .rotate(
             begin: -CandyScale.wobbleTurns,
             end: CandyScale.wobbleTurns,
@@ -439,7 +442,11 @@ class _LevelPanAssembly extends StatelessWidget {
 
     if (animateDrop && counterRotateTurns != 0) {
       assembly = assembly
-          .animate()
+          .animate(
+            key: ValueKey(
+              'pan-drop-${items.join("+")}-$counterRotateTurns',
+            ),
+          )
           .rotate(
             begin: 0,
             end: counterRotateTurns,
@@ -450,7 +457,10 @@ class _LevelPanAssembly extends StatelessWidget {
           );
     } else if (animateWobble) {
       assembly = assembly
-          .animate(onPlay: (controller) => controller.repeat(reverse: true))
+          .animate(
+            key: ValueKey('pan-wobble-${items.join("+")}'),
+            onPlay: (controller) => controller.repeat(reverse: true),
+          )
           .rotate(
             begin: CandyScale.wobbleTurns,
             end: -CandyScale.wobbleTurns,

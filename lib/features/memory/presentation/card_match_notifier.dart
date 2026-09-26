@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../domain/memory_card.dart';
 
@@ -206,6 +208,7 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
       );
 
       if (state.allMatched) {
+        ref.read(audioControllerProvider.notifier).playCorrect();
         await Future<void>.delayed(CardMatchState.levelCompleteDelay);
         if (generation != _evaluationGeneration) {
           return;
@@ -225,6 +228,8 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
       return;
     }
 
+    HapticFeedback.heavyImpact();
+    ref.read(audioControllerProvider.notifier).playWrong();
     state = state.copyWith(
       mismatchToken: state.mismatchToken + 1,
       mismatchCardIndices: List<int>.from(selectedIndices),

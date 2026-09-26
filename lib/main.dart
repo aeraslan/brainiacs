@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import 'core/audio/audio_controller_provider.dart';
 import 'core/session/game_session_notifier.dart';
 import 'core/session/game_session_state.dart';
+import 'core/storage/local_storage_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/analytical/presentation/balance_logic_screen.dart';
 import 'features/analytical/presentation/cube_count_screen.dart';
@@ -19,7 +22,10 @@ import 'features/tutorial/presentation/tutorial_screen.dart';
 import 'features/visual/presentation/color_clash_screen.dart';
 import 'features/visual/presentation/visual_sort_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox(LocalStorageService.boxName);
   runApp(const ProviderScope(child: BrainiacsApp()));
 }
 
@@ -37,11 +43,27 @@ class BrainiacsApp extends StatelessWidget {
   }
 }
 
-class HomeShell extends ConsumerWidget {
+class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends ConsumerState<HomeShell> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      ref.read(audioControllerProvider.notifier).playMenuBGM();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final phase = ref.watch(gameSessionProvider.select((state) => state.phase));
     final currentGame = ref.watch(
       gameSessionProvider.select((state) => state.currentGame),

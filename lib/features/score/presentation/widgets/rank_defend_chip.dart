@@ -4,24 +4,60 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_progress_state.dart';
+import '../../../../core/rank/title_tier.dart';
 
-/// Candy chip showing how many days remain before rank decay.
+/// How this run relates to the player's held rank for defend messaging.
+enum RankDefendOutcome {
+  /// This run raised the held rank.
+  unlocked,
+
+  /// This run matched the held rank (timer reset).
+  defended,
+
+  /// This run was below the held rank (timer unchanged).
+  pending,
+}
+
+/// Candy chip showing which held rank needs defending and how many days remain.
 class RankDefendChip extends StatelessWidget {
   const RankDefendChip({
     super.key,
+    required this.heldTitle,
     required this.daysLeft,
+    required this.outcome,
   });
 
+  final TitleTier heldTitle;
   final int daysLeft;
+  final RankDefendOutcome outcome;
+
+  String get _daysPhrase {
+    if (daysLeft <= 0) {
+      return 'defend today';
+    }
+    if (daysLeft == 1) {
+      return '1 day left';
+    }
+    return '$daysLeft days left';
+  }
+
+  String get _label {
+    final name = heldTitle.label;
+    return switch (outcome) {
+      RankDefendOutcome.unlocked => daysLeft <= 0
+          ? 'New held rank: $name — defend today!'
+          : 'New held rank: $name · $_daysPhrase to defend',
+      RankDefendOutcome.defended => daysLeft <= 0
+          ? '$name defended — defend again today!'
+          : '$name defended · $_daysPhrase',
+      RankDefendOutcome.pending => daysLeft <= 0
+          ? 'Held: $name — defend today!'
+          : 'Held: $name · $_daysPhrase to defend',
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
-    final label = daysLeft <= 0
-        ? 'Defend your rank today!'
-        : daysLeft == 1
-            ? '1 day left to defend your rank!'
-            : '$daysLeft days left to defend your rank!';
-
     final urgent = daysLeft <= 2;
 
     return DecoratedBox(
@@ -66,7 +102,7 @@ class RankDefendChip extends StatelessWidget {
             const SizedBox(width: AppSpacing.xs),
             Flexible(
               child: Text(
-                label,
+                _label,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
@@ -93,11 +129,30 @@ class RankDefendChip extends StatelessWidget {
   static Widget? maybeOf({
     required TitleProgressState progress,
     required DateTime now,
+    required TitleTier sessionTitle,
   }) {
     final days = progress.daysLeftToDefend(now);
     if (days == null) {
       return null;
     }
-    return RankDefendChip(daysLeft: days);
+    if (progress.highestTitle == TitleTier.dormantMind &&
+        !progress.unlockedNewRank) {
+      return null;
+    }
+
+    final RankDefendOutcome outcome;
+    if (progress.unlockedNewRank) {
+      outcome = RankDefendOutcome.unlocked;
+    } else if (sessionTitle == progress.highestTitle) {
+      outcome = RankDefendOutcome.defended;
+    } else {
+      outcome = RankDefendOutcome.pending;
+    }
+
+    return RankDefendChip(
+      heldTitle: progress.highestTitle,
+      daysLeft: days,
+      outcome: outcome,
+    );
   }
 }

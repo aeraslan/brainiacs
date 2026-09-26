@@ -1,5 +1,6 @@
 import 'package:brainiacs_flutter/core/session/game_session_notifier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_state.dart';
+import 'package:brainiacs_flutter/core/storage/local_storage_provider.dart';
 import 'package:brainiacs_flutter/features/memory/presentation/matrix_recall_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,14 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
+
+  ProviderContainer createContainer() {
+    return ProviderContainer(
+      overrides: [
+        localStorageProvider.overrideWithValue(LocalStorageService.memory()),
+      ],
+    );
+  }
 
   Future<void> waitUntilPlay(ProviderContainer container) async {
     // Length-3 watch (base timings): 3×600ms lit + 2×200ms gap ≈ 2200ms.
@@ -21,7 +30,7 @@ void main() {
   }
 
   test('each correct Matrix Recall tile awards 40 points', () async {
-    final container = ProviderContainer();
+    final container = createContainer();
     addTearDown(container.dispose);
 
     final session = container.read(gameSessionProvider.notifier);
@@ -52,7 +61,7 @@ void main() {
 
   test('wrong Matrix Recall tap awards -20 and no credit for missed tile',
       () async {
-    final container = ProviderContainer();
+    final container = createContainer();
     addTearDown(container.dispose);
 
     final session = container.read(gameSessionProvider.notifier);
