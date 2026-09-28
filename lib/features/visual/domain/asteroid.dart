@@ -41,16 +41,16 @@ abstract final class AsteroidField {
   static const double spawnPadding = 8;
   static const int maxPlacementAttempts = 80;
 
-  /// Distinct rock colors — avoids sky-like blues that blend into the playfield.
+  /// Vibrant rock fills — bright enough for dark labels, no sky-like blues.
   static const List<Color> palette = [
-    Color(0xFFE07050), // terracotta
-    Color(0xFF5BBF7A), // green
-    Color(0xFFD4A017), // gold
-    Color(0xFF9B6B9E), // plum
-    Color(0xFFD97B8C), // rose
-    Color(0xFF6B7F8A), // slate
-    Color(0xFFC47A3A), // amber-brown
-    Color(0xFF7A9E5C), // olive
+    Color(0xFFFF6B6B), // coral
+    Color(0xFFFF9F1C), // orange
+    Color(0xFFFFE66D), // sunny yellow
+    Color(0xFF2EC4B6), // teal
+    Color(0xFFC77DFF), // light violet
+    Color(0xFFFF85A1), // rose pink
+    Color(0xFF80ED99), // lime
+    Color(0xFFFF7F51), // peach
   ];
 
   static const List<String> letterPool = [

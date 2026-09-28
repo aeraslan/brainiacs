@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/audio_controller_provider.dart';
@@ -7,6 +8,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../core/session/game_session_state.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
+import '../../../shared/widgets/candy_button.dart';
 import '../../../shared/widgets/countdown_overlay.dart';
 import '../../../shared/widgets/game_screen_background.dart';
 import '../../analytical/presentation/balance_logic_screen.dart';
@@ -28,6 +30,7 @@ class TutorialScreen extends ConsumerStatefulWidget {
 
 class _TutorialScreenState extends ConsumerState<TutorialScreen> {
   final GlobalKey _overlayKey = GlobalKey();
+  final GlobalKey _boardKey = GlobalKey();
   late final TutorialPointerController _pointerController;
   bool _showCountdown = false;
 
@@ -85,12 +88,6 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     final visualVariant = ref.watch(
       gameSessionProvider.select((state) => state.visualVariant),
     );
-    final stageNumber = ref.watch(
-      gameSessionProvider.select((state) => state.stageNumber),
-    );
-    final stageCount = ref.watch(
-      gameSessionProvider.select((state) => state.stageCount),
-    );
     final copy = _TutorialCopy.forType(
       currentGame,
       mathVariant: mathVariant,
@@ -119,40 +116,86 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
             Positioned.fill(
               child: Column(
                 children: [
-                  SafeArea(
-                    bottom: false,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.md,
-                        AppSpacing.md,
-                        AppSpacing.md,
-                        AppSpacing.sm,
-                      ),
-                      child: _TutorialBanner(
-                        stageNumber: stageNumber,
-                        stageCount: stageCount,
-                        instruction: copy.instruction,
-                      ),
-                    ),
-                  ),
                   Expanded(
-                    child: ClipRect(
-                      child: IgnorePointer(
-                        child: MediaQuery.removePadding(
-                          context: context,
-                          removeTop: true,
-                          removeBottom: true,
-                          child: _TutorialGameHost(
-                            type: currentGame,
-                            mathVariant: mathVariant,
-                            analyticVariant: analyticVariant,
-                            memoryVariant: memoryVariant,
-                            visualVariant: visualVariant,
-                            autoPlay: true,
-                            pointerController: _pointerController,
+                    child: Stack(
+                      key: _boardKey,
+                      fit: StackFit.expand,
+                      children: [
+                        Column(
+                          children: [
+                            SafeArea(
+                              bottom: false,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  AppSpacing.md,
+                                  AppSpacing.md,
+                                  AppSpacing.md,
+                                  AppSpacing.sm,
+                                ),
+                                // Invisible spacer so the live banner above the dim
+                                // keeps correct vertical layout without a ghost double.
+                                child: Visibility(
+                                  visible: false,
+                                  maintainSize: true,
+                                  maintainAnimation: true,
+                                  maintainState: true,
+                                  child: _TutorialBanner(
+                                    title: copy.title,
+                                    instruction: copy.instruction,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: ClipRect(
+                                child: IgnorePointer(
+                                  child: MediaQuery.removePadding(
+                                    context: context,
+                                    removeTop: true,
+                                    removeBottom: true,
+                                    child: _TutorialGameHost(
+                                      type: currentGame,
+                                      mathVariant: mathVariant,
+                                      analyticVariant: analyticVariant,
+                                      memoryVariant: memoryVariant,
+                                      visualVariant: visualVariant,
+                                      autoPlay: true,
+                                      pointerController: _pointerController,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Dim from the top edge down through the board (behind chrome).
+                        _TutorialDimOverlay(
+                          controller: _pointerController,
+                          boardKey: _boardKey,
+                          overlayKey: _overlayKey,
+                        ),
+                        // Banner redrawn above the dim so title/subtitle stay crisp.
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: SafeArea(
+                            bottom: false,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                AppSpacing.md,
+                                AppSpacing.md,
+                                AppSpacing.md,
+                                AppSpacing.sm,
+                              ),
+                              child: _TutorialBanner(
+                                title: copy.title,
+                                instruction: copy.instruction,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                   SafeArea(
@@ -166,10 +209,20 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                       ),
                       child: SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _onReady,
-                          child: const Text('Ready!'),
-                        ),
+                        child: CandyButton(
+                              label: 'PLAY!',
+                              onPressed: _onReady,
+                            )
+                            .animate(
+                              onPlay: (controller) =>
+                                  controller.repeat(reverse: true),
+                            )
+                            .scale(
+                              begin: const Offset(1, 1),
+                              end: const Offset(1.05, 1.05),
+                              duration: 700.ms,
+                              curve: Curves.easeInOut,
+                            ),
                       ),
                     ),
                   ),
@@ -181,6 +234,102 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
         ),
       ),
     );
+  }
+}
+
+/// Dims the mock board; punches a soft spotlight hole around the demo target.
+class _TutorialDimOverlay extends StatelessWidget {
+  const _TutorialDimOverlay({
+    required this.controller,
+    required this.boardKey,
+    required this.overlayKey,
+  });
+
+  final TutorialPointerController controller;
+  final GlobalKey boardKey;
+  final GlobalKey overlayKey;
+
+  Rect? _toBoardLocal(Rect? overlayRect) {
+    if (overlayRect == null) {
+      return null;
+    }
+    final board = boardKey.currentContext?.findRenderObject();
+    final overlay = overlayKey.currentContext?.findRenderObject();
+    if (board is! RenderBox || overlay is! RenderBox) {
+      return null;
+    }
+
+    final topLeft = board.globalToLocal(
+      overlay.localToGlobal(overlayRect.topLeft),
+    );
+    final bottomRight = board.globalToLocal(
+      overlay.localToGlobal(overlayRect.bottomRight),
+    );
+    return Rect.fromPoints(topLeft, bottomRight);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Rect?>(
+      valueListenable: controller.spotlightRect,
+      builder: (context, overlayRect, _) {
+        final hole = _toBoardLocal(overlayRect);
+        return IgnorePointer(
+          child: CustomPaint(
+            painter: _SpotlightDimPainter(hole: hole),
+            child: const SizedBox.expand(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SpotlightDimPainter extends CustomPainter {
+  const _SpotlightDimPainter({required this.hole});
+
+  final Rect? hole;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bounds = Offset.zero & size;
+    final dimPath = Path()..addRect(bounds);
+    RRect? holeRRect;
+
+    if (hole != null) {
+      final clipped = hole!.intersect(bounds);
+      if (!clipped.isEmpty) {
+        holeRRect = RRect.fromRectAndRadius(
+          clipped,
+          const Radius.circular(AppSpacing.md),
+        );
+        dimPath
+          ..addRRect(holeRRect)
+          ..fillType = PathFillType.evenOdd;
+      }
+    }
+
+    canvas.drawPath(dimPath, Paint()..color = Colors.black54);
+
+    if (holeRRect != null) {
+      final glowPaint = Paint()
+        ..color = const Color(0x33FFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 8
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      canvas.drawRRect(holeRRect.inflate(2), glowPaint);
+
+      final rimPaint = Paint()
+        ..color = const Color(0x66FFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5;
+      canvas.drawRRect(holeRRect, rimPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SpotlightDimPainter oldDelegate) {
+    return oldDelegate.hole != hole;
   }
 }
 
@@ -301,8 +450,9 @@ class _TutorialGameHost extends StatelessWidget {
 }
 
 class _TutorialCopy {
-  const _TutorialCopy({required this.instruction});
+  const _TutorialCopy({required this.title, required this.instruction});
 
+  final String title;
   final String instruction;
 
   static _TutorialCopy forType(
@@ -315,33 +465,41 @@ class _TutorialCopy {
     return switch (type) {
       MiniGameType.math => switch (mathVariant) {
         MathGameVariant.quickMath => const _TutorialCopy(
+          title: 'Quick Math',
           instruction: 'Find the correct answer.',
         ),
         MathGameVariant.missingOperator => const _TutorialCopy(
+          title: 'Missing Operator',
           instruction: 'Pick the missing operator.',
         ),
       },
       MiniGameType.memory => switch (memoryVariant) {
         MemoryGameVariant.cardMatch => const _TutorialCopy(
+          title: 'Card Match',
           instruction: 'Memorize the cards and match them.',
         ),
         MemoryGameVariant.matrixRecall => const _TutorialCopy(
+          title: 'Matrix Recall',
           instruction: 'Watch the sequence, then tap it back.',
         ),
       },
       MiniGameType.analytical => switch (analyticVariant) {
         AnalyticGameVariant.cubeCount => const _TutorialCopy(
+          title: 'Cube Count',
           instruction: 'Count how many cubes are on the screen.',
         ),
         AnalyticGameVariant.balanceLogic => const _TutorialCopy(
+          title: 'Balance Logic',
           instruction: 'Pick the heaviest object.',
         ),
       },
       MiniGameType.visual => switch (visualVariant) {
         VisualGameVariant.visualSort => const _TutorialCopy(
+          title: 'Asteroids',
           instruction: 'Tap the asteroids in ascending order.',
         ),
         VisualGameVariant.colorClash => const _TutorialCopy(
+          title: 'Color Clash',
           instruction: 'Follow the rule: match the ink or the word.',
         ),
       },
@@ -351,45 +509,54 @@ class _TutorialCopy {
 
 class _TutorialBanner extends StatelessWidget {
   const _TutorialBanner({
-    required this.stageNumber,
-    required this.stageCount,
+    required this.title,
     required this.instruction,
   });
 
-  final int stageNumber;
-  final int stageCount;
+  final String title;
   final String instruction;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final titleStyle = textTheme.displayMedium?.copyWith(
+      fontWeight: FontWeight.w900,
+      height: 1.1,
+    );
 
-    return Material(
-      color: AppColors.surface.withValues(alpha: 0.92),
-      borderRadius: BorderRadius.circular(AppSpacing.md),
-      elevation: 1,
-      shadowColor: AppColors.shadow,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        child: Column(
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
           children: [
             Text(
-              'Stage $stageNumber / $stageCount',
+              title,
               textAlign: TextAlign.center,
-              style: textTheme.titleLarge,
+              style: titleStyle?.copyWith(
+                foreground: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 6
+                  ..strokeJoin = StrokeJoin.round
+                  ..color = Colors.black87,
+              ),
             ),
-            const SizedBox(height: AppSpacing.xs),
             Text(
-              instruction,
+              title,
               textAlign: TextAlign.center,
-              style: textTheme.bodyLarge,
+              style: titleStyle?.copyWith(color: Colors.white),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          instruction,
+          textAlign: TextAlign.center,
+          style: textTheme.bodyLarge?.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -194,7 +194,18 @@ class CubePuzzle {
   }
 
   static CubePuzzle _fallbackPuzzle(int level, {CubePuzzle? excluding}) {
+    final minTotal = _minTotalForLevel(level);
+    final maxTotal = _maxTotalForLevel(level);
     final candidates = <List<List<int>>>[
+      // Totals 2–3: only valid for the first two questions.
+      [
+        [2, 0],
+        [0, 0],
+      ],
+      [
+        [1, 0],
+        [0, 1],
+      ],
       [
         [2, 0],
         [0, 1],
@@ -203,38 +214,85 @@ class CubePuzzle {
         [1, 1],
         [0, 1],
       ],
+      // Totals 4+.
       [
-        [1, 0],
-        [1, 1],
+        [2, 0],
+        [0, 2],
       ],
       [
         [3, 0],
-        [0, 1],
+        [0, 2],
+      ],
+      [
+        [2, 1],
+        [0, 2],
+      ],
+      [
+        [3, 0, 0],
+        [0, 2, 0],
+        [0, 0, 2],
+      ],
+      [
+        [2, 0, 1],
+        [0, 3, 0],
+        [1, 0, 2],
+      ],
+      [
+        [3, 0, 2],
+        [0, 3, 0],
+        [2, 0, 3],
       ],
     ];
 
     for (final heights in candidates) {
-      if (excluding == null || !_sameLayout(heights, excluding.heights)) {
-        return CubePuzzle(
-          heights: heights,
-          expectedTotal: _totalCubes(heights),
-          level: level,
-        );
+      final total = _totalCubes(heights);
+      if (total < minTotal || total > maxTotal) {
+        continue;
       }
+      if (excluding != null && _sameLayout(heights, excluding.heights)) {
+        continue;
+      }
+      return CubePuzzle(
+        heights: heights,
+        expectedTotal: total,
+        level: level,
+      );
     }
 
-    final heights = candidates.first;
+    // Guaranteed in-range layout when no candidate matched.
+    final size = _gridSizeForLevel(level);
+    final heights = List.generate(
+      size,
+      (_) => List.filled(size, 0),
+    );
+    var remaining = minTotal;
+    for (var r = 0; r < size && remaining > 0; r++) {
+      for (var c = 0; c < size && remaining > 0; c++) {
+        final stack = remaining.clamp(1, _maxHeightForLevel(level));
+        heights[r][c] = stack;
+        remaining -= stack;
+      }
+    }
+    _removeOccludedColumns(heights);
+    var total = _totalCubes(heights);
+    if (total < minTotal) {
+      heights[size - 1][size - 1] =
+          (heights[size - 1][size - 1] + (minTotal - total))
+              .clamp(1, _maxHeightForLevel(level));
+      total = _totalCubes(heights);
+    }
     return CubePuzzle(
       heights: heights,
-      expectedTotal: _totalCubes(heights),
+      expectedTotal: total,
       level: level,
     );
   }
 
   /// Early levels stay small (≤8). Growth is slow; totals rarely exceed 20.
   static int _maxTotalForLevel(int level) {
+    // First two questions only: 2–3 cubes (never 1).
     if (level <= 2) {
-      return 5;
+      return 3;
     }
     if (level <= 5) {
       return 8;
@@ -258,12 +316,13 @@ class CubePuzzle {
     return 24;
   }
 
+  /// Never asks for 1 cube. Totals of 2–3 only on the first two questions.
   static int _minTotalForLevel(int level) {
     if (level <= 2) {
-      return 1;
+      return 2;
     }
     if (level <= 5) {
-      return 3;
+      return 4;
     }
     if (level <= 9) {
       return 5;

@@ -86,10 +86,11 @@ class AsteroidPainter extends CustomPainter {
 
   void _drawCraters(Canvas canvas, Offset center, double radius, Random rng) {
     final craterCount = 3 + rng.nextInt(4);
+    // Keep craters subtle so dark labels stay readable on bright fills.
     final craterColor =
-        Color.lerp(color, const Color(0xFF000000), 0.2) ??
+        Color.lerp(color, const Color(0xFF000000), 0.12) ??
         color.withValues(alpha: 0.85);
-    final highlight = Color.lerp(color, const Color(0xFFFFFFFF), 0.16) ?? color;
+    final highlight = Color.lerp(color, const Color(0xFFFFFFFF), 0.22) ?? color;
 
     for (var i = 0; i < craterCount; i++) {
       final angle = rng.nextDouble() * pi * 2;

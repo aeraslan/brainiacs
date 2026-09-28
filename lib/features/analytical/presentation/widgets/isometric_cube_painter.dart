@@ -15,11 +15,14 @@ class IsometricCubePainter extends CustomPainter {
   final CubePuzzle puzzle;
   final Animation<double> progress;
 
+  /// High-saturation bases so stacks stay distinct against each other.
   static const List<Color> _baseColors = [
-    AppColors.electricBlue,
-    AppColors.coral,
-    AppColors.vibrantPurple,
-    AppColors.mint,
+    Color(0xFFFF1744), // vivid red
+    Color(0xFF00E5FF), // electric cyan
+    Color(0xFFFFD600), // punchy yellow
+    Color(0xFF651FFF), // deep violet
+    Color(0xFF00E676), // neon green
+    Color(0xFFFF6D00), // vivid orange
   ];
 
   static const double _fitPadding = 8;
@@ -218,14 +221,14 @@ class IsometricCubePainter extends CustomPainter {
     final bottomS = center.translate(0, hh);
     final bottomW = center.translate(-hw, 0);
 
-    final topColor = Color.lerp(base, Colors.white, 0.35) ?? base;
-    final leftColor = Color.lerp(base, Colors.black, 0.15) ?? base;
-    final rightColor = Color.lerp(base, Colors.black, 0.35) ?? base;
+    final topColor = Color.lerp(base, Colors.white, 0.22) ?? base;
+    final leftColor = Color.lerp(base, Colors.black, 0.22) ?? base;
+    final rightColor = Color.lerp(base, Colors.black, 0.48) ?? base;
 
     final stroke = Paint()
-      ..color = AppColors.textPrimary.withValues(alpha: 0.18)
+      ..color = AppColors.textPrimary.withValues(alpha: 0.32)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
+      ..strokeWidth = 1.35
       ..strokeJoin = StrokeJoin.round;
 
     void fillPoly(List<Offset> points, Color color) {
