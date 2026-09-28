@@ -1,6 +1,6 @@
 {
-    "name": "brainiacs_flutter",
-    "short_name": "brainiacs_flutter",
+    "name": "Brainiacs",
+    "short_name": "Brainiacs",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
