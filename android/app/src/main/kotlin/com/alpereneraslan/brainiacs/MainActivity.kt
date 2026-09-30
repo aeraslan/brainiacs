@@ -1,4 +1,4 @@
-package com.example.brainiacs_flutter
+package com.alpereneraslan.brainiacs
 
 import io.flutter.embedding.android.FlutterActivity
 
