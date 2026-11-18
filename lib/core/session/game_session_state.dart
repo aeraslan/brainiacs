@@ -1,6 +1,7 @@
 enum GamePhase {
   menu,
   practiceMenu,
+  myProgress,
   tutorial,
   countdown,
   playing,
@@ -34,6 +35,7 @@ class GameSessionState {
     required this.analyticVariant,
     required this.memoryVariant,
     required this.visualVariant,
+    this.sessionId = '',
     this.isPracticeMode = false,
     this.isPaused = false,
     this.pauseCount = 0,
@@ -83,6 +85,9 @@ class GameSessionState {
   final AnalyticGameVariant analyticVariant;
   final MemoryGameVariant memoryVariant;
   final VisualGameVariant visualVariant;
+
+  /// Unique id for a New Game run; empty for practice / menu.
+  final String sessionId;
   final bool isPracticeMode;
   final bool isPaused;
   final int pauseCount;
@@ -109,6 +114,7 @@ class GameSessionState {
     AnalyticGameVariant? analyticVariant,
     MemoryGameVariant? memoryVariant,
     VisualGameVariant? visualVariant,
+    String? sessionId,
     bool? isPracticeMode,
     bool? isPaused,
     int? pauseCount,
@@ -125,6 +131,7 @@ class GameSessionState {
       analyticVariant: analyticVariant ?? this.analyticVariant,
       memoryVariant: memoryVariant ?? this.memoryVariant,
       visualVariant: visualVariant ?? this.visualVariant,
+      sessionId: sessionId ?? this.sessionId,
       isPracticeMode: isPracticeMode ?? this.isPracticeMode,
       isPaused: isPaused ?? this.isPaused,
       pauseCount: pauseCount ?? this.pauseCount,

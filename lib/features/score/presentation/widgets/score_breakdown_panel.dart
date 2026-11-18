@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/session/game_session_state.dart';
+import '../../../../shared/constants/mini_game_category_style.dart';
 
 /// Floating chunky candy skill bars for each mini-game.
 class ScoreBreakdownPanel extends StatelessWidget {
@@ -22,48 +23,17 @@ class ScoreBreakdownPanel extends StatelessWidget {
   static const Color _trackGrey = Color(0xFFE8EAF0);
   static const double _barGap = AppSpacing.sm;
 
-  static const List<_CandyBarData> _rows = [
-    _CandyBarData(
-      type: MiniGameType.math,
-      label: 'Math',
-      icon: Icons.calculate_rounded,
-      // Matches GameBackgroundStyle.mathYellow accent.
-      color: Color(0xFFFFE566),
-    ),
-    _CandyBarData(
-      type: MiniGameType.memory,
-      label: 'Memory',
-      icon: Icons.psychology_rounded,
-      // Matches GameBackgroundStyle.memoryGreen accent.
-      color: Color(0xFFA8E6A3),
-    ),
-    _CandyBarData(
-      type: MiniGameType.analytical,
-      label: 'Analytic',
-      icon: Icons.extension_rounded,
-      // Matches GameBackgroundStyle.cubeOrange accent.
-      color: Color(0xFFFFBE7D),
-    ),
-    _CandyBarData(
-      type: MiniGameType.visual,
-      label: 'Visual',
-      icon: Icons.visibility_rounded,
-      // Matches VisualColors.sky.
-      color: Color(0xFF7EC8E3),
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var i = 0; i < _rows.length; i++) ...[
+        for (var i = 0; i < MiniGameType.values.length; i++) ...[
           if (i > 0) const SizedBox(height: _barGap),
           _ChunkyCandyBar(
-            data: _rows[i],
-            score: scoresByGame[_rows[i].type] ?? 0,
-            isNewHigh: newCategoryHighs.contains(_rows[i].type),
+            type: MiniGameType.values[i],
+            score: scoresByGame[MiniGameType.values[i]] ?? 0,
+            isNewHigh: newCategoryHighs.contains(MiniGameType.values[i]),
             index: i,
           ),
         ],
@@ -72,29 +42,15 @@ class ScoreBreakdownPanel extends StatelessWidget {
   }
 }
 
-class _CandyBarData {
-  const _CandyBarData({
-    required this.type,
-    required this.label,
-    required this.icon,
-    required this.color,
-  });
-
-  final MiniGameType type;
-  final String label;
-  final IconData icon;
-  final Color color;
-}
-
 class _ChunkyCandyBar extends StatelessWidget {
   const _ChunkyCandyBar({
-    required this.data,
+    required this.type,
     required this.score,
     required this.isNewHigh,
     required this.index,
   });
 
-  final _CandyBarData data;
+  final MiniGameType type;
   final int score;
   final bool isNewHigh;
   final int index;
@@ -114,6 +70,7 @@ class _ChunkyCandyBar extends StatelessWidget {
     final fraction =
         (score / ScoreBreakdownPanel.maxSkillScore).clamp(0.0, 1.0);
     final radius = BorderRadius.circular(ScoreBreakdownPanel.barHeight / 2);
+    final color = type.color;
 
     return RepaintBoundary(
       child: DecoratedBox(
@@ -136,7 +93,7 @@ class _ChunkyCandyBar extends StatelessWidget {
               children: [
                 ColoredBox(
                   color: Color.alphaBlend(
-                    data.color.withValues(alpha: 0.15),
+                    color.withValues(alpha: 0.15),
                     ScoreBreakdownPanel._trackGrey,
                   ),
                 ),
@@ -149,7 +106,7 @@ class _ChunkyCandyBar extends StatelessWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          ColoredBox(color: data.color),
+                          ColoredBox(color: color),
                           Align(
                             alignment: Alignment.topCenter,
                             child: FractionallySizedBox(
@@ -181,7 +138,7 @@ class _ChunkyCandyBar extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(
-                        data.icon,
+                        type.icon,
                         color: AppColors.textPrimary,
                         size: 20,
                         shadows: _contentShadow,
@@ -189,7 +146,7 @@ class _ChunkyCandyBar extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          data.label,
+                          type.label,
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w800,

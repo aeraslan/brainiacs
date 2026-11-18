@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:brainiacs_flutter/core/storage/local_storage_provider.dart';
 import 'package:brainiacs_flutter/core/theme/app_theme.dart';
 import 'package:brainiacs_flutter/features/score/presentation/score_screen.dart';
+import 'package:brainiacs_flutter/shared/widgets/scroll_more_cue.dart';
 
 Widget _scoreScreenApp({required Size size}) {
   return ProviderScope(
@@ -76,4 +77,81 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'shows Scroll for more when results overflow the viewport',
+    (tester) async {
+      const size = Size(320, 480);
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() async {
+        await tester.binding.setSurfaceSize(null);
+      });
+
+      await tester.pumpWidget(_scoreScreenApp(size: size));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      // Allow post-frame overflow sync.
+      await tester.pump();
+
+      expect(find.text(ScrollMoreCue.label), findsOneWidget);
+      expect(find.text('Play Again'), findsOneWidget);
+      expect(find.text('Menu'), findsOneWidget);
+
+      await _disposeAnimatedTree(tester);
+    },
+  );
+
+  testWidgets(
+    'hides Scroll for more when results fit without scrolling',
+    (tester) async {
+      const size = Size(400, 1200);
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() async {
+        await tester.binding.setSurfaceSize(null);
+      });
+
+      await tester.pumpWidget(_scoreScreenApp(size: size));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump();
+
+      expect(find.text(ScrollMoreCue.label), findsNothing);
+      expect(find.text('Play Again'), findsOneWidget);
+
+      await _disposeAnimatedTree(tester);
+    },
+  );
+
+  testWidgets(
+    'dismisses Scroll for more after the user scrolls down',
+    (tester) async {
+      const size = Size(320, 480);
+      await tester.binding.setSurfaceSize(size);
+      addTearDown(() async {
+        await tester.binding.setSurfaceSize(null);
+      });
+
+      await tester.pumpWidget(_scoreScreenApp(size: size));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump();
+
+      expect(find.text(ScrollMoreCue.label), findsOneWidget);
+
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -80));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text(ScrollMoreCue.label), findsNothing);
+
+      // Scrolling back to top must not revive the cue for this visit.
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, 120));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text(ScrollMoreCue.label), findsNothing);
+
+      await _disposeAnimatedTree(tester);
+    },
+  );
 }

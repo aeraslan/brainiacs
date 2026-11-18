@@ -8,6 +8,7 @@ import 'package:brainiacs_flutter/core/rank/title_tier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_notifier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_state.dart';
 import 'package:brainiacs_flutter/core/storage/local_storage_provider.dart';
+import 'package:brainiacs_flutter/features/statistics/application/session_history_notifier.dart';
 
 void main() {
   late ProviderContainer container;
@@ -186,6 +187,98 @@ void main() {
     expect(title.lastSessionTitle, TitleTier.activeNeuron);
     expect(title.highestTitle, TitleTier.activeNeuron);
     expect(title.unlockedNewRank, isTrue);
+  });
+
+  test('full New Game endRun records exactly one history entry', () async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    final session = container.read(gameSessionProvider.notifier);
+    session.startGame();
+    expect(container.read(gameSessionProvider).sessionId, isNotEmpty);
+    session.beginPlaying();
+    session.addScore(400);
+    session.endRun();
+
+    final history = container.read(sessionHistoryProvider);
+    expect(history, hasLength(1));
+    expect(history.single.totalScore, 400);
+    expect(
+      history.single.id,
+      container.read(gameSessionProvider).sessionId,
+    );
+  });
+
+  test('practice nextGame does not record history', () async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    final session = container.read(gameSessionProvider.notifier);
+    session.startPractice(type: MiniGameType.math);
+    session.beginPlaying();
+    session.addScore(900);
+    session.nextGame();
+
+    expect(container.read(sessionHistoryProvider), isEmpty);
+  });
+
+  test('practice endSessionEarly does not record history', () async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    final session = container.read(gameSessionProvider.notifier);
+    session.startPractice(type: MiniGameType.visual);
+    session.beginPlaying();
+    session.addScore(700);
+    session.endSessionEarly();
+
+    expect(container.read(sessionHistoryProvider), isEmpty);
+  });
+
+  test('New Game endSessionEarly skips history but still records rank',
+      () async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    final session = container.read(gameSessionProvider.notifier);
+    session.startGame();
+    session.beginPlaying();
+    for (var i = 0; i < 45; i++) {
+      session.addScore(100);
+    }
+    session.endSessionEarly();
+
+    expect(container.read(gameSessionProvider).phase, GamePhase.scoreScreen);
+    expect(container.read(sessionHistoryProvider), isEmpty);
+
+    final title = container.read(titleProgressProvider);
+    expect(title.lastSessionTitle, TitleTier.activeNeuron);
+    expect(title.totalGamesPlayed, 1);
+  });
+
+  test('resetToMenu mid-run records no history', () async {
+    await Future<void>.delayed(Duration.zero);
+    await Future<void>.delayed(Duration.zero);
+
+    final session = container.read(gameSessionProvider.notifier);
+    session.startGame();
+    session.beginPlaying();
+    session.addScore(1200);
+    session.resetToMenu();
+
+    expect(container.read(gameSessionProvider).phase, GamePhase.menu);
+    expect(container.read(sessionHistoryProvider), isEmpty);
+    expect(container.read(titleProgressProvider).totalGamesPlayed, 0);
+  });
+
+  test('openMyProgress and closeMyProgress toggle phase without audio side effects',
+      () {
+    final session = container.read(gameSessionProvider.notifier);
+    session.openMyProgress();
+    expect(container.read(gameSessionProvider).phase, GamePhase.myProgress);
+
+    session.closeMyProgress();
+    expect(container.read(gameSessionProvider).phase, GamePhase.menu);
   });
 
   test('pause freezes timer; resume continues from frozen value', () {

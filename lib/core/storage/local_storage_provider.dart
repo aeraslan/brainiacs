@@ -27,6 +27,8 @@ class LocalStorageService {
   static const String totalGamesPlayedKey = 'totalGamesPlayed';
   static const String lastPlayedDateKey = 'lastPlayedDate';
   static const String prefsMigratedKey = 'prefsMigrated';
+  static const String sessionHistoryKey = 'sessionHistory';
+  static const int maxSessionHistory = 100;
 
   /// Legacy SharedPreferences keys (pre-Hive).
   static const String legacyHighestTitleKey = 'highest_title';
@@ -115,6 +117,47 @@ class LocalStorageService {
   }
 
   bool get prefsMigrated => (_get(prefsMigratedKey) as bool?) ?? false;
+
+  /// Defensive read of stored session history maps (oldest → newest).
+  ///
+  /// Drops entries that are not maps. Parsing into domain models happens
+  /// outside this layer so `core/` stays free of feature dependencies.
+  List<Map<String, dynamic>> get rawSessionHistory {
+    final raw = _get(sessionHistoryKey);
+    if (raw is! List) {
+      return const [];
+    }
+
+    final result = <Map<String, dynamic>>[];
+    for (final entry in raw) {
+      if (entry is Map) {
+        result.add(Map<String, dynamic>.from(entry));
+      }
+    }
+    return result;
+  }
+
+  /// Appends [record] (oldest → newest), skipping duplicate `id`s and
+  /// trimming to [maxSessionHistory] newest entries.
+  Future<void> appendSessionRecord(Map<String, dynamic> record) {
+    final id = record['id'];
+    if (id is! String || id.isEmpty) {
+      return Future<void>.value();
+    }
+
+    final existing = rawSessionHistory;
+    for (final entry in existing) {
+      if (entry['id'] == id) {
+        return Future<void>.value();
+      }
+    }
+
+    final next = List<Map<String, dynamic>>.from(existing)..add(record);
+    if (next.length > maxSessionHistory) {
+      next.removeRange(0, next.length - maxSessionHistory);
+    }
+    return _put(sessionHistoryKey, next);
+  }
 
   Future<void> setHighestScore(int value) => _put(highestScoreKey, value);
 

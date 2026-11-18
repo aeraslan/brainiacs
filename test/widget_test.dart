@@ -26,8 +26,9 @@ void main() {
     expect(find.text('Brainiacs'), findsOneWidget);
     expect(find.text('New Game'), findsOneWidget);
     expect(find.text('Practice'), findsOneWidget);
-    expect(find.byTooltip('Leaderboard'), findsOneWidget);
-    expect(find.text('Profile/Stats'), findsOneWidget);
+    expect(find.byTooltip('Leaderboard'), findsNothing);
+    expect(find.text('Profile/Stats'), findsNothing);
+    expect(find.text('My Progress'), findsOneWidget);
     expect(find.text('Dormant Mind'), findsOneWidget);
 
     // Repeating flutter_animate timers / delayed starts must be disposed before teardown.

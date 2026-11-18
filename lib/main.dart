@@ -18,6 +18,7 @@ import 'features/menu/presentation/practice_countdown_screen.dart';
 import 'features/menu/presentation/practice_menu_screen.dart';
 import 'features/score/presentation/score_screen.dart';
 import 'features/score/presentation/times_up_screen.dart';
+import 'features/statistics/presentation/my_progress_screen.dart';
 import 'features/tutorial/presentation/tutorial_screen.dart';
 import 'features/visual/presentation/color_clash_screen.dart';
 import 'features/visual/presentation/visual_sort_screen.dart';
@@ -84,6 +85,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     return switch (phase) {
       GamePhase.menu => const MainMenuScreen(),
       GamePhase.practiceMenu => const PracticeMenuScreen(),
+      GamePhase.myProgress => const MyProgressScreen(),
       GamePhase.tutorial => const TutorialScreen(),
       GamePhase.countdown => const PracticeCountdownScreen(),
       GamePhase.playing => switch (currentGame) {

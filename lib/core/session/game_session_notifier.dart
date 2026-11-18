@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/statistics/application/session_history_notifier.dart';
+import '../../features/statistics/domain/game_session_record.dart';
 import '../audio/audio_controller_provider.dart';
 import '../rank/title_progress_notifier.dart';
 import 'game_session_state.dart';
@@ -45,6 +47,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       analyticVariant: analyticVariant,
       memoryVariant: memoryVariant,
       visualVariant: visualVariant,
+      sessionId: DateTime.now().microsecondsSinceEpoch.toString(),
     );
   }
 
@@ -66,6 +69,20 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       isPracticeMode: true,
     );
     ref.read(audioControllerProvider.notifier).playMenuBGM();
+  }
+
+  void openMyProgress() {
+    if (state.phase != GamePhase.menu) {
+      return;
+    }
+    state = state.copyWith(phase: GamePhase.myProgress);
+  }
+
+  void closeMyProgress() {
+    if (state.phase != GamePhase.myProgress) {
+      return;
+    }
+    state = state.copyWith(phase: GamePhase.menu);
   }
 
   void startPractice({
@@ -169,7 +186,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     }
 
     if (state.isLastGame) {
-      endRun();
+      _finishRun(completed: true);
       return;
     }
 
@@ -183,14 +200,30 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
   }
 
   void endRun() {
+    _finishRun(completed: true);
+  }
+
+  void _finishRun({required bool completed}) {
     _cancelTimer();
     if (!state.isPracticeMode) {
-      ref
-          .read(titleProgressProvider.notifier)
-          .recordLoopScore(
+      ref.read(titleProgressProvider.notifier).recordLoopScore(
             totalScore: state.totalScore,
             scoresByGame: state.scoresByGame,
           );
+      if (completed && state.sessionId.isNotEmpty) {
+        ref.read(sessionHistoryProvider.notifier).record(
+              GameSessionRecord(
+                id: state.sessionId,
+                completedAt: DateTime.now(),
+                totalScore: state.totalScore,
+                categoryScores: Map<MiniGameType, int>.from(state.scoresByGame),
+                mathVariant: state.mathVariant,
+                memoryVariant: state.memoryVariant,
+                analyticVariant: state.analyticVariant,
+                visualVariant: state.visualVariant,
+              ),
+            );
+      }
     }
     state = state.copyWith(phase: GamePhase.scoreScreen, isPaused: false);
     ref.read(audioControllerProvider.notifier).playResultBGM();
@@ -227,7 +260,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       openPracticeMenu();
       return;
     }
-    endRun();
+    _finishRun(completed: false);
   }
 
   void _onTick() {

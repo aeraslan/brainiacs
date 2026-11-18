@@ -10,6 +10,7 @@ import '../../../shared/widgets/candy_button.dart';
 import 'widgets/animated_background_elements.dart';
 import 'widgets/candy_new_game_button.dart';
 import 'widgets/current_rank_pill.dart';
+import 'widgets/my_progress_pill_button.dart';
 import 'widgets/rank_decay_dialog.dart';
 
 class MainMenuScreen extends ConsumerStatefulWidget {
@@ -65,19 +66,17 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        tooltip: 'Leaderboard',
-                        onPressed: () {},
-                        icon: const Icon(Icons.leaderboard_outlined),
-                        color: AppColors.textPrimary,
-                      ),
                       const Spacer(),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.person_outline),
-                        label: const Text('Profile/Stats'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.textPrimary,
+                      Flexible(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: MyProgressPillButton(
+                            onPressed: () {
+                              ref
+                                  .read(gameSessionProvider.notifier)
+                                  .openMyProgress();
+                            },
+                          ),
                         ),
                       ),
                     ],

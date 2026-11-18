@@ -9,6 +9,7 @@ import '../../../core/rank/title_tier.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../core/session/game_session_state.dart';
 import '../../../shared/widgets/candy_button.dart';
+import '../../../shared/widgets/scroll_more_cue.dart';
 import 'widgets/personal_best_badge.dart';
 import 'widgets/end_match_celebration.dart';
 import 'widgets/held_rank_progress_card.dart';
@@ -62,31 +63,23 @@ class ScoreScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg,
-                          vertical: AppSpacing.md,
-                        ),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight - AppSpacing.md * 2,
-                          ),
-                          child: _ScoreHubContent(
-                            headline: headline,
-                            totalScore: totalScore,
-                            scoresByGame: scoresByGame,
-                            newCategoryHighs: titleProgress.newCategoryHighs,
-                            sessionTitle: sessionTitle,
-                            heldTitle: titleProgress.highestTitle,
-                            unlockedNewRank: titleProgress.unlockedNewRank,
-                            daysLeftToDefend: daysLeft,
-                            defendOutcome: defendOutcome,
-                          ),
-                        ),
-                      );
-                    },
+                  child: ScrollOverflowHint(
+                    centerContentVertically: true,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
+                    child: _ScoreHubContent(
+                      headline: headline,
+                      totalScore: totalScore,
+                      scoresByGame: scoresByGame,
+                      newCategoryHighs: titleProgress.newCategoryHighs,
+                      sessionTitle: sessionTitle,
+                      heldTitle: titleProgress.highestTitle,
+                      unlockedNewRank: titleProgress.unlockedNewRank,
+                      daysLeftToDefend: daysLeft,
+                      defendOutcome: defendOutcome,
+                    ),
                   ),
                 ),
                 Padding(
