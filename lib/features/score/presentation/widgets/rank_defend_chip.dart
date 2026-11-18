@@ -31,29 +31,20 @@ class RankDefendChip extends StatelessWidget {
   final int daysLeft;
   final RankDefendOutcome outcome;
 
-  String get _daysPhrase {
-    if (daysLeft <= 0) {
-      return 'defend today';
-    }
-    if (daysLeft == 1) {
-      return '1 day left';
-    }
-    return '$daysLeft days left';
-  }
-
-  String get _label {
-    final name = heldTitle.label;
-    return switch (outcome) {
-      RankDefendOutcome.unlocked => daysLeft <= 0
-          ? 'New held rank: $name — defend today!'
-          : 'New held rank: $name · $_daysPhrase to defend',
-      RankDefendOutcome.defended => daysLeft <= 0
-          ? '$name defended — defend again today!'
-          : '$name defended · $_daysPhrase',
-      RankDefendOutcome.pending => daysLeft <= 0
-          ? 'Held: $name — defend today!'
-          : 'Held: $name · $_daysPhrase to defend',
-    };
+  /// Compact inline row for embedding inside [HeldRankProgressCard].
+  ///
+  /// Same copy and shield icon as the standalone chip, without the outer pill.
+  static Widget compactRow({
+    required TitleTier heldTitle,
+    required int daysLeft,
+    required RankDefendOutcome outcome,
+  }) {
+    return _RankDefendContent(
+      heldTitle: heldTitle,
+      daysLeft: daysLeft,
+      outcome: outcome,
+      compact: true,
+    );
   }
 
   @override
@@ -82,35 +73,11 @@ class RankDefendChip extends StatelessWidget {
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.shield_moon_rounded,
-              color: urgent ? AppColors.coral : AppColors.electricBlue,
-              size: 20,
-            )
-                .animate(
-                  onPlay: (controller) => controller.repeat(reverse: true),
-                )
-                .scale(
-                  begin: const Offset(1, 1),
-                  end: const Offset(1.15, 1.15),
-                  duration: 700.ms,
-                  curve: Curves.easeInOut,
-                ),
-            const SizedBox(width: AppSpacing.xs),
-            Flexible(
-              child: Text(
-                _label,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
+        child: _RankDefendContent(
+          heldTitle: heldTitle,
+          daysLeft: daysLeft,
+          outcome: outcome,
+          compact: false,
         ),
       ),
     )
@@ -153,6 +120,84 @@ class RankDefendChip extends StatelessWidget {
       heldTitle: progress.highestTitle,
       daysLeft: days,
       outcome: outcome,
+    );
+  }
+}
+
+class _RankDefendContent extends StatelessWidget {
+  const _RankDefendContent({
+    required this.heldTitle,
+    required this.daysLeft,
+    required this.outcome,
+    required this.compact,
+  });
+
+  final TitleTier heldTitle;
+  final int daysLeft;
+  final RankDefendOutcome outcome;
+  final bool compact;
+
+  String get _daysPhrase {
+    if (daysLeft <= 0) {
+      return 'defend today';
+    }
+    if (daysLeft == 1) {
+      return '1 day left';
+    }
+    return '$daysLeft days left';
+  }
+
+  String get _label {
+    final name = heldTitle.label;
+    return switch (outcome) {
+      RankDefendOutcome.unlocked => daysLeft <= 0
+          ? 'New held rank: $name — defend today!'
+          : 'New held rank: $name · $_daysPhrase to defend',
+      RankDefendOutcome.defended => daysLeft <= 0
+          ? '$name defended — defend again today!'
+          : '$name defended · $_daysPhrase',
+      RankDefendOutcome.pending => daysLeft <= 0
+          ? 'Held: $name — defend today!'
+          : 'Held: $name · $_daysPhrase to defend',
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final urgent = daysLeft <= 2;
+    final accent = urgent ? AppColors.coral : AppColors.electricBlue;
+    final iconSize = compact ? 18.0 : 20.0;
+    final fontSize = compact ? 13.0 : 14.0;
+
+    return Row(
+      mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.shield_moon_rounded,
+          color: accent,
+          size: iconSize,
+        )
+            .animate(
+              onPlay: (controller) => controller.repeat(reverse: true),
+            )
+            .scale(
+              begin: const Offset(1, 1),
+              end: const Offset(1.15, 1.15),
+              duration: 700.ms,
+              curve: Curves.easeInOut,
+            ),
+        const SizedBox(width: AppSpacing.xs),
+        Flexible(
+          child: Text(
+            _label,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: fontSize,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

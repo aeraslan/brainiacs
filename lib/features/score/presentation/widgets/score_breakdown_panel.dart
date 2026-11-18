@@ -18,9 +18,9 @@ class ScoreBreakdownPanel extends StatelessWidget {
 
   /// Excellent-play ceiling (~25 corrects at 100 pts in a 60s stage).
   static const int maxSkillScore = 2500;
-  static const double barHeight = 60;
+  static const double barHeight = 42;
   static const Color _trackGrey = Color(0xFFE8EAF0);
-  static const double _barGap = AppSpacing.sm + AppSpacing.xs;
+  static const double _barGap = AppSpacing.sm;
 
   static const List<_CandyBarData> _rows = [
     _CandyBarData(
@@ -183,7 +183,7 @@ class _ChunkyCandyBar extends StatelessWidget {
                       Icon(
                         data.icon,
                         color: AppColors.textPrimary,
-                        size: 24,
+                        size: 20,
                         shadows: _contentShadow,
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -193,7 +193,7 @@ class _ChunkyCandyBar extends StatelessWidget {
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w800,
-                            fontSize: 17,
+                            fontSize: 15,
                             shadows: _contentShadow,
                           ),
                         ),
@@ -207,7 +207,7 @@ class _ChunkyCandyBar extends StatelessWidget {
                         style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w900,
-                          fontSize: 20,
+                          fontSize: 17,
                           shadows: _contentShadow,
                         ),
                       ),

@@ -4,7 +4,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 
-enum CandyButtonVariant { primary, secondary, green }
+enum CandyButtonVariant {
+  primary,
+  secondary,
+  green,
+
+  /// Mint/teal primary CTA for positive actions (e.g. Play Again).
+  primarySuccess,
+
+  /// Quieter purple secondary CTA (e.g. Menu on the score screen).
+  secondarySoft,
+}
 
 /// Glossy 3D candy CTA with tactile press scale.
 class CandyButton extends StatefulWidget {
@@ -13,11 +23,15 @@ class CandyButton extends StatefulWidget {
     required this.label,
     required this.onPressed,
     this.variant = CandyButtonVariant.primary,
+    this.icon,
   });
 
   final String label;
   final VoidCallback onPressed;
   final CandyButtonVariant variant;
+
+  /// Optional leading icon (e.g. replay). Null keeps text-only layout.
+  final IconData? icon;
 
   @override
   State<CandyButton> createState() => _CandyButtonState();
@@ -39,8 +53,33 @@ class _CandyButtonState extends State<CandyButton> {
   static const Color _greenDark = Color(0xFF12B84A);
   static const Color _greenSoftShadow = Color(0x332EE56A);
 
+  // Bright minty-green primary CTA (New Game / Play Again).
+  static const Color _successLight = Color(0xFF4AF0C8);
+  static const Color _successMid = Color(0xFF26D9B0);
+  static const Color _successDark = Color(0xFF14B89A);
+  static const Color _successSoftShadow = Color(0x4026D9B0);
+
+  // Narrower, duller purple than [secondary]; lightest stop ≥4.5:1 on white.
+  static const Color _secondarySoftLight = Color(0xFF8A4FD0);
+  static const Color _secondarySoftMid = Color(0xFF7640BC);
+  static const Color _secondarySoftDark = Color(0xFF5E3499);
+  static const Color _secondarySoftShadowColor = Color(0x229B5DE5);
+
   static const Color _highlightBorder = Color(0x66FFFFFF);
   static const Color _innerHighlight = Color(0x59FFFFFF);
+
+  static const TextStyle _labelStyle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: AppColors.onAccent,
+    shadows: [
+      Shadow(
+        color: Color(0x33000000),
+        offset: Offset(0, 1),
+        blurRadius: 2,
+      ),
+    ],
+  );
 
   List<Color> get _gradientColors {
     return switch (widget.variant) {
@@ -59,6 +98,16 @@ class _CandyButtonState extends State<CandyButton> {
         _greenMid,
         _greenDark,
       ],
+      CandyButtonVariant.primarySuccess => const [
+        _successLight,
+        _successMid,
+        _successDark,
+      ],
+      CandyButtonVariant.secondarySoft => const [
+        _secondarySoftLight,
+        _secondarySoftMid,
+        _secondarySoftDark,
+      ],
     };
   }
 
@@ -67,6 +116,24 @@ class _CandyButtonState extends State<CandyButton> {
       CandyButtonVariant.primary => _primarySoftShadow,
       CandyButtonVariant.secondary => _secondarySoftShadow,
       CandyButtonVariant.green => _greenSoftShadow,
+      CandyButtonVariant.primarySuccess => _successSoftShadow,
+      CandyButtonVariant.secondarySoft => _secondarySoftShadowColor,
+    };
+  }
+
+  double get _accentShadowBlur {
+    return switch (widget.variant) {
+      CandyButtonVariant.primarySuccess => 20,
+      CandyButtonVariant.secondarySoft => 10,
+      _ => 16,
+    };
+  }
+
+  Offset get _accentShadowOffset {
+    return switch (widget.variant) {
+      CandyButtonVariant.primarySuccess => const Offset(0, 8),
+      CandyButtonVariant.secondarySoft => const Offset(0, 4),
+      _ => const Offset(0, 8),
     };
   }
 
@@ -80,6 +147,7 @@ class _CandyButtonState extends State<CandyButton> {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(AppSpacing.md);
+    final icon = widget.icon;
 
     return GestureDetector(
       onTapDown: (_) => _setPressed(true),
@@ -101,8 +169,8 @@ class _CandyButtonState extends State<CandyButton> {
             boxShadow: [
               BoxShadow(
                 color: _softShadow,
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+                blurRadius: _accentShadowBlur,
+                offset: _accentShadowOffset,
               ),
               const BoxShadow(
                 color: AppColors.shadow,
@@ -124,21 +192,27 @@ class _CandyButtonState extends State<CandyButton> {
                   vertical: AppSpacing.md,
                 ),
                 child: Center(
-                  child: Text(
-                    widget.label,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.onAccent,
-                      shadows: [
-                        Shadow(
-                          color: Color(0x33000000),
-                          offset: Offset(0, 1),
-                          blurRadius: 2,
+                  child: icon == null
+                      ? Text(widget.label, style: _labelStyle)
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              icon,
+                              color: AppColors.onAccent,
+                              size: 20,
+                              shadows: const [
+                                Shadow(
+                                  color: Color(0x33000000),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Text(widget.label, style: _labelStyle),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
                 ),
               ),
             ),

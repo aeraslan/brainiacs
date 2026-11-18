@@ -28,35 +28,38 @@ class ScoreCountUp extends StatelessWidget {
           textAlign: TextAlign.center,
           style: textTheme.bodyLarge,
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: AppSpacing.xs),
         RepaintBoundary(
-          child: Text(
-            '$target',
-            textAlign: TextAlign.center,
-            style: textTheme.displayLarge?.copyWith(color: AppColors.accent),
-          )
-              .animate()
-              .custom(
-                duration: countDuration,
-                curve: Curves.easeOutCubic,
-                begin: 0,
-                end: target.toDouble(),
-                builder: (context, value, child) {
-                  return Text(
-                    '${value.round()}',
-                    textAlign: TextAlign.center,
-                    style: textTheme.displayLarge?.copyWith(
-                      color: AppColors.accent,
-                    ),
-                  );
-                },
-              )
-              .scale(
-                begin: const Offset(0.85, 0.85),
-                end: const Offset(1, 1),
-                duration: 400.ms,
-                curve: Curves.easeOutBack,
-              ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '$target',
+              textAlign: TextAlign.center,
+              style: textTheme.displayLarge?.copyWith(color: AppColors.accent),
+            )
+                .animate()
+                .custom(
+                  duration: countDuration,
+                  curve: Curves.easeOutCubic,
+                  begin: 0,
+                  end: target.toDouble(),
+                  builder: (context, value, child) {
+                    return Text(
+                      '${value.round()}',
+                      textAlign: TextAlign.center,
+                      style: textTheme.displayLarge?.copyWith(
+                        color: AppColors.accent,
+                      ),
+                    );
+                  },
+                )
+                .scale(
+                  begin: const Offset(0.85, 0.85),
+                  end: const Offset(1, 1),
+                  duration: 400.ms,
+                  curve: Curves.easeOutBack,
+                ),
+          ),
         ),
       ],
     );

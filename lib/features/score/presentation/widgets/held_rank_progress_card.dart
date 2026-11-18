@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_tier.dart';
+import 'rank_defend_chip.dart';
 import 'rank_ladder_sheet.dart';
 
 /// Compact held-rank summary shown after the roulette reveal.
@@ -12,10 +13,14 @@ class HeldRankProgressCard extends StatelessWidget {
     super.key,
     required this.heldTitle,
     required this.runScore,
+    this.daysLeftToDefend,
+    this.defendOutcome,
   });
 
   final TitleTier heldTitle;
   final int runScore;
+  final int? daysLeftToDefend;
+  final RankDefendOutcome? defendOutcome;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +28,7 @@ class HeldRankProgressCard extends StatelessWidget {
     final progress = heldTitle.progressToNext(runScore);
     final light = Color.lerp(heldTitle.color, Colors.white, 0.35)!;
     final dark = Color.lerp(heldTitle.color, Colors.black, 0.18)!;
+    final showDefend = defendOutcome != null && daysLeftToDefend != null;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -41,7 +47,7 @@ class HeldRankProgressCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -95,7 +101,15 @@ class HeldRankProgressCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            if (showDefend) ...[
+              const SizedBox(height: AppSpacing.sm),
+              RankDefendChip.compactRow(
+                heldTitle: heldTitle,
+                daysLeft: daysLeftToDefend!,
+                outcome: defendOutcome!,
+              ),
+            ],
+            const SizedBox(height: AppSpacing.sm),
             if (next == null) ...[
               Text(
                 'Top rank reached',
@@ -132,7 +146,7 @@ class HeldRankProgressCard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.xs),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(

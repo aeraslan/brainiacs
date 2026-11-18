@@ -124,7 +124,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                   const SizedBox(height: AppSpacing.md),
                   CandyButton(
                     label: 'Practice',
-                    variant: CandyButtonVariant.secondary,
+                    variant: CandyButtonVariant.secondarySoft,
                     onPressed: () {
                       ref.read(gameSessionProvider.notifier).openPracticeMenu();
                     },

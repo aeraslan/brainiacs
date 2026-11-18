@@ -58,36 +58,67 @@ class ScoreScreen extends ConsumerWidget {
         children: [
           const EndMatchCelebration(),
           SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight - AppSpacing.lg * 2,
-                    ),
-                    child: IntrinsicHeight(
-                      child: _ScoreHubContent(
-                        headline: headline,
-                        totalScore: totalScore,
-                        scoresByGame: scoresByGame,
-                        newCategoryHighs: titleProgress.newCategoryHighs,
-                        sessionTitle: sessionTitle,
-                        heldTitle: titleProgress.highestTitle,
-                        unlockedNewRank: titleProgress.unlockedNewRank,
-                        daysLeftToDefend: daysLeft,
-                        defendOutcome: defendOutcome,
-                        onPlayAgain: () {
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.md,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight - AppSpacing.md * 2,
+                          ),
+                          child: _ScoreHubContent(
+                            headline: headline,
+                            totalScore: totalScore,
+                            scoresByGame: scoresByGame,
+                            newCategoryHighs: titleProgress.newCategoryHighs,
+                            sessionTitle: sessionTitle,
+                            heldTitle: titleProgress.highestTitle,
+                            unlockedNewRank: titleProgress.unlockedNewRank,
+                            daysLeftToDefend: daysLeft,
+                            defendOutcome: defendOutcome,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CandyButton(
+                        label: 'Play Again',
+                        variant: CandyButtonVariant.primarySuccess,
+                        icon: Icons.replay_rounded,
+                        onPressed: () {
                           ref.read(gameSessionProvider.notifier).startGame();
                         },
-                        onMenu: () {
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      CandyButton(
+                        label: 'Menu',
+                        variant: CandyButtonVariant.secondarySoft,
+                        onPressed: () {
                           ref.read(gameSessionProvider.notifier).resetToMenu();
                         },
                       ),
-                    ),
+                    ],
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
         ],
@@ -107,8 +138,6 @@ class _ScoreHubContent extends StatefulWidget {
     required this.unlockedNewRank,
     required this.daysLeftToDefend,
     required this.defendOutcome,
-    required this.onPlayAgain,
-    required this.onMenu,
   });
 
   final String headline;
@@ -120,8 +149,6 @@ class _ScoreHubContent extends StatefulWidget {
   final bool unlockedNewRank;
   final int? daysLeftToDefend;
   final RankDefendOutcome? defendOutcome;
-  final VoidCallback onPlayAgain;
-  final VoidCallback onMenu;
 
   @override
   State<_ScoreHubContent> createState() => _ScoreHubContentState();
@@ -143,29 +170,32 @@ class _ScoreHubContentState extends State<_ScoreHubContent> {
         widget.defendOutcome == RankDefendOutcome.pending;
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Spacer(),
-        Text(
-              widget.headline,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.displayMedium,
-            )
-            .animate()
-            .fadeIn(duration: 180.ms)
-            .scale(
-              begin: const Offset(0.7, 0.7),
-              end: const Offset(1, 1),
-              duration: 320.ms,
-              curve: Curves.easeOutBack,
-            ),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+                widget.headline,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.displayMedium,
+              )
+              .animate()
+              .fadeIn(duration: 180.ms)
+              .scale(
+                begin: const Offset(0.7, 0.7),
+                end: const Offset(1, 1),
+                duration: 320.ms,
+                curve: Curves.easeOutBack,
+              ),
+        ),
         if (widget.unlockedNewRank) ...[
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           const Center(child: PersonalBestBadge()),
         ],
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.sm),
         ScoreCountUp(target: widget.totalScore),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.sm),
         if (showThisRunCaption) ...[
           Text(
             'This run',
@@ -173,6 +203,7 @@ class _ScoreHubContentState extends State<_ScoreHubContent> {
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w700,
+                  fontSize: 16,
                 ),
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -181,38 +212,20 @@ class _ScoreHubContentState extends State<_ScoreHubContent> {
           earnedTitle: widget.sessionTitle,
           onRevealComplete: _onRevealComplete,
         ),
-        if (widget.defendOutcome != null &&
-            widget.daysLeftToDefend != null) ...[
-          const SizedBox(height: AppSpacing.md),
-          Center(
-            child: RankDefendChip(
-              heldTitle: widget.heldTitle,
-              daysLeft: widget.daysLeftToDefend!,
-              outcome: widget.defendOutcome!,
-            ),
-          ),
-        ],
         if (_revealComplete) ...[
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           HeldRankProgressCard(
             heldTitle: widget.heldTitle,
             runScore: widget.totalScore,
+            daysLeftToDefend: widget.daysLeftToDefend,
+            defendOutcome: widget.defendOutcome,
           ),
         ],
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.md),
         ScoreBreakdownPanel(
           scoresByGame: widget.scoresByGame,
           newCategoryHighs: widget.newCategoryHighs,
         ),
-        const SizedBox(height: AppSpacing.xl),
-        CandyButton(label: 'Play Again', onPressed: widget.onPlayAgain),
-        const SizedBox(height: AppSpacing.md),
-        CandyButton(
-          label: 'Menu',
-          variant: CandyButtonVariant.secondary,
-          onPressed: widget.onMenu,
-        ),
-        const SizedBox(height: AppSpacing.xl),
       ],
     );
   }
@@ -234,8 +247,8 @@ class _RankRevealHost extends StatefulWidget {
 }
 
 class _RankRevealHostState extends State<_RankRevealHost> {
-  /// Approximate height of [TitleRevealPill] to avoid layout jump.
-  static const double _pillPlaceholderHeight = 56;
+  /// Approximate height of the compact [TitleRevealPill] to avoid layout jump.
+  static const double _pillPlaceholderHeight = 48;
 
   /// Extra beat after the score finishes counting so the total can land
   /// before the rank spin steals focus.

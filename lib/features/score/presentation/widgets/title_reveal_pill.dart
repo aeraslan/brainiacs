@@ -60,7 +60,7 @@ class TitleRevealPill extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.lg,
-              vertical: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -68,7 +68,7 @@ class TitleRevealPill extends StatelessWidget {
                 Icon(
                   tier.icon,
                   color: AppColors.onAccent,
-                  size: 28,
+                  size: 22,
                   shadows: const [
                     Shadow(
                       color: Color(0x33000000),
@@ -85,7 +85,7 @@ class TitleRevealPill extends StatelessWidget {
                     style: const TextStyle(
                       color: AppColors.onAccent,
                       fontWeight: FontWeight.w800,
-                      fontSize: 20,
+                      fontSize: 17,
                       letterSpacing: 0.2,
                       shadows: [
                         Shadow(

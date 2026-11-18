@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/candy_button.dart';
 
-/// Glossy coral CTA used on the start screen.
+/// Glossy mint CTA used on the start screen (matches Play Again).
 class CandyNewGameButton extends StatelessWidget {
   const CandyNewGameButton({
     super.key,
@@ -16,7 +16,7 @@ class CandyNewGameButton extends StatelessWidget {
     return CandyButton(
       label: 'New Game',
       onPressed: onPressed,
-      variant: CandyButtonVariant.primary,
+      variant: CandyButtonVariant.primarySuccess,
     );
   }
 }
