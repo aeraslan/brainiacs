@@ -78,7 +78,7 @@ class _MatrixRecallScreenState extends ConsumerState<MatrixRecallScreen> {
     if (pointer == null || !_isTutorialActive(token)) {
       return;
     }
-    await pointer.moveToKey(_pointerRestKey);
+    await pointer.moveToKey(_pointerRestKey, spotlight: false);
   }
 
   Future<void> _runTutorial() async {

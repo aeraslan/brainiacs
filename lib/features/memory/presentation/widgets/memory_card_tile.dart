@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../shared/widgets/answer_feedback_burst.dart';
+import '../../../../shared/widgets/press_down_detector.dart';
 import '../../domain/memory_card.dart';
 
 class MemoryCardTile extends StatelessWidget {
@@ -36,8 +37,8 @@ class MemoryCardTile extends StatelessWidget {
       offset: card.offset,
       child: Transform.rotate(
         angle: card.rotationRadians,
-        child: GestureDetector(
-          onTap: onTap,
+        child: PressDownDetector(
+          onPressed: onTap,
           child: SizedBox(
             width: size,
             height: size * 1.35,

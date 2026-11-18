@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Sound asset paths under [assets/sounds/] (registered in pubspec.yaml).
@@ -53,14 +54,43 @@ class AudioControllerState {
 class AudioController extends Notifier<AudioControllerState> {
   static const int _sfxPoolSize = 4;
 
+  /// One-shots must not take Android audio focus. The default
+  /// [AndroidAudioFocus.gain] tells every other player in the app that it
+  /// lost focus for good, so looping music pauses and never resumes.
+  /// iOS already mixes players in one session, so this context is Android-only.
+  static final AudioContext _androidSfxContext = AudioContext(
+    android: const AudioContextAndroid(
+      audioFocus: AndroidAudioFocus.none,
+    ),
+  );
+
   AudioPlayer? _bgmPlayer;
   AudioPlayer? _slotSpinPlayer;
   final List<AudioPlayer> _sfxPool = <AudioPlayer>[];
   int _sfxIndex = 0;
 
+  /// True when BGM was paused because the app left the foreground.
+  bool _bgmPausedByLifecycle = false;
+
+  AppLifecycleListener? _lifecycleListener;
+
   @override
   AudioControllerState build() {
+    _lifecycleListener?.dispose();
+    _lifecycleListener = null;
+    // Plain unit tests have no WidgetsBinding — skip lifecycle hooks there.
+    if (_platformChannelsReady) {
+      _lifecycleListener = AppLifecycleListener(
+        onPause: _onAppBackgrounded,
+        onHide: _onAppBackgrounded,
+        onResume: _onAppForegrounded,
+      );
+    }
+
     ref.onDispose(() {
+      _lifecycleListener?.dispose();
+      _lifecycleListener = null;
+      _bgmPausedByLifecycle = false;
       _bgmPlayer?.dispose();
       _bgmPlayer = null;
       _slotSpinPlayer?.dispose();
@@ -71,6 +101,52 @@ class AudioController extends Notifier<AudioControllerState> {
       _sfxPool.clear();
     });
     return const AudioControllerState();
+  }
+
+  /// Pause looping music (and slot spin) when the user leaves the app.
+  Future<void> _onAppBackgrounded() async {
+    if (!_platformChannelsReady) {
+      return;
+    }
+    try {
+      await stopSlotSpin();
+      final player = _bgmPlayer;
+      if (player == null || !state.bgmEnabled) {
+        return;
+      }
+      await player.pause();
+      _bgmPausedByLifecycle = true;
+      debugPrint('AudioController: BGM paused (app backgrounded)');
+    } catch (error, stackTrace) {
+      debugPrint(
+        'AudioController: pause BGM on background failed: $error\n$stackTrace',
+      );
+    }
+  }
+
+  /// Resume looping music when the app returns, if music is still enabled.
+  Future<void> _onAppForegrounded() async {
+    if (!_bgmPausedByLifecycle) {
+      return;
+    }
+    _bgmPausedByLifecycle = false;
+    if (!_platformChannelsReady || !state.bgmEnabled) {
+      return;
+    }
+    try {
+      final player = _bgmPlayer;
+      if (player == null) {
+        await _startCurrentBgm();
+        return;
+      }
+      await player.resume();
+      debugPrint('AudioController: BGM resumed (app foregrounded)');
+    } catch (error, stackTrace) {
+      debugPrint(
+        'AudioController: resume BGM failed, restarting: $error\n$stackTrace',
+      );
+      await _startCurrentBgm();
+    }
   }
 
   // --- Gameplay SFX ---------------------------------------------------------
@@ -107,7 +183,10 @@ class AudioController extends Notifier<AudioControllerState> {
       await player.stop();
       await player.setReleaseMode(ReleaseMode.release);
       await player.setVolume(_slotSpinSfxVolume);
-      await player.play(AssetSource(_assetSourcePath(AudioAssets.slotSpin)));
+      await player.play(
+        AssetSource(_assetSourcePath(AudioAssets.slotSpin)),
+        ctx: _sfxContext,
+      );
     } catch (error, stackTrace) {
       debugPrint(
         'AudioController: missing or unplayable SFX '
@@ -162,6 +241,7 @@ class AudioController extends Notifier<AudioControllerState> {
     state = state.copyWith(bgmEnabled: nextEnabled);
 
     if (!nextEnabled) {
+      _bgmPausedByLifecycle = false;
       await _stopBgm();
       return;
     }
@@ -187,6 +267,7 @@ class AudioController extends Notifier<AudioControllerState> {
       return;
     }
     try {
+      _bgmPausedByLifecycle = false;
       final player = _bgmPlayer ??= AudioPlayer();
       await player.stop();
       await player.setReleaseMode(ReleaseMode.loop);
@@ -213,6 +294,7 @@ class AudioController extends Notifier<AudioControllerState> {
 
   Future<void> _stopBgm() async {
     try {
+      _bgmPausedByLifecycle = false;
       await _bgmPlayer?.stop();
     } catch (error, stackTrace) {
       debugPrint('AudioController: stop BGM failed: $error\n$stackTrace');
@@ -247,7 +329,10 @@ class AudioController extends Notifier<AudioControllerState> {
       final player = _nextSfxPlayer();
       await player.stop();
       await player.setVolume(volume.clamp(0.0, 1.0));
-      await player.play(AssetSource(_assetSourcePath(assetPath)));
+      await player.play(
+        AssetSource(_assetSourcePath(assetPath)),
+        ctx: _sfxContext,
+      );
     } catch (error, stackTrace) {
       debugPrint(
         'AudioController: missing or unplayable SFX "$assetPath": $error\n$stackTrace',
@@ -264,6 +349,14 @@ class AudioController extends Notifier<AudioControllerState> {
     final player = _sfxPool[_sfxIndex % _sfxPool.length];
     _sfxIndex = (_sfxIndex + 1) % _sfxPool.length;
     return player;
+  }
+
+  /// Null on iOS and web so the working session setup is left alone.
+  static AudioContext? get _sfxContext {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      return null;
+    }
+    return _androidSfxContext;
   }
 
   /// [AudioPlayer] touches platform channels on construction; skip when the

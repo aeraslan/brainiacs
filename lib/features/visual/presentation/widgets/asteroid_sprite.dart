@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../shared/widgets/answer_feedback_burst.dart';
+import '../../../../shared/widgets/press_down_detector.dart';
 import '../../domain/asteroid.dart';
 import '../visual_colors.dart';
 import 'asteroid_painter.dart';
@@ -26,8 +27,9 @@ class AsteroidSprite extends StatelessWidget {
     final diameter = asteroid.radius * 2;
     final fontSize = (asteroid.radius * 0.42).clamp(12.0, 26.0).toDouble();
 
-    Widget sprite = GestureDetector(
-      onTap: asteroid.isPopped ? null : () => onTapped(asteroid.id),
+    Widget sprite = PressDownDetector(
+      enabled: !asteroid.isPopped,
+      onPressed: () => onTapped(asteroid.id),
       child: SizedBox(
         width: diameter,
         height: diameter,

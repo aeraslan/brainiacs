@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 
-enum CandyButtonVariant { primary, secondary }
+enum CandyButtonVariant { primary, secondary, green }
 
 /// Glossy 3D candy CTA with tactile press scale.
 class CandyButton extends StatefulWidget {
@@ -34,6 +34,11 @@ class _CandyButtonState extends State<CandyButton> {
   static const Color _secondaryDark = Color(0xFF7A45C4);
   static const Color _secondarySoftShadow = Color(0x339B5DE5);
 
+  static const Color _greenLight = Color(0xFF7DFFB0);
+  static const Color _greenMid = Color(0xFF2EE56A);
+  static const Color _greenDark = Color(0xFF12B84A);
+  static const Color _greenSoftShadow = Color(0x332EE56A);
+
   static const Color _highlightBorder = Color(0x66FFFFFF);
   static const Color _innerHighlight = Color(0x59FFFFFF);
 
@@ -49,6 +54,11 @@ class _CandyButtonState extends State<CandyButton> {
         AppColors.vibrantPurple,
         _secondaryDark,
       ],
+      CandyButtonVariant.green => const [
+        _greenLight,
+        _greenMid,
+        _greenDark,
+      ],
     };
   }
 
@@ -56,6 +66,7 @@ class _CandyButtonState extends State<CandyButton> {
     return switch (widget.variant) {
       CandyButtonVariant.primary => _primarySoftShadow,
       CandyButtonVariant.secondary => _secondarySoftShadow,
+      CandyButtonVariant.green => _greenSoftShadow,
     };
   }
 

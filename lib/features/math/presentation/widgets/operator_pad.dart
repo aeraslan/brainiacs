@@ -90,6 +90,7 @@ class OperatorPad extends StatelessWidget {
             child: CandyPadButton(
               label: op.symbol,
               enabled: enabled,
+              commitOnPressDown: true,
               fontSize: symbolSize,
               fontWeight: FontWeight.w700,
               gradientColors: [color, _darken(color)],

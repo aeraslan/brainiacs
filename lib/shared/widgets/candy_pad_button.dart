@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
+import 'press_down_detector.dart';
 
 /// Glossy 3D pad key with tactile press scale (shared by number/operator pads).
 class CandyPadButton extends StatefulWidget {
@@ -17,6 +18,7 @@ class CandyPadButton extends StatefulWidget {
     this.fontWeight,
     this.child,
     this.borderRadius,
+    this.commitOnPressDown = false,
   });
 
   final String label;
@@ -32,6 +34,10 @@ class CandyPadButton extends StatefulWidget {
 
   /// Defaults to [AppSpacing.md]. Pass a large value (e.g. half the width) for a circle.
   final double? borderRadius;
+
+  /// When true, registers [onPressed] on pointer-down (gameplay answers).
+  /// When false (default), keeps tap-up behavior for navigation/HUD controls.
+  final bool commitOnPressDown;
 
   @override
   State<CandyPadButton> createState() => _CandyPadButtonState();
@@ -66,8 +72,58 @@ class _CandyPadButtonState extends State<CandyPadButton> {
     }
   }
 
+  Widget _buildFace(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(_radius),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white.withValues(alpha: 0.55),
+            ..._gradientColors,
+          ],
+          stops: const [0.0, _glossStop, 1.0],
+        ),
+        border: Border.all(color: _borderColor, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.shadow,
+            offset: Offset(0, 4),
+            blurRadius: 6,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        fit: StackFit.expand,
+        children: [Center(child: _buildLabel(context))],
+      ),
+    )
+        .animate(target: _pressed ? 1 : 0)
+        .scale(
+          begin: const Offset(1, 1),
+          end: const Offset(0.9, 0.9),
+          duration: _pressed ? 90.ms : 220.ms,
+          curve: _pressed ? Curves.easeOut : Curves.elasticOut,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final face = _buildFace(context);
+
+    if (widget.commitOnPressDown) {
+      return PressDownDetector(
+        enabled: widget.enabled,
+        onPressed: widget.onPressed,
+        onPressedChanged: _setPressed,
+        semanticLabel: widget.label.isEmpty ? null : widget.label,
+        child: face,
+      );
+    }
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: widget.enabled ? (_) => _setPressed(true) : null,
@@ -78,42 +134,7 @@ class _CandyPadButtonState extends State<CandyPadButton> {
             }
           : null,
       onTapCancel: widget.enabled ? () => _setPressed(false) : null,
-      child:
-          DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(_radius),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.55),
-                      ..._gradientColors,
-                    ],
-                    stops: const [0.0, _glossStop, 1.0],
-                  ),
-                  border: Border.all(color: _borderColor, width: 2),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: AppColors.shadow,
-                      offset: Offset(0, 4),
-                      blurRadius: 6,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  fit: StackFit.expand,
-                  children: [Center(child: _buildLabel(context))],
-                ),
-              )
-              .animate(target: _pressed ? 1 : 0)
-              .scale(
-                begin: const Offset(1, 1),
-                end: const Offset(0.9, 0.9),
-                duration: _pressed ? 90.ms : 220.ms,
-                curve: _pressed ? Curves.easeOut : Curves.elasticOut,
-              ),
+      child: face,
     );
   }
 

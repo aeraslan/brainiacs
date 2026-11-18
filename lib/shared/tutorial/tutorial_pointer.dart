@@ -15,9 +15,13 @@ class TutorialPointerController {
   /// Spotlight hole in [overlayKey] local coordinates. Null = fully dimmed.
   final ValueNotifier<Rect?> spotlightRect = ValueNotifier(null);
 
+  bool _disposed = false;
+
   static const Duration moveDuration = Duration(milliseconds: 420);
   static const Duration pressDuration = Duration(milliseconds: 140);
   static const double spotlightPadding = 10;
+
+  bool get isDisposed => _disposed;
 
   Offset? centerOf(GlobalKey key) {
     final target = key.currentContext?.findRenderObject();
@@ -44,46 +48,68 @@ class TutorialPointerController {
     return Rect.fromPoints(topLeft, bottomRight).inflate(spotlightPadding);
   }
 
-  Future<bool> tapKey(GlobalKey key) async {
-    final moved = await moveToKey(key);
-    if (!moved) {
+  Future<bool> tapKey(GlobalKey key, {bool spotlight = true}) async {
+    final moved = await moveToKey(key, spotlight: spotlight);
+    if (!moved || _disposed) {
       return false;
     }
 
     isPressing.value = true;
     await Future<void>.delayed(pressDuration);
+    if (_disposed) {
+      return false;
+    }
     isPressing.value = false;
     return true;
   }
 
   /// Moves the pointer to [key] without pressing (e.g. rest spot off the board).
-  Future<bool> moveToKey(GlobalKey key) async {
+  ///
+  /// When [spotlight] is false, clears any hole so the dim stays full-screen.
+  Future<bool> moveToKey(GlobalKey key, {bool spotlight = true}) async {
+    if (_disposed) {
+      return false;
+    }
     final target = centerOf(key);
     if (target == null) {
       return false;
     }
 
-    spotlightRect.value = rectOf(key);
+    spotlightRect.value = spotlight ? rectOf(key) : null;
     position.value = target;
     await Future<void>.delayed(moveDuration);
+    if (_disposed) {
+      return false;
+    }
     final settled = centerOf(key);
     if (settled != null) {
       position.value = settled;
     }
-    final settledRect = rectOf(key);
-    if (settledRect != null) {
-      spotlightRect.value = settledRect;
+    if (spotlight) {
+      final settledRect = rectOf(key);
+      if (settledRect != null) {
+        spotlightRect.value = settledRect;
+      }
+    } else {
+      spotlightRect.value = null;
     }
     return true;
   }
 
   void hide() {
+    if (_disposed) {
+      return;
+    }
     isPressing.value = false;
     position.value = const Offset(-160, -160);
     spotlightRect.value = null;
   }
 
   void dispose() {
+    if (_disposed) {
+      return;
+    }
+    _disposed = true;
     position.dispose();
     isPressing.dispose();
     spotlightRect.dispose();

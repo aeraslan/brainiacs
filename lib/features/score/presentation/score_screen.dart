@@ -11,6 +11,7 @@ import '../../../core/session/game_session_state.dart';
 import '../../../shared/widgets/candy_button.dart';
 import 'widgets/personal_best_badge.dart';
 import 'widgets/end_match_celebration.dart';
+import 'widgets/held_rank_progress_card.dart';
 import 'widgets/rank_defend_chip.dart';
 import 'widgets/rank_reveal_dialog.dart';
 import 'widgets/score_breakdown_panel.dart';
@@ -95,7 +96,7 @@ class ScoreScreen extends ConsumerWidget {
   }
 }
 
-class _ScoreHubContent extends StatelessWidget {
+class _ScoreHubContent extends StatefulWidget {
   const _ScoreHubContent({
     required this.headline,
     required this.totalScore,
@@ -123,15 +124,30 @@ class _ScoreHubContent extends StatelessWidget {
   final VoidCallback onMenu;
 
   @override
+  State<_ScoreHubContent> createState() => _ScoreHubContentState();
+}
+
+class _ScoreHubContentState extends State<_ScoreHubContent> {
+  bool _revealComplete = false;
+
+  void _onRevealComplete() {
+    if (_revealComplete || !mounted) {
+      return;
+    }
+    setState(() => _revealComplete = true);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final showThisRunCaption = defendOutcome == RankDefendOutcome.pending;
+    final showThisRunCaption =
+        widget.defendOutcome == RankDefendOutcome.pending;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Spacer(),
         Text(
-              headline,
+              widget.headline,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.displayMedium,
             )
@@ -143,12 +159,12 @@ class _ScoreHubContent extends StatelessWidget {
               duration: 320.ms,
               curve: Curves.easeOutBack,
             ),
-        if (unlockedNewRank) ...[
+        if (widget.unlockedNewRank) ...[
           const SizedBox(height: AppSpacing.md),
           const Center(child: PersonalBestBadge()),
         ],
         const SizedBox(height: AppSpacing.lg),
-        ScoreCountUp(target: totalScore),
+        ScoreCountUp(target: widget.totalScore),
         const SizedBox(height: AppSpacing.md),
         if (showThisRunCaption) ...[
           Text(
@@ -161,29 +177,40 @@ class _ScoreHubContent extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
         ],
-        _RankRevealHost(earnedTitle: sessionTitle),
-        if (defendOutcome != null && daysLeftToDefend != null) ...[
+        _RankRevealHost(
+          earnedTitle: widget.sessionTitle,
+          onRevealComplete: _onRevealComplete,
+        ),
+        if (widget.defendOutcome != null &&
+            widget.daysLeftToDefend != null) ...[
           const SizedBox(height: AppSpacing.md),
           Center(
             child: RankDefendChip(
-              heldTitle: heldTitle,
-              daysLeft: daysLeftToDefend!,
-              outcome: defendOutcome!,
+              heldTitle: widget.heldTitle,
+              daysLeft: widget.daysLeftToDefend!,
+              outcome: widget.defendOutcome!,
             ),
+          ),
+        ],
+        if (_revealComplete) ...[
+          const SizedBox(height: AppSpacing.md),
+          HeldRankProgressCard(
+            heldTitle: widget.heldTitle,
+            runScore: widget.totalScore,
           ),
         ],
         const SizedBox(height: AppSpacing.lg),
         ScoreBreakdownPanel(
-          scoresByGame: scoresByGame,
-          newCategoryHighs: newCategoryHighs,
+          scoresByGame: widget.scoresByGame,
+          newCategoryHighs: widget.newCategoryHighs,
         ),
         const SizedBox(height: AppSpacing.xl),
-        CandyButton(label: 'Play Again', onPressed: onPlayAgain),
+        CandyButton(label: 'Play Again', onPressed: widget.onPlayAgain),
         const SizedBox(height: AppSpacing.md),
         CandyButton(
           label: 'Menu',
           variant: CandyButtonVariant.secondary,
-          onPressed: onMenu,
+          onPressed: widget.onMenu,
         ),
         const SizedBox(height: AppSpacing.xl),
       ],
@@ -194,9 +221,13 @@ class _ScoreHubContent extends StatelessWidget {
 /// Opens [RankRevealDialog] once after the score count-up, then shows a
 /// static [TitleRevealPill] so the hub still displays the earned rank.
 class _RankRevealHost extends StatefulWidget {
-  const _RankRevealHost({required this.earnedTitle});
+  const _RankRevealHost({
+    required this.earnedTitle,
+    required this.onRevealComplete,
+  });
 
   final TitleTier earnedTitle;
+  final VoidCallback onRevealComplete;
 
   @override
   State<_RankRevealHost> createState() => _RankRevealHostState();
@@ -233,6 +264,7 @@ class _RankRevealHostState extends State<_RankRevealHost> {
       return;
     }
     setState(() => _revealComplete = true);
+    widget.onRevealComplete();
   }
 
   @override

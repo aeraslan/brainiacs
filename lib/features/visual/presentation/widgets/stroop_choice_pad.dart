@@ -126,6 +126,7 @@ class StroopChoicePad extends StatelessWidget {
           Widget pad = CandyPadButton(
             label: usesTextOptions ? choice.label : '',
             enabled: enabled,
+            commitOnPressDown: true,
             gradientColors: gradientColors,
             borderColor: borderColor,
             fontSize: usesTextOptions ? 28 : null,

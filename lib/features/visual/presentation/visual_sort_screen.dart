@@ -178,7 +178,7 @@ class _VisualSortScreenState extends ConsumerState<VisualSortScreen> {
       return;
     }
 
-    final didTap = await pointer.tapKey(key);
+    final didTap = await pointer.tapKey(key, spotlight: false);
     if (!_isTutorialActive(token) || !didTap) {
       return;
     }

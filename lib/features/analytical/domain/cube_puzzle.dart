@@ -29,7 +29,7 @@ class CubePuzzle {
     final minTotal = _minTotalForLevel(safeLevel);
     final maxTotal = _maxTotalForLevel(safeLevel);
 
-    for (var attempt = 0; attempt < 160; attempt++) {
+    for (var attempt = 0; attempt < 320; attempt++) {
       final heights = List.generate(
         size,
         (_) => List.generate(size, (_) {
@@ -123,8 +123,7 @@ class CubePuzzle {
     }
   }
 
-  /// True when every occupied column's top sits above every in-front stack
-  /// that overlaps it on screen.
+  /// True when every occupied column's top clears every overlapping front stack.
   static bool _allOccupiedColumnsVisible(List<List<int>> heights) {
     final rows = heights.length;
     final cols = heights.first.length;
@@ -156,7 +155,11 @@ class CubePuzzle {
   }
 
   /// Uses the same projection as the painter: a back stack is hidden when its
-  /// top is at or below the highest point of an overlapping front stack.
+  /// top does not clearly clear an overlapping front stack.
+  ///
+  /// Edge-touching towers (`|diagDiff| >= 2`) do not cover each other. Real
+  /// overlap requires the back stack to be tall enough that its top face peeks
+  /// by more than a one-cube sliver for the depth gap.
   static bool _frontHidesBack({
     required int backRow,
     required int backCol,
@@ -176,14 +179,21 @@ class CubePuzzle {
 
     final diagDiff = ((frontCol - frontRow) - (backCol - backRow)).abs();
     // Screen-X overlap: |Δdiag| * 0.5 * tileW < tileW ⇒ |Δdiag| < 2.
-    // Include the touching case (|Δdiag| == 2) so edge-on towers cannot hide.
-    if (diagDiff > 2) {
+    // Edge-touching (|Δdiag| == 2) is kept — footprints meet but do not cover.
+    if (diagDiff >= 2) {
       return false;
     }
 
     final heightDelta = backHeight - frontHeight;
-    final peekThreshold = (0.5 / isoRiseFactor) * (1 - depthDiff);
+    // Depth 1 → need at least +1; depth 2 → need at least +2.
+    final peekThreshold = (0.5 / isoRiseFactor) * depthDiff;
     return heightDelta <= peekThreshold;
+  }
+
+  /// Public visibility check for tests: every occupied stack top clears
+  /// overlapping front stacks so the total is uniquely countable.
+  static bool isUnambiguouslyVisible(List<List<int>> heights) {
+    return _allOccupiedColumnsVisible(heights);
   }
 
   static int _totalCubes(List<List<int>> heights) {
@@ -196,6 +206,8 @@ class CubePuzzle {
   static CubePuzzle _fallbackPuzzle(int level, {CubePuzzle? excluding}) {
     final minTotal = _minTotalForLevel(level);
     final maxTotal = _maxTotalForLevel(level);
+    // Unambiguous layouts: same-depth neighbors, edge-adjacent towers, and
+    // taller stacks behind shorter ones that clearly clear the front top.
     final candidates = <List<List<int>>>[
       // Totals 2–3: only valid for the first two questions.
       [
@@ -203,48 +215,103 @@ class CubePuzzle {
         [0, 0],
       ],
       [
+        [3, 0],
+        [0, 0],
+      ],
+      [
+        [0, 1],
         [1, 0],
-        [0, 1],
       ],
       [
-        [2, 0],
-        [0, 1],
-      ],
-      [
-        [1, 1],
-        [0, 1],
-      ],
-      // Totals 4+.
-      [
-        [2, 0],
         [0, 2],
+        [1, 0],
       ],
+      // Totals 4+: same-depth pairs.
+      [
+        [0, 2],
+        [2, 0],
+      ],
+      [
+        [0, 3],
+        [2, 0],
+      ],
+      [
+        [0, 3],
+        [3, 0],
+      ],
+      // Taller behind shorter (depth 1 needs +1; depth 2 needs +2).
       [
         [3, 0],
+        [0, 1],
+      ],
+      [
+        [4, 0],
         [0, 2],
       ],
       [
-        [2, 1],
-        [0, 2],
+        [3, 2],
+        [0, 1],
       ],
       [
-        [3, 0, 0],
-        [0, 2, 0],
+        [4, 0],
+        [1, 2],
+      ],
+      [
+        [2, 0, 0],
+        [0, 0, 0],
         [0, 0, 2],
       ],
       [
-        [2, 0, 1],
-        [0, 3, 0],
-        [1, 0, 2],
+        [0, 2, 0],
+        [2, 0, 2],
+        [0, 2, 0],
       ],
       [
-        [3, 0, 2],
-        [0, 3, 0],
-        [2, 0, 3],
+        [3, 0, 0],
+        [0, 1, 0],
+        [0, 0, 2],
+      ],
+      [
+        [4, 0, 0],
+        [0, 2, 0],
+        [0, 0, 1],
+      ],
+      [
+        [3, 0, 0],
+        [0, 0, 0],
+        [0, 0, 3],
+      ],
+      [
+        [0, 0, 3],
+        [0, 0, 0],
+        [3, 0, 0],
+      ],
+      [
+        [2, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 2],
+      ],
+      [
+        [0, 3, 0, 0],
+        [3, 0, 0, 0],
+        [0, 0, 0, 3],
+        [0, 0, 3, 0],
+      ],
+      [
+        [4, 0, 0, 0],
+        [0, 2, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 2],
       ],
     ];
 
-    for (final heights in candidates) {
+    for (final template in candidates) {
+      final heights = template.map((row) => List<int>.from(row)).toList();
+      _removeOccludedColumns(heights);
+      if (!_allOccupiedColumnsVisible(heights)) {
+        continue;
+      }
       final total = _totalCubes(heights);
       if (total < minTotal || total > maxTotal) {
         continue;
@@ -259,31 +326,75 @@ class CubePuzzle {
       );
     }
 
-    // Guaranteed in-range layout when no candidate matched.
+    // Guaranteed in-range layout: place stacks only on same-depth pairs /
+    // isolated columns so nothing can sit behind an overlapping neighbor.
     final size = _gridSizeForLevel(level);
-    final heights = List.generate(
-      size,
-      (_) => List.filled(size, 0),
-    );
-    var remaining = minTotal;
-    for (var r = 0; r < size && remaining > 0; r++) {
-      for (var c = 0; c < size && remaining > 0; c++) {
-        final stack = remaining.clamp(1, _maxHeightForLevel(level));
-        heights[r][c] = stack;
-        remaining -= stack;
+    final maxHeight = _maxHeightForLevel(level);
+    final heights = List.generate(size, (_) => List.filled(size, 0));
+    var remaining = minTotal.clamp(1, maxTotal);
+
+    // Fill front-most same-depth diagonal cells first (no mutual occlusion).
+    final cells = <(int, int)>[];
+    for (var depth = size * 2 - 2; depth >= 0; depth--) {
+      for (var r = 0; r < size; r++) {
+        final c = depth - r;
+        if (c < 0 || c >= size) {
+          continue;
+        }
+        cells.add((r, c));
       }
     }
+
+    for (final (r, c) in cells) {
+      if (remaining <= 0) {
+        break;
+      }
+      // Skip if any already-placed stack would hide this cell.
+      final wouldHide = cells.any((other) {
+        final (or, oc) = other;
+        if (heights[or][oc] <= 0) {
+          return false;
+        }
+        return _frontHidesBack(
+          backRow: r,
+          backCol: c,
+          backHeight: 1,
+          frontRow: or,
+          frontCol: oc,
+          frontHeight: heights[or][oc],
+        );
+      });
+      if (wouldHide) {
+        continue;
+      }
+      final stack = remaining.clamp(1, maxHeight);
+      heights[r][c] = stack;
+      remaining -= stack;
+    }
+
     _removeOccludedColumns(heights);
     var total = _totalCubes(heights);
     if (total < minTotal) {
-      heights[size - 1][size - 1] =
-          (heights[size - 1][size - 1] + (minTotal - total))
-              .clamp(1, _maxHeightForLevel(level));
-      total = _totalCubes(heights);
+      // Grow the front-most occupied stack without introducing occlusion.
+      for (var depth = size * 2 - 2; depth >= 0 && total < minTotal; depth--) {
+        for (var r = 0; r < size && total < minTotal; r++) {
+          final c = depth - r;
+          if (c < 0 || c >= size || heights[r][c] <= 0) {
+            continue;
+          }
+          final room = maxHeight - heights[r][c];
+          if (room <= 0) {
+            continue;
+          }
+          final add = (minTotal - total).clamp(1, room);
+          heights[r][c] += add;
+          total += add;
+        }
+      }
     }
     return CubePuzzle(
       heights: heights,
-      expectedTotal: total,
+      expectedTotal: _totalCubes(heights),
       level: level,
     );
   }
@@ -364,11 +475,11 @@ class CubePuzzle {
 
   static double _sparsityForLevel(int level) {
     if (level <= 5) {
-      return 0.35;
+      return 0.2;
     }
     if (level <= 14) {
-      return 0.4;
+      return 0.25;
     }
-    return 0.45;
+    return 0.3;
   }
 }

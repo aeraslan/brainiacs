@@ -103,6 +103,7 @@ class ObjectPad extends StatelessWidget {
               child: CandyPadButton(
                 label: objectId,
                 enabled: enabled,
+                commitOnPressDown: true,
                 gradientColors: gradientColors,
                 borderColor: borderColor,
                 onPressed: () => onSelected(objectId),

@@ -39,6 +39,7 @@ class NumberPad extends StatelessWidget {
             child: CandyPadButton(
               label: '$digit',
               enabled: enabled,
+              commitOnPressDown: true,
               onPressed: () => onDigit(digit),
             ),
           );
@@ -72,6 +73,7 @@ class NumberPad extends StatelessWidget {
               CandyPadButton(
                 label: 'C',
                 enabled: enabled,
+                commitOnPressDown: true,
                 gradientColors: [
                   AppColors.incorrect.withValues(alpha: 0.95),
                   AppColors.incorrect.withValues(alpha: 0.75),

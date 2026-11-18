@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/press_down_detector.dart';
 
 /// Glossy candy tile for Matrix Recall.
 ///
@@ -48,9 +49,9 @@ class _CandyMemoryTileState extends State<CandyMemoryTile> {
   Widget build(BuildContext context) {
     final active = widget.isLit || widget.isWrong;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.enabled ? widget.onTap : null,
+    return PressDownDetector(
+      enabled: widget.enabled,
+      onPressed: widget.onTap,
       child: AspectRatio(
         aspectRatio: 1,
         child: _CandyTileFace(

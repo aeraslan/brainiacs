@@ -45,4 +45,38 @@ void main() {
       expect(TitleTier.tryParse('notATier'), isNull);
     });
   });
+
+  group('TitleTier ladder helpers', () {
+    test('rankNumber is 1-based and matches enum order', () {
+      expect(TitleTier.count, 8);
+      expect(TitleTier.dormantMind.rankNumber, 1);
+      expect(TitleTier.activeNeuron.rankNumber, 3);
+      expect(TitleTier.brainiac.rankNumber, 8);
+      for (var i = 0; i < TitleTier.values.length; i++) {
+        expect(TitleTier.values[i].rankNumber, i + 1);
+      }
+    });
+
+    test('nextHigher climbs and returns null at the top', () {
+      expect(TitleTier.dormantMind.nextHigher, TitleTier.mindApprentice);
+      expect(TitleTier.synapseLord.nextHigher, TitleTier.brainiac);
+      expect(TitleTier.brainiac.nextHigher, isNull);
+      expect(TitleTier.brainiac.isHighest, isTrue);
+      expect(TitleTier.dormantMind.isHighest, isFalse);
+    });
+
+    test('progressToNext uses run score against configured thresholds', () {
+      expect(TitleTier.dormantMind.progressToNext(0), 0);
+      expect(TitleTier.dormantMind.progressToNext(1000), 0.5);
+      expect(TitleTier.dormantMind.progressToNext(2000), 1);
+      expect(TitleTier.dormantMind.progressToNext(5000), 1);
+
+      expect(TitleTier.activeNeuron.progressToNext(4500), 0);
+      expect(TitleTier.activeNeuron.progressToNext(5500), 0.5);
+      expect(TitleTier.activeNeuron.progressToNext(6500), 1);
+
+      expect(TitleTier.brainiac.progressToNext(0), 1);
+      expect(TitleTier.brainiac.progressToNext(20000), 1);
+    });
+  });
 }
