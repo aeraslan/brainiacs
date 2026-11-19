@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../application/player_statistics_provider.dart';
 import 'stat_tile.dart';
@@ -13,6 +14,7 @@ class PrimaryStatsGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final gamesPlayed = ref.watch(
       playerStatisticsProvider.select((s) => s.gamesPlayed),
     );
@@ -38,7 +40,7 @@ class PrimaryStatsGrid extends ConsumerWidget {
             children: [
               Expanded(
                 child: StatTile(
-                  label: 'Games Played',
+                  label: l10n.progressGamesPlayed,
                   icon: Icons.sports_esports_rounded,
                   accent: AppColors.electricBlue,
                   value: gamesPlayed,
@@ -48,7 +50,7 @@ class PrimaryStatsGrid extends ConsumerWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: StatTile(
-                  label: 'Personal Best',
+                  label: l10n.progressPersonalBest,
                   icon: Icons.emoji_events_rounded,
                   accent: AppColors.sunnyYellow,
                   value: personalBest,
@@ -65,7 +67,7 @@ class PrimaryStatsGrid extends ConsumerWidget {
             children: [
               Expanded(
                 child: StatTile(
-                  label: 'Latest Score',
+                  label: l10n.progressLatestScore,
                   icon: Icons.bolt_rounded,
                   accent: AppColors.coral,
                   value: latestScore,
@@ -75,11 +77,11 @@ class PrimaryStatsGrid extends ConsumerWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: StatTile(
-                  label: 'Average Score',
+                  label: l10n.progressAverageScore,
                   icon: Icons.insights_rounded,
                   accent: AppColors.mint,
                   value: averageScore,
-                  caption: 'Last 10 runs',
+                  caption: l10n.progressLast10Runs,
                   entranceDelay: 180.ms,
                 ),
               ),
@@ -111,7 +113,7 @@ class _HistoryPendingNote extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
-            'Detailed score tracking starts with your next completed game.',
+            context.l10n.progressLegacyNote,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,

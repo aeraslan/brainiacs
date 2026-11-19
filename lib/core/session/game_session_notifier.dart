@@ -85,6 +85,20 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     state = state.copyWith(phase: GamePhase.menu);
   }
 
+  void openSettings() {
+    if (state.phase != GamePhase.menu) {
+      return;
+    }
+    state = state.copyWith(phase: GamePhase.settings);
+  }
+
+  void closeSettings() {
+    if (state.phase != GamePhase.settings) {
+      return;
+    }
+    state = state.copyWith(phase: GamePhase.menu);
+  }
+
   void startPractice({
     required MiniGameType type,
     MathGameVariant mathVariant = MathGameVariant.quickMath,

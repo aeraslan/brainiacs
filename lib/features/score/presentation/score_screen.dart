@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/rank/title_progress_notifier.dart';
 import '../../../core/rank/title_tier.dart';
@@ -37,7 +38,9 @@ class ScoreScreen extends ConsumerWidget {
     final sessionTitle =
         titleProgress.lastSessionTitle ?? TitleTier.fromScore(totalScore);
     final daysLeft = titleProgress.daysLeftToDefend(ref.read(clockProvider)());
-    final headline = timeRemaining > 0 ? 'Game Over' : "Time's Up!";
+    final headline = timeRemaining > 0
+        ? context.l10n.scoreGameOver
+        : context.l10n.scoreTimeUp;
 
     final RankDefendOutcome? defendOutcome;
     if (daysLeft == null ||
@@ -93,7 +96,7 @@ class ScoreScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       CandyButton(
-                        label: 'Play Again',
+                        label: context.l10n.scorePlayAgain,
                         variant: CandyButtonVariant.primarySuccess,
                         icon: Icons.replay_rounded,
                         onPressed: () {
@@ -102,7 +105,7 @@ class ScoreScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       CandyButton(
-                        label: 'Menu',
+                        label: context.l10n.commonMenu,
                         variant: CandyButtonVariant.secondarySoft,
                         onPressed: () {
                           ref.read(gameSessionProvider.notifier).resetToMenu();
@@ -191,7 +194,7 @@ class _ScoreHubContentState extends State<_ScoreHubContent> {
         const SizedBox(height: AppSpacing.sm),
         if (showThisRunCaption) ...[
           Text(
-            'This run',
+            context.l10n.scoreThisRun,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: AppColors.textSecondary,

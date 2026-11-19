@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 
 /// Candy "New Rank Unlocked!" badge shown when the player breaks their record.
@@ -28,23 +29,23 @@ class PersonalBestBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.emoji_events_rounded,
               color: AppColors.onAccent,
               size: 18,
             ),
-            SizedBox(width: AppSpacing.xs),
+            const SizedBox(width: AppSpacing.xs),
             Text(
-              'New Rank Unlocked!',
-              style: TextStyle(
+              context.l10n.scoreNewRankUnlocked,
+              style: const TextStyle(
                 color: AppColors.onAccent,
                 fontWeight: FontWeight.w800,
                 fontSize: 14,

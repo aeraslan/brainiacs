@@ -44,6 +44,7 @@ class StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final light = Color.lerp(accent, Colors.white, 0.55)!;
     final soft = Color.lerp(accent, Colors.white, 0.82)!;
@@ -52,9 +53,9 @@ class StatTile extends StatelessWidget {
     if (value == null) {
       valueChild = Text('—', style: _valueStyle);
     } else if (reduceMotion || !animateValue) {
-      valueChild = Text(formatScore(value!), style: _valueStyle);
+      valueChild = Text(formatScore(value!, locale: locale), style: _valueStyle);
     } else {
-      valueChild = Text(formatScore(value!), style: _valueStyle)
+      valueChild = Text(formatScore(value!, locale: locale), style: _valueStyle)
           .animate()
           .custom(
             duration: countDuration,
@@ -63,7 +64,7 @@ class StatTile extends StatelessWidget {
             end: value!.toDouble(),
             builder: (context, animated, child) {
               return Text(
-                formatScore(animated.round()),
+                formatScore(animated.round(), locale: locale),
                 style: _valueStyle,
               );
             },

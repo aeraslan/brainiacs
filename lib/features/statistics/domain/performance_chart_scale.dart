@@ -81,9 +81,6 @@ abstract final class PerformanceChartScale {
     return indices.toList()..sort();
   }
 
-  /// 1-based run label for a position in the displayed window.
-  static String runLabel(int zeroBasedIndex) => 'Run ${zeroBasedIndex + 1}';
-
   static int _preferredStep(int yMax, int divisions) {
     if (divisions <= 0) {
       return yMax;

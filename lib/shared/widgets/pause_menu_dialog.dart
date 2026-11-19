@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/audio/audio_controller_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
+import '../../core/localization/l10n_extension.dart';
 import 'candy_pad_button.dart';
+import 'candy_switch_row.dart';
 
 enum PauseMenuAction {
   resume,
@@ -21,10 +23,11 @@ abstract final class PauseMenuDialog {
     BuildContext context, {
     required bool isPracticeMode,
   }) {
+    final barrierLabel = context.l10n.pauseDismiss;
     return showGeneralDialog<PauseMenuAction>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Dismiss pause menu',
+      barrierLabel: barrierLabel,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
@@ -117,14 +120,15 @@ class _PauseMenuCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bgmEnabled = ref.watch(
-      audioControllerProvider.select((state) => state.bgmEnabled),
-    );
-    final musicDelayMs = isPracticeMode ? 240 : 160;
+    final l10n = context.l10n;
+    final mediaQuery = MediaQuery.of(context);
+    final maxHeight = mediaQuery.size.height -
+        mediaQuery.padding.vertical -
+        (AppSpacing.lg * 2);
 
     final buttons = <Widget>[
       _PauseActionButton(
-        label: 'Resume',
+        label: l10n.pauseResume,
         color: AppColors.mint,
         darkColor: darken(AppColors.mint),
         onPressed: () => onAction(PauseMenuAction.resume),
@@ -133,7 +137,7 @@ class _PauseMenuCard extends ConsumerWidget {
       ),
       if (isPracticeMode)
         _PauseActionButton(
-          label: 'End Practice',
+          label: l10n.pauseEndPractice,
           color: AppColors.sunnyYellow,
           darkColor: endPracticeOrange,
           onPressed: () => onAction(PauseMenuAction.endPractice),
@@ -141,64 +145,119 @@ class _PauseMenuCard extends ConsumerWidget {
           height: _buttonHeight,
         ),
       _PauseActionButton(
-        label: 'Quit to Menu',
+        label: l10n.pauseQuitToMenu,
         color: AppColors.coral,
         darkColor: darken(AppColors.coral),
         onPressed: () => onAction(PauseMenuAction.quitToMenu),
         delayMs: isPracticeMode ? 160 : 80,
         height: _buttonHeight,
       ),
-      _PauseActionButton(
-        label: bgmEnabled ? 'Music: On' : 'Music: Off',
-        color: AppColors.electricBlue,
-        darkColor: darken(AppColors.electricBlue),
-        onPressed: () {
-          ref.read(audioControllerProvider.notifier).toggleBGM();
-        },
-        delayMs: musicDelayMs,
-        height: _buttonHeight,
-      ),
     ];
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSpacing.xl),
-        gradient: const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.white, AppColors.surfaceElevated],
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 24,
-            offset: Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Paused',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                  ),
+    return GestureDetector(
+      onTap: () {},
+      behavior: HitTestBehavior.opaque,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSpacing.xl),
+            gradient: const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.white, AppColors.surfaceElevated],
             ),
-            const SizedBox(height: AppSpacing.lg),
-            ...buttons.map(
-              (button) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: button,
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 24,
+                offset: Offset(0, 12),
               ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.pauseTitle,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Flexible(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const _PauseAudioSection(),
+                        const SizedBox(height: AppSpacing.md),
+                        ...buttons.map(
+                          (button) => Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: AppSpacing.sm),
+                            child: button,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
+  }
+}
+
+class _PauseAudioSection extends ConsumerWidget {
+  const _PauseAudioSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final audio = ref.watch(audioControllerProvider);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.electricBlue.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppSpacing.lg),
+        border: Border.all(
+          color: AppColors.electricBlue.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Column(
+        children: [
+          CandySwitchRow(
+            icon: Icons.music_note_rounded,
+            label: l10n.pauseMusic,
+            value: audio.bgmEnabled,
+            compact: true,
+            onChanged: (enabled) {
+              ref.read(audioControllerProvider.notifier).setBgmEnabled(enabled);
+            },
+          ),
+          CandySwitchRow(
+            icon: Icons.volume_up_rounded,
+            label: l10n.pauseSoundEffects,
+            value: audio.sfxEnabled,
+            compact: true,
+            onChanged: (enabled) {
+              ref.read(audioControllerProvider.notifier).setSfxEnabled(enabled);
+            },
+          ),
+        ],
+      ),
+    )
+        .animate(delay: 40.ms)
+        .fadeIn(duration: 220.ms)
+        .slideY(begin: 0.08, end: 0, duration: 260.ms, curve: Curves.easeOut);
   }
 }
 

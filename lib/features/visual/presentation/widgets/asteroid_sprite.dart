@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../shared/widgets/answer_feedback_burst.dart';
 import '../../../../shared/widgets/press_down_detector.dart';
 import '../../domain/asteroid.dart';
+import '../asteroid_labels.dart';
 import '../visual_colors.dart';
 import 'asteroid_painter.dart';
 
@@ -26,6 +28,7 @@ class AsteroidSprite extends StatelessWidget {
   Widget build(BuildContext context) {
     final diameter = asteroid.radius * 2;
     final fontSize = (asteroid.radius * 0.42).clamp(12.0, 26.0).toDouble();
+    final label = asteroidDisplayText(asteroid, context.l10n);
 
     Widget sprite = PressDownDetector(
       enabled: !asteroid.isPopped,
@@ -51,9 +54,9 @@ class AsteroidSprite extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: _AsteroidLabel(
-                    text: asteroid.displayText,
+                    text: label,
                     fontSize: fontSize,
-                    showOrientationHint: asteroid.needsOrientationHint,
+                    showOrientationHint: asteroidNeedsOrientationHint(label),
                   ),
                 ),
               ),

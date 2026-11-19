@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/color_clash_round.dart';
 
@@ -16,13 +17,12 @@ class StroopRulePill extends StatelessWidget {
   final StroopRule rule;
   final bool emphasized;
 
-  String get _label => switch (rule) {
-        StroopRule.matchColor => 'Match the COLOR!',
-        StroopRule.matchText => 'Read the TEXT!',
-      };
-
   @override
   Widget build(BuildContext context) {
+    final label = switch (rule) {
+      StroopRule.matchColor => context.l10n.colorClashMatchColor,
+      StroopRule.matchText => context.l10n.colorClashMatchText,
+    };
     final borderColor = emphasized
         ? AppColors.electricBlue
         : const Color(0xFF2B2D42);
@@ -62,7 +62,7 @@ class StroopRulePill extends StatelessWidget {
           vertical: AppSpacing.sm,
         ),
         child: Text(
-          _label,
+          label,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppColors.textPrimary,

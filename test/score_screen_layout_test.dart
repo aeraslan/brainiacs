@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:brainiacs_flutter/core/storage/local_storage_provider.dart';
 import 'package:brainiacs_flutter/core/theme/app_theme.dart';
 import 'package:brainiacs_flutter/features/score/presentation/score_screen.dart';
-import 'package:brainiacs_flutter/shared/widgets/scroll_more_cue.dart';
+import 'package:brainiacs_flutter/l10n/generated/app_localizations.dart';
 
 Widget _scoreScreenApp({required Size size}) {
   return ProviderScope(
@@ -15,6 +15,9 @@ Widget _scoreScreenApp({required Size size}) {
     ],
     child: MaterialApp(
       theme: AppTheme.light,
+      locale: const Locale('en'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: MediaQuery(
         data: MediaQueryData(size: size),
         child: const ScoreScreen(),
@@ -93,7 +96,7 @@ void main() {
       // Allow post-frame overflow sync.
       await tester.pump();
 
-      expect(find.text(ScrollMoreCue.label), findsOneWidget);
+      expect(find.text('Scroll for more'), findsOneWidget);
       expect(find.text('Play Again'), findsOneWidget);
       expect(find.text('Menu'), findsOneWidget);
 
@@ -115,7 +118,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump();
 
-      expect(find.text(ScrollMoreCue.label), findsNothing);
+      expect(find.text('Scroll for more'), findsNothing);
       expect(find.text('Play Again'), findsOneWidget);
 
       await _disposeAnimatedTree(tester);
@@ -136,20 +139,20 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump();
 
-      expect(find.text(ScrollMoreCue.label), findsOneWidget);
+      expect(find.text('Scroll for more'), findsOneWidget);
 
       await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -80));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text(ScrollMoreCue.label), findsNothing);
+      expect(find.text('Scroll for more'), findsNothing);
 
       // Scrolling back to top must not revive the cue for this visit.
       await tester.drag(find.byType(SingleChildScrollView), const Offset(0, 120));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text(ScrollMoreCue.label), findsNothing);
+      expect(find.text('Scroll for more'), findsNothing);
 
       await _disposeAnimatedTree(tester);
     },

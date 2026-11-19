@@ -72,7 +72,7 @@ void main() {
       _expectCoreInvariants(round);
       for (final choice in round.choices) {
         expect(choice.isMismatched, isTrue);
-        expect(choice.label, isNotEmpty);
+        expect(choice.identityId, isNotEmpty);
       }
       if (round.rule == StroopRule.matchColor) {
         sawMatchColor = true;

@@ -28,6 +28,9 @@ class LocalStorageService {
   static const String lastPlayedDateKey = 'lastPlayedDate';
   static const String prefsMigratedKey = 'prefsMigrated';
   static const String sessionHistoryKey = 'sessionHistory';
+  static const String languagePreferenceKey = 'languagePreference';
+  static const String bgmEnabledKey = 'bgmEnabled';
+  static const String sfxEnabledKey = 'sfxEnabled';
   static const int maxSessionHistory = 100;
 
   /// Legacy SharedPreferences keys (pre-Hive).
@@ -117,6 +120,28 @@ class LocalStorageService {
   }
 
   bool get prefsMigrated => (_get(prefsMigratedKey) as bool?) ?? false;
+
+  /// Raw language preference (`system`, `en`, `tr`). Callers validate.
+  Object? get rawLanguagePreference => _get(languagePreferenceKey);
+
+  /// Null when missing or not a bool (defaults applied by audio controller).
+  bool? get bgmEnabled {
+    final raw = _get(bgmEnabledKey);
+    return raw is bool ? raw : null;
+  }
+
+  /// Null when missing or not a bool (defaults applied by audio controller).
+  bool? get sfxEnabled {
+    final raw = _get(sfxEnabledKey);
+    return raw is bool ? raw : null;
+  }
+
+  Future<void> setLanguagePreference(String value) =>
+      _put(languagePreferenceKey, value);
+
+  Future<void> setBgmEnabled(bool value) => _put(bgmEnabledKey, value);
+
+  Future<void> setSfxEnabled(bool value) => _put(sfxEnabledKey, value);
 
   /// Defensive read of stored session history maps (oldest → newest).
   ///

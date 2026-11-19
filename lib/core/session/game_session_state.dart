@@ -2,6 +2,7 @@ enum GamePhase {
   menu,
   practiceMenu,
   myProgress,
+  settings,
   tutorial,
   countdown,
   playing,

@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/l10n_extension.dart';
 
 /// Compact candy pill that opens My Progress from the main menu.
 class MyProgressPillButton extends StatefulWidget {
@@ -32,9 +33,10 @@ class _MyProgressPillButtonState extends State<MyProgressPillButton> {
 
   @override
   Widget build(BuildContext context) {
+    final label = context.l10n.menuMyProgress;
     return Semantics(
       button: true,
-      label: 'My Progress',
+      label: label,
       child: GestureDetector(
         onTapDown: (_) => _setPressed(true),
         onTapUp: (_) => _setPressed(false),
@@ -80,7 +82,7 @@ class _MyProgressPillButtonState extends State<MyProgressPillButton> {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
-                      'My Progress',
+                      label,
                       maxLines: 1,
                       softWrap: false,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(

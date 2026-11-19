@@ -1,0 +1,277 @@
+{
+  "@@locale": "tr",
+
+  "appTitle": "Brainiacs",
+
+  "commonBack": "Geri",
+  "commonMenu": "Ana Menü",
+  "commonScore": "Puan",
+  "commonClear": "C",
+  "commonScrollForMore": "Daha fazlası için kaydır",
+  "commonDismiss": "Kapat",
+
+  "menuSubtitle": "Beynini çalıştır. Zamana karşı kazan.",
+  "menuNewGame": "Yeni Oyun",
+  "menuPractice": "Antrenman",
+  "menuMyProgress": "Gelişimim",
+  "menuSettings": "Ayarlar",
+  "menuSettingsTooltip": "Ayarlar",
+
+  "practiceTitle": "Antrenman",
+  "practiceQuickOps": "Hızlı Hesaplama",
+  "practiceMissingOp": "Eksik İşlem",
+  "practiceCards": "Kart Eşleştirme",
+  "practiceRecall": "Sırayı Hatırla",
+  "practiceCubeCount": "Küpleri Say",
+  "practiceBalance": "Denge Bulmacası",
+  "practiceAsteroids": "Görsel Sıralama",
+  "practiceColorClash": "Renk Çatışması",
+
+  "rankDecayTitle": "Zihin paslanıyor!",
+  "rankDecayBody": "Zihnin paslanıyor! Bir haftadan uzun süredir antrenman yapmadığın için rütben düştü. Geri kazanma zamanı!",
+  "rankDecayCta": "Antrenman yapalım!",
+  "rankDecayDismiss": "Rütbe düşüş bildirimini kapat",
+
+  "settingsTitle": "Ayarlar",
+  "settingsLanguage": "Dil",
+  "settingsSystemDefault": "Sistem Varsayılanı",
+  "settingsEnglish": "English",
+  "settingsTurkish": "Türkçe",
+  "settingsAudio": "Ses",
+  "settingsMusic": "Müzik",
+  "settingsMusicDescription": "Arka plan müziği",
+  "settingsSoundEffects": "Ses Efektleri",
+  "settingsSoundEffectsDescription": "Oyun sesleri ve geri bildirimler",
+
+  "pauseTitle": "Duraklatıldı",
+  "pauseResume": "Devam Et",
+  "pauseEndPractice": "Antrenmanı Bitir",
+  "pauseQuitToMenu": "Ana Menüye Dön",
+  "pauseMusic": "Müzik",
+  "pauseSoundEffects": "Ses Efektleri",
+  "pauseDismiss": "Duraklatma menüsünü kapat",
+
+  "tutorialHowToPlay": "NASIL OYNANIR?",
+  "tutorialWatchFirst": "ÖNCE İZLE",
+  "tutorialPlay": "OYNA!",
+
+  "tutorialQuickMathTitle": "Hızlı Hesaplama",
+  "tutorialQuickMathSubtitle": "İşlemi olabildiğince hızlı çöz.",
+  "tutorialQuickMathStep1": "Ekrandaki matematik işlemini çöz.",
+  "tutorialQuickMathStep2": "Cevabını tuşlayarak gir.",
+  "tutorialQuickMathStep3": "Doğru cevaplarla daha zor işlemlere geç.",
+
+  "tutorialMissingOperatorTitle": "Eksik İşlem",
+  "tutorialMissingOperatorSubtitle": "Denklemi tamamlayan işlemi bul.",
+  "tutorialMissingOperatorStep1": "Eksik matematiksel işlemi seç.",
+  "tutorialMissingOperatorStep2": "Doğru cevaplarla daha zor sorulara geç.",
+  "tutorialMissingOperatorStep3": "Hızlı düşün, doğru cevapla!",
+
+  "tutorialCardMatchTitle": "Kart Eşleştirme",
+  "tutorialCardMatchSubtitle": "Kartları ezberle, eşlerini bul.",
+  "tutorialCardMatchStep1": "Kartlar açıkken yerlerini ezberle.",
+  "tutorialCardMatchStep2": "Aynı olan iki kartı eşleştir.",
+  "tutorialCardMatchStep3": "Tüm çiftleri bul, yeni kartlara geç.",
+
+  "tutorialMatrixRecallTitle": "Sırayı Hatırla",
+  "tutorialMatrixRecallSubtitle": "Yanan karelerin sırasını aklında tut.",
+  "tutorialMatrixRecallStep1": "Karelerin hangi sırayla yandığını izle.",
+  "tutorialMatrixRecallStep2": "Aynı sırayla karelere dokun.",
+  "tutorialMatrixRecallStep3": "Her turda dizi biraz daha uzar.",
+
+  "tutorialCubeCountTitle": "Küpleri Say",
+  "tutorialCubeCountSubtitle": "Gizli olanlar dahil tüm küpleri say.",
+  "tutorialCubeCountStep1": "Görünen ve gizli küpleri say.",
+  "tutorialCubeCountStep2": "Toplam küp sayısını gir.",
+  "tutorialCubeCountStep3": "Doğru cevaplarla daha yüksek yığınlara geç.",
+
+  "tutorialBalanceLogicTitle": "Denge Bulmacası",
+  "tutorialBalanceLogicSubtitle": "Terazilere bak, en ağır nesneyi bul.",
+  "tutorialBalanceLogicStep1": "Terazilerin gösterdiği ağırlıkları karşılaştır.",
+  "tutorialBalanceLogicStep2": "En ağır nesneyi seç.",
+  "tutorialBalanceLogicStep3": "Doğru cevaplarla daha zor bulmacalara geç.",
+
+  "tutorialAsteroidsTitle": "Görsel Sıralama",
+  "tutorialAsteroidsSubtitle": "Sayıları veya harfleri doğru sırayla seç.",
+  "tutorialAsteroidsStep1": "Sayıları küçükten büyüğe, harfleri alfabetik sıraya göre seç.",
+  "tutorialAsteroidsStep2": "Doğru sırayı takip ederek tüm asteroitleri temizle.",
+  "tutorialAsteroidsStep3": "Doğru cevaplarla daha zor sıralamalara geç.",
+
+  "tutorialColorClashTitle": "Renk Çatışması",
+  "tutorialColorClashSubtitle": "Kurala göre kelimeye veya yazı rengine odaklan.",
+  "tutorialColorClashStep1": "Kelimeye mi, yazı rengine mi bakacağını kontrol et.",
+  "tutorialColorClashStep2": "Kurala uygun rengi seç.",
+  "tutorialColorClashStep3": "Doğru cevaplarla daha zor sorulara geç.",
+
+  "countdownGo": "BAŞLA!",
+  "countdownGetReady": "Hazır ol",
+  "countdownLetsPlay": "Haydi oynayalım",
+  "countdownStartingSoon": "Birazdan başlıyor",
+
+  "cardMatchWrong": "Yanlış!",
+  "cardMatchMemorize": "Kartları ezberle...",
+  "matrixRecallWatch": "Sırayı izle...",
+  "matrixRecallYourTurn": "Sıra sende!",
+
+  "colorClashMatchColor": "RENGE bak!",
+  "colorClashMatchText": "YAZIYI oku!",
+  "colorClashRed": "Kırmızı",
+  "colorClashBlue": "Mavi",
+  "colorClashGreen": "Yeşil",
+  "colorClashYellow": "Sarı",
+  "colorClashPink": "Pembe",
+  "colorClashPurple": "Mor",
+
+  "asteroidOne": "BİR",
+  "asteroidTwo": "İKİ",
+  "asteroidThree": "ÜÇ",
+  "asteroidFour": "DÖRT",
+  "asteroidFive": "BEŞ",
+  "asteroidSix": "ALTI",
+  "asteroidSeven": "YEDİ",
+  "asteroidEight": "SEKİZ",
+  "asteroidNine": "DOKUZ",
+  "asteroidTen": "ON",
+  "asteroidEleven": "ON BİR",
+  "asteroidTwelve": "ON İKİ",
+  "asteroidThirteen": "ON ÜÇ",
+  "asteroidFourteen": "ON DÖRT",
+  "asteroidFifteen": "ON BEŞ",
+  "asteroidSixteen": "ON ALTI",
+  "asteroidSeventeen": "ON YEDİ",
+  "asteroidEighteen": "ON SEKİZ",
+  "asteroidNineteen": "ON DOKUZ",
+  "asteroidTwenty": "YİRMİ",
+
+
+  "hudPauseHome": "Duraklatma menüsü",
+  "hudTimePenalty": "-{seconds}sn",
+  "@hudTimePenalty": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+
+  "categoryMath": "Matematik",
+  "categoryMemory": "Hafıza",
+  "categoryAnalytic": "Analitik",
+  "categoryVisual": "Görsel",
+
+  "timesUpTitle": "Süre Doldu!",
+  "scoreGameOver": "Oyun Bitti",
+  "scoreTimeUp": "Süre Doldu!",
+  "scoreFinalScore": "Toplam Puan",
+  "scorePlayAgain": "Tekrar Oyna",
+  "scoreThisRun": "Bu Oyun",
+  "scoreNewHighScore": "Yeni rekor",
+  "scoreNewRankUnlocked": "Yeni Rütbe Açıldı!",
+  "scoreYourRank": "Bu Oyundaki Rütben",
+  "scoreNice": "Devam Et",
+  "scoreDismissRankReveal": "Rütbe gösterimini kapat",
+
+  "rankOf": "Rütbe {number}/{total}",
+  "@rankOf": {
+    "placeholders": {
+      "number": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "rankTopReached": "En yüksek rütbeye ulaşıldı",
+  "rankNext": "Sonraki Rütbe: {name}",
+  "@rankNext": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rankScoreRequirement": "Bir oyunda {score}+ skor yap",
+  "@rankScoreRequirement": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "rankThisRunProgress": "Bu Oyundaki Puanın: {runScore} / {nextScore}",
+  "@rankThisRunProgress": {
+    "placeholders": {
+      "runScore": { "type": "String" },
+      "nextScore": { "type": "String" }
+    }
+  },
+  "rankViewAll": "Tüm Rütbeler",
+  "rankAllRanks": "Tüm Rütbeler",
+  "rankYou": "SEN",
+  "rankLadderEntry": "Rütbe {number} · {score}+ puan",
+  "@rankLadderEntry": {
+    "placeholders": {
+      "number": { "type": "int" },
+      "score": { "type": "int" }
+    }
+  },
+  "rankLadderExplainer": "Rütbeni korumak için en az {days} günde bir antrenman yap. Antrenman oyunları sayılmaz.",
+  "@rankLadderExplainer": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+
+  "rankDefendToday": "bugün koru",
+  "rankDaysLeft": "{count, plural, =1{1 gün kaldı} other{{count} gün kaldı}}",
+  "@rankDaysLeft": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "rankDefendChipNew": "Yeni tutulan rütbe: {name} — bugün koru!",
+  "@rankDefendChipNew": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rankDefendChipDefend": "{name} — {status}",
+  "@rankDefendChipDefend": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "rankDefendChipDefended": "{name} korundu — {status}",
+  "@rankDefendChipDefended": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "rankDefendChipHeld": "Mevcut Rütben: {name} · {status}",
+  "@rankDefendChipHeld": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+
+  "progressTitle": "Gelişimim",
+  "progressGamesPlayed": "Oynanan Oyun",
+  "progressPersonalBest": "Kişisel Rekor",
+  "progressLatestScore": "Son Skor",
+  "progressAverageScore": "Ortalama Skor",
+  "progressLast10Runs": "Son 10 tur",
+  "progressCategoryRecords": "Kategori Rekorları",
+  "progressRecentPerformance": "Son Performans",
+  "progressEmptyTitle": "Gelişimin burada başlıyor!",
+  "progressEmptyBody": "Performans geçmişini oluşturmaya başlamak için bir sonraki Yeni Oyun oturumunu tamamla.",
+  "progressLegacyNote": "Ayrıntılı skor takibi bir sonraki tamamlanan oyunla başlar.",
+  "progressEmDash": "—",
+  "progressRunLabel": "Tur {number}",
+  "@progressRunLabel": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "progressDaysStreak": "{count, plural, =1{1 Gün} other{{count} Gün}}",
+  "@progressDaysStreak": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
+}

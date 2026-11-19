@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../shared/widgets/scroll_more_cue.dart';
@@ -43,7 +44,7 @@ class MyProgressScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      tooltip: 'Back',
+                      tooltip: context.l10n.commonBack,
                       onPressed: () {
                         ref
                             .read(gameSessionProvider.notifier)
@@ -54,7 +55,7 @@ class MyProgressScreen extends ConsumerWidget {
                     ),
                     Expanded(
                       child: Text(
-                        'My Progress',
+                        context.l10n.progressTitle,
                         textAlign: TextAlign.center,
                         style: textTheme.headlineMedium,
                       ),

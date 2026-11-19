@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../../../core/localization/l10n_extension.dart';
 import '../../domain/color_clash_round.dart';
+import '../stroop_color_names.dart';
 
 /// Massive Stroop target word that slides/fades in on every new round.
 class StroopTargetWord extends StatelessWidget {
@@ -13,10 +15,11 @@ class StroopTargetWord extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final word = stroopColorName(round.targetWordId, context.l10n);
     return KeyedSubtree(
       key: ValueKey(round.identityKey),
       child: Text(
-        round.targetWord,
+        word,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fontSize,

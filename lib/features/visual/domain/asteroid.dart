@@ -5,19 +5,26 @@ class Asteroid {
   Asteroid({
     required this.id,
     required this.value,
-    required this.displayText,
     required this.radius,
     required this.color,
     required this.angularVelocity,
     required this.position,
     required this.velocity,
     required this.angle,
+    this.letterLabel,
+    this.showsNumberWord = false,
     this.isPopped = false,
   });
 
   final int id;
   final int value;
-  final String displayText;
+
+  /// Non-null for letter boards (Latin A–Z gameplay labels).
+  final String? letterLabel;
+
+  /// When true, UI may show a localized number word for [value].
+  final bool showsNumberWord;
+
   final double radius;
   final Color color;
   final double angularVelocity;
@@ -26,11 +33,6 @@ class Asteroid {
   Offset velocity;
   double angle;
   bool isPopped;
-
-  bool get needsOrientationHint {
-    const ambiguous = {'6', '9', 'Z', 'N', 'C', 'U'};
-    return ambiguous.contains(displayText);
-  }
 }
 
 abstract final class AsteroidField {
@@ -80,28 +82,8 @@ abstract final class AsteroidField {
     'Z',
   ];
 
-  static const Map<int, String> numberWords = {
-    1: 'ONE',
-    2: 'TWO',
-    3: 'THREE',
-    4: 'FOUR',
-    5: 'FIVE',
-    6: 'SIX',
-    7: 'SEVEN',
-    8: 'EIGHT',
-    9: 'NINE',
-    10: 'TEN',
-    11: 'ELEVEN',
-    12: 'TWELVE',
-    13: 'THIRTEEN',
-    14: 'FOURTEEN',
-    15: 'FIFTEEN',
-    16: 'SIXTEEN',
-    17: 'SEVENTEEN',
-    18: 'EIGHTEEN',
-    19: 'NINETEEN',
-    20: 'TWENTY',
-  };
+  /// Words longer than this get cramped inside typical asteroid radii.
+  static const int maxNumberWordLength = 6;
 
   static List<Asteroid> generate(int level, Size playfield, [Random? random]) {
     final rng = random ?? Random();
@@ -129,7 +111,8 @@ abstract final class AsteroidField {
         Asteroid(
           id: i,
           value: entry.value,
-          displayText: entry.displayText,
+          letterLabel: entry.letterLabel,
+          showsNumberWord: entry.showsNumberWord,
           radius: radius,
           color: color,
           angularVelocity: _randomSignedSpeed(
@@ -213,7 +196,7 @@ abstract final class AsteroidField {
       for (final value in values)
         _AsteroidEntry(
           value: value,
-          displayText: _displayTextFor(
+          showsNumberWord: _shouldShowNumberWord(
             value: value,
             allowWords: level >= 8,
             rng: rng,
@@ -227,7 +210,10 @@ abstract final class AsteroidField {
     final safeCount = count.clamp(1, pool.length);
     return [
       for (var i = 0; i < safeCount; i++)
-        _AsteroidEntry(value: pool[i].codeUnitAt(0), displayText: pool[i]),
+        _AsteroidEntry(
+          value: pool[i].codeUnitAt(0),
+          letterLabel: pool[i],
+        ),
     ];
   }
 
@@ -302,32 +288,26 @@ abstract final class AsteroidField {
     return rng.nextBool() ? magnitude : -magnitude;
   }
 
-  /// Words longer than this get cramped inside typical asteroid radii.
-  static const int maxNumberWordLength = 6;
-
-  static String _displayTextFor({
+  static bool _shouldShowNumberWord({
     required int value,
     required bool allowWords,
     required Random rng,
   }) {
-    if (!allowWords || value < 0) {
-      return '$value';
+    if (!allowWords || value < 1 || value > 20) {
+      return false;
     }
-
-    final word = numberWords[value];
-    if (word == null ||
-        word.length > maxNumberWordLength ||
-        rng.nextDouble() > 0.34) {
-      return '$value';
-    }
-
-    return word;
+    return rng.nextDouble() <= 0.34;
   }
 }
 
 class _AsteroidEntry {
-  const _AsteroidEntry({required this.value, required this.displayText});
+  const _AsteroidEntry({
+    required this.value,
+    this.letterLabel,
+    this.showsNumberWord = false,
+  });
 
   final int value;
-  final String displayText;
+  final String? letterLabel;
+  final bool showsNumberWord;
 }

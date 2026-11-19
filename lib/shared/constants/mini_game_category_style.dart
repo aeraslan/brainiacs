@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../core/session/game_session_state.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Shared candy styling for the four mini-game categories.
 extension MiniGameCategoryStyle on MiniGameType {
+  String localizedLabel(AppLocalizations l10n) => switch (this) {
+        MiniGameType.math => l10n.categoryMath,
+        MiniGameType.memory => l10n.categoryMemory,
+        MiniGameType.analytical => l10n.categoryAnalytic,
+        MiniGameType.visual => l10n.categoryVisual,
+      };
+
+  @Deprecated('Use localizedLabel(AppLocalizations)')
   String get label => switch (this) {
         MiniGameType.math => 'Math',
         MiniGameType.memory => 'Memory',

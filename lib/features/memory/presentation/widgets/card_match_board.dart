@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../domain/memory_card.dart';
 import '../card_match_notifier.dart';
@@ -134,7 +135,7 @@ class CardMatchBoard extends StatelessWidget {
                 top: AppSpacing.sm,
                 child:
                     Text(
-                          'Wrong!',
+                          context.l10n.cardMatchWrong,
                           style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(
                                 color: AppColors.incorrect,
@@ -151,7 +152,7 @@ class CardMatchBoard extends StatelessWidget {
               Positioned(
                 bottom: AppSpacing.sm,
                 child: Text(
-                  'Memorize the cards...',
+                  context.l10n.cardMatchMemorize,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.textSecondary,
                   ),

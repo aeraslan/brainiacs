@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/session/active_puzzle_reroll.dart';
 import '../../core/session/game_session_notifier.dart';
@@ -73,6 +74,7 @@ class GameHud extends ConsumerWidget {
               children: [
                 _HomeButton(
                   size: _homeSize,
+                  semanticLabel: context.l10n.hudPauseHome,
                   onPressed: () => _showHomeMenu(context, ref),
                   darken: _darken,
                 ),
@@ -91,18 +93,23 @@ class GameHud extends ConsumerWidget {
 class _HomeButton extends StatelessWidget {
   const _HomeButton({
     required this.size,
+    required this.semanticLabel,
     required this.onPressed,
     required this.darken,
   });
 
   final double size;
+  final String semanticLabel;
   final VoidCallback onPressed;
   final Color Function(Color) darken;
 
   @override
   Widget build(BuildContext context) {
     final dark = darken(AppColors.electricBlue);
-    return SizedBox(
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: SizedBox(
       width: size,
       height: size,
       child: CandyPadButton(
@@ -117,6 +124,7 @@ class _HomeButton extends StatelessWidget {
           size: AppSpacing.lg,
         ),
       ),
+    ),
     );
   }
 }
@@ -164,8 +172,9 @@ class _CenteredTimerState extends ConsumerState<_CenteredTimer> {
                 top: 0,
                 child: _TimePenaltyFlash(
                   key: ValueKey('time-penalty-$_playingPenaltyToken'),
-                  label:
-                      '-${GameSessionState.pauseTimePenaltySeconds}s',
+                  label: context.l10n.hudTimePenalty(
+                    GameSessionState.pauseTimePenaltySeconds,
+                  ),
                   onComplete: () {
                     if (!mounted) {
                       return;

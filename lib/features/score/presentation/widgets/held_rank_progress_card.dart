@@ -3,7 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/rank/title_tier.dart';
+import '../../../../core/utils/score_format.dart';
 import 'rank_defend_chip.dart';
 import 'rank_ladder_sheet.dart';
 
@@ -29,6 +31,7 @@ class HeldRankProgressCard extends StatelessWidget {
     final light = Color.lerp(heldTitle.color, Colors.white, 0.35)!;
     final dark = Color.lerp(heldTitle.color, Colors.black, 0.18)!;
     final showDefend = defendOutcome != null && daysLeftToDefend != null;
+    final l10n = context.l10n;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -89,7 +92,7 @@ class HeldRankProgressCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Rank ${heldTitle.rankNumber} of ${TitleTier.count}',
+                        l10n.rankOf(heldTitle.rankNumber, TitleTier.count),
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
@@ -112,7 +115,7 @@ class HeldRankProgressCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             if (next == null) ...[
               Text(
-                'Top rank reached',
+                l10n.rankTopReached,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -120,7 +123,7 @@ class HeldRankProgressCard extends StatelessWidget {
               ),
             ] else ...[
               Text(
-                'Next: ${next.label}',
+                l10n.rankNext(next.label),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -138,7 +141,16 @@ class HeldRankProgressCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'This run: $runScore / ${next.minScore}',
+                l10n.rankThisRunProgress(
+                  formatScore(
+                    runScore,
+                    locale: Localizations.localeOf(context).toString(),
+                  ),
+                  formatScore(
+                    next.minScore,
+                    locale: Localizations.localeOf(context).toString(),
+                  ),
+                ),
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -154,9 +166,9 @@ class HeldRankProgressCard extends StatelessWidget {
                   context,
                   heldTitle: heldTitle,
                 ),
-                child: const Text(
-                  'View All Ranks',
-                  style: TextStyle(
+                child: Text(
+                  l10n.rankViewAll,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     color: AppColors.electricBlue,
                   ),

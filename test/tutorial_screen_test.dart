@@ -2,8 +2,10 @@ import 'package:brainiacs_flutter/core/session/game_session_notifier.dart';
 import 'package:brainiacs_flutter/core/session/game_session_state.dart';
 import 'package:brainiacs_flutter/core/storage/local_storage_provider.dart';
 import 'package:brainiacs_flutter/features/tutorial/domain/tutorial_content.dart';
+import 'package:brainiacs_flutter/l10n/generated/app_localizations_en.dart';
 import 'package:brainiacs_flutter/features/tutorial/presentation/tutorial_screen.dart';
 import 'package:brainiacs_flutter/features/tutorial/presentation/widgets/tutorial_demo_card.dart';
+import 'package:brainiacs_flutter/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,7 +44,11 @@ Widget _harness({required Size size}) {
     ],
     child: MediaQuery(
       data: MediaQueryData(size: size),
-      child: const MaterialApp(home: TutorialScreen()),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const TutorialScreen(),
+      ),
     ),
   );
 }
@@ -53,16 +59,19 @@ void main() {
   });
 
   group('TutorialContent', () {
+    final l10n = AppLocalizationsEn();
+
     test('provides Missing Operator steps matching the sprint copy', () {
       final copy = TutorialContent.forType(
         MiniGameType.math,
+        l10n,
         mathVariant: MathGameVariant.missingOperator,
       );
-      expect(copy.title, 'Missing Operator');
+      expect(copy.title, l10n.tutorialMissingOperatorTitle);
       expect(copy.steps, [
-        'Find the missing operator to complete the equation.',
-        'Answer correctly to unlock harder equations.',
-        'Think fast, but stay accurate!',
+        l10n.tutorialMissingOperatorStep1,
+        l10n.tutorialMissingOperatorStep2,
+        l10n.tutorialMissingOperatorStep3,
       ]);
     });
 
@@ -70,34 +79,42 @@ void main() {
       final variants = <TutorialContent>[
         TutorialContent.forType(
           MiniGameType.math,
+          l10n,
           mathVariant: MathGameVariant.quickMath,
         ),
         TutorialContent.forType(
           MiniGameType.math,
+          l10n,
           mathVariant: MathGameVariant.missingOperator,
         ),
         TutorialContent.forType(
           MiniGameType.memory,
+          l10n,
           memoryVariant: MemoryGameVariant.cardMatch,
         ),
         TutorialContent.forType(
           MiniGameType.memory,
+          l10n,
           memoryVariant: MemoryGameVariant.matrixRecall,
         ),
         TutorialContent.forType(
           MiniGameType.analytical,
+          l10n,
           analyticVariant: AnalyticGameVariant.cubeCount,
         ),
         TutorialContent.forType(
           MiniGameType.analytical,
+          l10n,
           analyticVariant: AnalyticGameVariant.balanceLogic,
         ),
         TutorialContent.forType(
           MiniGameType.visual,
+          l10n,
           visualVariant: VisualGameVariant.visualSort,
         ),
         TutorialContent.forType(
           MiniGameType.visual,
+          l10n,
           visualVariant: VisualGameVariant.colorClash,
         ),
       ];
@@ -112,6 +129,8 @@ void main() {
   });
 
   group('TutorialScreen shell', () {
+    final l10n = AppLocalizationsEn();
+
     testWidgets('shows guided demo chrome on a compact phone', (tester) async {
       await tester.binding.setSurfaceSize(const Size(320, 568));
       addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -120,13 +139,13 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      expect(find.text('HOW TO PLAY'), findsOneWidget);
-      expect(find.text('WATCH FIRST'), findsOneWidget);
-      expect(find.text('Missing Operator'), findsWidgets);
-      expect(find.text('PLAY!'), findsOneWidget);
+      expect(find.text(l10n.tutorialHowToPlay), findsOneWidget);
+      expect(find.text(l10n.tutorialWatchFirst), findsOneWidget);
+      expect(find.text(l10n.tutorialMissingOperatorTitle), findsWidgets);
+      expect(find.text(l10n.tutorialPlay), findsOneWidget);
       expect(find.byType(TutorialDemoCard), findsOneWidget);
       expect(
-        find.text('Find the missing operator to complete the equation.'),
+        find.text(l10n.tutorialMissingOperatorStep1),
         findsOneWidget,
       );
 
@@ -141,10 +160,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      expect(find.text('HOW TO PLAY'), findsOneWidget);
-      expect(find.text('WATCH FIRST'), findsOneWidget);
-      expect(find.text('PLAY!'), findsOneWidget);
-      expect(find.text('Think fast, but stay accurate!'), findsOneWidget);
+      expect(find.text(l10n.tutorialHowToPlay), findsOneWidget);
+      expect(find.text(l10n.tutorialWatchFirst), findsOneWidget);
+      expect(find.text(l10n.tutorialPlay), findsOneWidget);
+      expect(find.text(l10n.tutorialMissingOperatorStep3), findsOneWidget);
 
       await _disposeAnimateTimers(tester);
     });
@@ -166,9 +185,13 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MediaQuery(
-            data: MediaQueryData(size: Size(390, 844)),
-            child: MaterialApp(home: TutorialScreen()),
+          child: MediaQuery(
+            data: const MediaQueryData(size: Size(390, 844)),
+            child: MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const TutorialScreen(),
+            ),
           ),
         ),
       );
@@ -184,8 +207,8 @@ void main() {
 
       expect(container.read(gameSessionProvider).phase, GamePhase.tutorial);
       expect(container.read(gameSessionProvider).totalScore, 0);
-      expect(find.text('PLAY!'), findsOneWidget);
-      expect(find.text('WATCH FIRST'), findsOneWidget);
+      expect(find.text(AppLocalizationsEn().tutorialPlay), findsOneWidget);
+      expect(find.text(AppLocalizationsEn().tutorialWatchFirst), findsOneWidget);
 
       await _disposeAnimateTimers(tester);
     });

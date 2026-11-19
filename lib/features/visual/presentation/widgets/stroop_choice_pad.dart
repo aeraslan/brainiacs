@@ -5,8 +5,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../shared/widgets/candy_pad_button.dart';
 import '../../domain/color_clash_round.dart';
+import '../stroop_color_names.dart';
 
 enum StroopPadFeedback { none, correct, incorrect }
 
@@ -58,6 +60,7 @@ class StroopChoicePad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return LayoutBuilder(
       builder: (context, constraints) {
         if (choices.isEmpty) {
@@ -86,6 +89,7 @@ class StroopChoicePad extends StatelessWidget {
         Widget button(StroopChoice choice) {
           final isSelected = selectedIdentityId == choice.identityId;
           final isHinted = hintIdentityId == choice.identityId;
+          final choiceLabel = stroopColorName(choice.identityId, l10n);
           final List<Color> gradientColors;
           final Color borderColor;
 
@@ -112,7 +116,7 @@ class StroopChoicePad extends StatelessWidget {
 
           final child = usesTextOptions
               ? Text(
-                  choice.label,
+                  choiceLabel,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: choice.paintColor,
@@ -124,7 +128,7 @@ class StroopChoicePad extends StatelessWidget {
               : null;
 
           Widget pad = CandyPadButton(
-            label: usesTextOptions ? choice.label : '',
+            label: usesTextOptions ? choiceLabel : '',
             enabled: enabled,
             commitOnPressDown: true,
             gradientColors: gradientColors,

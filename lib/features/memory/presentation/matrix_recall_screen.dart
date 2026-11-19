@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
 import '../../../shared/widgets/answer_feedback_burst.dart';
@@ -261,8 +262,8 @@ class _MatrixRecallScreenState extends ConsumerState<MatrixRecallScreen> {
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         phase == MatrixRecallPhase.watch
-                            ? 'Watch the sequence...'
-                            : 'Your turn!',
+                            ? context.l10n.matrixRecallWatch
+                            : context.l10n.matrixRecallYourTurn,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,

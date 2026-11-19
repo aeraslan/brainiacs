@@ -1,4 +1,5 @@
 import '../../../core/session/game_session_state.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Copy for the shared pre-game tutorial shell.
 class TutorialContent {
@@ -13,7 +14,8 @@ class TutorialContent {
   final List<String> steps;
 
   static TutorialContent forType(
-    MiniGameType type, {
+    MiniGameType type,
+    AppLocalizations l10n, {
     MathGameVariant mathVariant = MathGameVariant.quickMath,
     AnalyticGameVariant analyticVariant = AnalyticGameVariant.cubeCount,
     MemoryGameVariant memoryVariant = MemoryGameVariant.cardMatch,
@@ -21,82 +23,82 @@ class TutorialContent {
   }) {
     return switch (type) {
       MiniGameType.math => switch (mathVariant) {
-        MathGameVariant.quickMath => const TutorialContent(
-          title: 'Quick Math',
-          subtitle: 'Solve the equation as fast as you can.',
+        MathGameVariant.quickMath => TutorialContent(
+          title: l10n.tutorialQuickMathTitle,
+          subtitle: l10n.tutorialQuickMathSubtitle,
           steps: [
-            'Solve the equation.',
-            'Tap the digits of the answer.',
-            'Correct answers unlock harder sums.',
+            l10n.tutorialQuickMathStep1,
+            l10n.tutorialQuickMathStep2,
+            l10n.tutorialQuickMathStep3,
           ],
         ),
-        MathGameVariant.missingOperator => const TutorialContent(
-          title: 'Missing Operator',
-          subtitle: 'Complete the equation with the right operator.',
+        MathGameVariant.missingOperator => TutorialContent(
+          title: l10n.tutorialMissingOperatorTitle,
+          subtitle: l10n.tutorialMissingOperatorSubtitle,
           steps: [
-            'Find the missing operator to complete the equation.',
-            'Answer correctly to unlock harder equations.',
-            'Think fast, but stay accurate!',
+            l10n.tutorialMissingOperatorStep1,
+            l10n.tutorialMissingOperatorStep2,
+            l10n.tutorialMissingOperatorStep3,
           ],
         ),
       },
       MiniGameType.memory => switch (memoryVariant) {
-        MemoryGameVariant.cardMatch => const TutorialContent(
-          title: 'Card Match',
-          subtitle: 'Memorize, then match the pairs.',
+        MemoryGameVariant.cardMatch => TutorialContent(
+          title: l10n.tutorialCardMatchTitle,
+          subtitle: l10n.tutorialCardMatchSubtitle,
           steps: [
-            'Memorize the cards while they are face up.',
-            'Flip two cards to find a pair.',
-            'Clear the board to get more cards.',
+            l10n.tutorialCardMatchStep1,
+            l10n.tutorialCardMatchStep2,
+            l10n.tutorialCardMatchStep3,
           ],
         ),
-        MemoryGameVariant.matrixRecall => const TutorialContent(
-          title: 'Matrix Recall',
-          subtitle: 'Watch the sequence, then tap it back.',
+        MemoryGameVariant.matrixRecall => TutorialContent(
+          title: l10n.tutorialMatrixRecallTitle,
+          subtitle: l10n.tutorialMatrixRecallSubtitle,
           steps: [
-            'Watch the tiles light up.',
-            'Tap them back in the same order.',
-            'Each round adds one more tile.',
+            l10n.tutorialMatrixRecallStep1,
+            l10n.tutorialMatrixRecallStep2,
+            l10n.tutorialMatrixRecallStep3,
           ],
         ),
       },
       MiniGameType.analytical => switch (analyticVariant) {
-        AnalyticGameVariant.cubeCount => const TutorialContent(
-          title: 'Cube Count',
-          subtitle: 'Count every cube in the stack.',
+        AnalyticGameVariant.cubeCount => TutorialContent(
+          title: l10n.tutorialCubeCountTitle,
+          subtitle: l10n.tutorialCubeCountSubtitle,
           steps: [
-            'Count every cube, including hidden ones.',
-            'Enter the total on the pad.',
-            'Correct counts unlock taller stacks.',
+            l10n.tutorialCubeCountStep1,
+            l10n.tutorialCubeCountStep2,
+            l10n.tutorialCubeCountStep3,
           ],
         ),
-        AnalyticGameVariant.balanceLogic => const TutorialContent(
-          title: 'Balance Logic',
-          subtitle: 'Use the scales to compare weights.',
+        AnalyticGameVariant.balanceLogic => TutorialContent(
+          title: l10n.tutorialBalanceLogicTitle,
+          subtitle: l10n.tutorialBalanceLogicSubtitle,
           steps: [
-            'Read the scales.',
-            'Pick the heaviest object.',
-            'Correct picks unlock tougher puzzles.',
+            l10n.tutorialBalanceLogicStep1,
+            l10n.tutorialBalanceLogicStep2,
+            l10n.tutorialBalanceLogicStep3,
           ],
         ),
       },
       MiniGameType.visual => switch (visualVariant) {
-        VisualGameVariant.visualSort => const TutorialContent(
-          title: 'Asteroids',
-          subtitle: 'Tap the asteroids in ascending order.',
+        VisualGameVariant.visualSort => TutorialContent(
+          title: l10n.tutorialAsteroidsTitle,
+          subtitle: l10n.tutorialAsteroidsSubtitle,
           steps: [
-            'Tap the asteroids from lowest to highest.',
-            'A wrong tap shakes the asteroid.',
-            'Clear the field to face more asteroids.',
+            l10n.tutorialAsteroidsStep1,
+            l10n.tutorialAsteroidsStep2,
+            l10n.tutorialAsteroidsStep3,
           ],
         ),
-        VisualGameVariant.colorClash => const TutorialContent(
-          title: 'Color Clash',
-          subtitle: 'Follow the rule: match the ink or the word.',
+        VisualGameVariant.colorClash => TutorialContent(
+          title: l10n.tutorialColorClashTitle,
+          subtitle: l10n.tutorialColorClashSubtitle,
           steps: [
-            'Check the rule: ink color or word.',
-            'Tap the matching color.',
-            'Correct answers unlock tougher clashes.',
+            l10n.tutorialColorClashStep1,
+            l10n.tutorialColorClashStep2,
+            l10n.tutorialColorClashStep3,
           ],
         ),
       },

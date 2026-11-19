@@ -20,8 +20,6 @@ class StroopChoice {
   final String identityId;
   final String paintColorId;
 
-  String get label => StroopPalette.byId(identityId).name;
-
   Color get paintColor => StroopPalette.byId(paintColorId).color;
 
   bool get isMismatched => identityId != paintColorId;
@@ -46,8 +44,6 @@ class ColorClashRound {
   final String targetPaintId;
   final List<StroopChoice> choices;
   final String correctIdentityId;
-
-  String get targetWord => StroopPalette.byId(targetWordId).name;
 
   Color get targetColor => StroopPalette.byId(targetPaintId).color;
 

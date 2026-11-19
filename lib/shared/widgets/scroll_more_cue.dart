@@ -3,17 +3,19 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
+import '../../core/localization/l10n_extension.dart';
 
 /// Subtle bottom-of-viewport cue that more content exists below.
 ///
 /// Non-interactive; typically hosted by [ScrollOverflowHint].
 class ScrollMoreCue extends StatelessWidget {
-  const ScrollMoreCue({super.key});
+  const ScrollMoreCue({super.key, this.label});
 
-  static const String label = 'Scroll for more';
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
+    final cueLabel = label ?? context.l10n.commonScrollForMore;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     Widget chevron = const Icon(
@@ -63,7 +65,7 @@ class ScrollMoreCue extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  label,
+                  cueLabel,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w700,

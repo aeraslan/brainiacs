@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/session/game_session_state.dart';
 import '../../../../shared/constants/mini_game_category_style.dart';
@@ -146,7 +147,7 @@ class _ChunkyCandyBar extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
-                          type.label,
+                          type.localizedLabel(context.l10n),
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w800,
@@ -211,14 +212,14 @@ class _NewHighChip extends StatelessWidget {
           ),
         ],
       ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.sm,
           vertical: 2,
         ),
         child: Text(
-          'New high score',
-          style: TextStyle(
+          context.l10n.scoreNewHighScore,
+          style: const TextStyle(
             color: AppColors.onAccent,
             fontWeight: FontWeight.w900,
             fontSize: 10,

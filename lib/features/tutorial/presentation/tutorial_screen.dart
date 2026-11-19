@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/audio_controller_provider.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
@@ -95,6 +96,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
     );
     final copy = TutorialContent.forType(
       currentGame,
+      context.l10n,
       mathVariant: mathVariant,
       analyticVariant: analyticVariant,
       memoryVariant: memoryVariant,
@@ -165,7 +167,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: CandyButton(
-                            label: 'PLAY!',
+                            label: context.l10n.tutorialPlay,
                             variant: CandyButtonVariant.green,
                             onPressed: _onReady,
                           )

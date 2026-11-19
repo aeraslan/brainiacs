@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
 
@@ -24,7 +25,7 @@ class TimesUpScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                    "Time's Up!",
+                    context.l10n.timesUpTitle,
                     textAlign: TextAlign.center,
                     style: textTheme.displayMedium,
                   )
@@ -38,7 +39,7 @@ class TimesUpScreen extends ConsumerWidget {
                   ),
               const SizedBox(height: AppSpacing.lg),
               Text(
-                'Score',
+                context.l10n.commonScore,
                 textAlign: TextAlign.center,
                 style: textTheme.bodyLarge,
               ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../core/rank/title_progress_notifier.dart';
 import '../../../core/session/game_session_notifier.dart';
 import '../../../shared/widgets/candy_button.dart';
@@ -12,6 +13,7 @@ import 'widgets/candy_new_game_button.dart';
 import 'widgets/current_rank_pill.dart';
 import 'widgets/my_progress_pill_button.dart';
 import 'widgets/rank_decay_dialog.dart';
+import 'widgets/settings_icon_button.dart';
 
 class MainMenuScreen extends ConsumerStatefulWidget {
   const MainMenuScreen({super.key});
@@ -79,11 +81,17 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(width: AppSpacing.sm),
+                      SettingsIconButton(
+                        onPressed: () {
+                          ref.read(gameSessionProvider.notifier).openSettings();
+                        },
+                      ),
                     ],
                   ),
                   const Spacer(),
                   Text(
-                    'Brainiacs',
+                    context.l10n.appTitle,
                     textAlign: TextAlign.center,
                     style: textTheme.displayLarge?.copyWith(
                       color: AppColors.accent,
@@ -98,7 +106,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Train your brain. Beat the clock.',
+                    context.l10n.menuSubtitle,
                     textAlign: TextAlign.center,
                     style: textTheme.bodyLarge,
                   ),
@@ -122,7 +130,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                       ),
                   const SizedBox(height: AppSpacing.md),
                   CandyButton(
-                    label: 'Practice',
+                    label: context.l10n.menuPractice,
                     variant: CandyButtonVariant.secondarySoft,
                     onPressed: () {
                       ref.read(gameSessionProvider.notifier).openPracticeMenu();

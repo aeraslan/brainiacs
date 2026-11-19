@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_progress_state.dart';
 import '../../../../core/rank/title_tier.dart';
@@ -29,6 +30,7 @@ class _RankLadderSheetBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final tiers = TitleTier.values.reversed.toList(growable: false);
     final maxHeight = MediaQuery.sizeOf(context).height * 0.86;
 
@@ -71,7 +73,7 @@ class _RankLadderSheetBody extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'All Ranks',
+                    l10n.rankAllRanks,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w900,
                           color: AppColors.textPrimary,
@@ -79,11 +81,7 @@ class _RankLadderSheetBody extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Your rank is earned from one full game\'s score. '
-                    'Keep it by scoring at that level again within '
-                    '${TitleProgressState.decayDays} days. '
-                    'If you don\'t, it drops one rank. '
-                    'Practice games don\'t count.',
+                    l10n.rankLadderExplainer(TitleProgressState.decayDays),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
@@ -201,7 +199,7 @@ class _RankLadderRow extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Rank ${tier.rankNumber} · ${tier.minScore}+ pts',
+                      context.l10n.rankLadderEntry(tier.rankNumber, tier.minScore),
                       style: TextStyle(
                         color: metaColor,
                         fontWeight: FontWeight.w600,
@@ -217,14 +215,14 @@ class _RankLadderRow extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.92),
                     borderRadius: BorderRadius.circular(AppSpacing.xl),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm,
                       vertical: AppSpacing.xs,
                     ),
                     child: Text(
-                      'YOU',
-                      style: TextStyle(
+                      context.l10n.rankYou,
+                      style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w900,
                         fontSize: 11,

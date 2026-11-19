@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/score_format.dart';
 import '../../application/player_statistics_provider.dart';
@@ -21,12 +22,13 @@ class PerformanceChart extends ConsumerWidget {
       playerStatisticsProvider.select((s) => s.recentSessions),
     );
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final locale = Localizations.localeOf(context).toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Recent Performance',
+          context.l10n.progressRecentPerformance,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimary,
@@ -36,7 +38,13 @@ class PerformanceChart extends ConsumerWidget {
         if (recent.isEmpty)
           const _EmptyHistoryMessage()
         else
-          _ChartCard(sessions: recent, reduceMotion: reduceMotion),
+          _ChartCard(
+            sessions: recent,
+            reduceMotion: reduceMotion,
+            runLabelForIndex: (index) =>
+                context.l10n.progressRunLabel(index + 1),
+            scoreLocale: locale,
+          ),
       ],
     );
   }
@@ -83,7 +91,7 @@ class _EmptyHistoryMessage extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Your progress starts here!',
+              context.l10n.progressEmptyTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: AppColors.textPrimary,
@@ -92,8 +100,7 @@ class _EmptyHistoryMessage extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Complete your next New Game session to start building your '
-              'performance history.',
+              context.l10n.progressEmptyBody,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
@@ -112,10 +119,14 @@ class _ChartCard extends StatelessWidget {
   const _ChartCard({
     required this.sessions,
     required this.reduceMotion,
+    required this.runLabelForIndex,
+    required this.scoreLocale,
   });
 
   final List<GameSessionRecord> sessions;
   final bool reduceMotion;
+  final String Function(int zeroBasedIndex) runLabelForIndex;
+  final String scoreLocale;
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +160,8 @@ class _ChartCard extends StatelessWidget {
                 scores: [
                   for (final session in sessions) session.totalScore,
                 ],
+                runLabelForIndex: runLabelForIndex,
+                scoreLocale: scoreLocale,
               ),
               child: const SizedBox.expand(),
             ),
@@ -175,9 +188,15 @@ class _ChartCard extends StatelessWidget {
 }
 
 class _PerformanceChartPainter extends CustomPainter {
-  _PerformanceChartPainter({required this.scores});
+  _PerformanceChartPainter({
+    required this.scores,
+    required this.runLabelForIndex,
+    required this.scoreLocale,
+  });
 
   final List<int> scores;
+  final String Function(int zeroBasedIndex) runLabelForIndex;
+  final String scoreLocale;
 
   static const Color lineColor = AppColors.vibrantPurple;
   static const double leftGutter = 52;
@@ -223,7 +242,10 @@ class _PerformanceChartPainter extends CustomPainter {
       );
 
       final tp = TextPainter(
-        text: TextSpan(text: formatScore(tick), style: labelStyle),
+        text: TextSpan(
+          text: formatScore(tick, locale: scoreLocale),
+          style: labelStyle,
+        ),
         textDirection: TextDirection.ltr,
         maxLines: 1,
       )..layout(maxWidth: leftGutter - 4);
@@ -297,7 +319,7 @@ class _PerformanceChartPainter extends CustomPainter {
       final point = points[index];
       final tp = TextPainter(
         text: TextSpan(
-          text: PerformanceChartScale.runLabel(index),
+          text: runLabelForIndex(index),
           style: xLabelStyle,
         ),
         textDirection: TextDirection.ltr,
@@ -311,6 +333,9 @@ class _PerformanceChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _PerformanceChartPainter oldDelegate) {
+    if (scoreLocale != oldDelegate.scoreLocale) {
+      return true;
+    }
     if (identical(scores, oldDelegate.scores)) {
       return false;
     }

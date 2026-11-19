@@ -5,15 +5,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../shared/widgets/candy_button.dart';
 
 /// Candy-themed overlay shown once after rank decay on app launch.
 abstract final class RankDecayDialog {
   static Future<void> show(BuildContext context) {
+    final barrierLabel = context.l10n.rankDecayDismiss;
     return showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Dismiss rank decay notice',
+      barrierLabel: barrierLabel,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 220),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
@@ -78,6 +80,7 @@ class _RankDecayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -115,7 +118,7 @@ class _RankDecayCard extends StatelessWidget {
                 .fadeIn(duration: 220.ms),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Mind getting rusty!',
+              l10n.rankDecayTitle,
               textAlign: TextAlign.center,
               style: textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w800,
@@ -124,8 +127,7 @@ class _RankDecayCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              "Your mind is getting rusty! You haven't trained in over a "
-              'week, so your rank has dropped. Time to win it back!',
+              l10n.rankDecayBody,
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge?.copyWith(
                 color: AppColors.textSecondary,
@@ -134,7 +136,7 @@ class _RankDecayCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             CandyButton(
-              label: "Let's train!",
+              label: l10n.rankDecayCta,
               onPressed: onDismiss,
             ),
           ],

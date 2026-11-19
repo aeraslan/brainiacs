@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/session/game_session_state.dart';
 import '../../../../core/utils/score_format.dart';
@@ -24,7 +25,7 @@ class CategoryRecordsSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Category Records',
+          context.l10n.progressCategoryRecords,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 color: AppColors.textPrimary,
@@ -98,7 +99,7 @@ class _CategoryRecordRow extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
-                type.label,
+                type.localizedLabel(context.l10n),
                 style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w800,
@@ -107,7 +108,10 @@ class _CategoryRecordRow extends StatelessWidget {
               ),
             ),
             Text(
-              formatScore(score),
+              formatScore(
+                score,
+                locale: Localizations.localeOf(context).toString(),
+              ),
               style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,

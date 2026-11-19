@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_progress_state.dart';
 import '../../../../core/rank/title_tier.dart';
@@ -137,33 +139,29 @@ class _RankDefendContent extends StatelessWidget {
   final RankDefendOutcome outcome;
   final bool compact;
 
-  String get _daysPhrase {
+  String _defendStatus(AppLocalizations l10n) {
     if (daysLeft <= 0) {
-      return 'defend today';
+      return l10n.rankDefendToday;
     }
-    if (daysLeft == 1) {
-      return '1 day left';
-    }
-    return '$daysLeft days left';
+    return l10n.rankDaysLeft(daysLeft);
   }
 
-  String get _label {
+  String _label(AppLocalizations l10n) {
     final name = heldTitle.label;
+    final status = _defendStatus(l10n);
     return switch (outcome) {
       RankDefendOutcome.unlocked => daysLeft <= 0
-          ? 'New held rank: $name — defend today!'
-          : 'New held rank: $name · $_daysPhrase to defend',
-      RankDefendOutcome.defended => daysLeft <= 0
-          ? '$name defended — defend again today!'
-          : '$name defended · $_daysPhrase',
-      RankDefendOutcome.pending => daysLeft <= 0
-          ? 'Held: $name — defend today!'
-          : 'Held: $name · $_daysPhrase to defend',
+          ? l10n.rankDefendChipNew(name)
+          : l10n.rankDefendChipDefend(name, status),
+      RankDefendOutcome.defended =>
+        l10n.rankDefendChipDefended(name, status),
+      RankDefendOutcome.pending => l10n.rankDefendChipHeld(name, status),
     };
   }
 
   @override
   Widget build(BuildContext context) {
+    final label = _label(context.l10n);
     final urgent = daysLeft <= 2;
     final accent = urgent ? AppColors.coral : AppColors.electricBlue;
     final iconSize = compact ? 18.0 : 20.0;
@@ -189,7 +187,7 @@ class _RankDefendContent extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Flexible(
           child: Text(
-            _label,
+            label,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,

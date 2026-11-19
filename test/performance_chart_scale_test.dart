@@ -64,12 +64,4 @@ void main() {
       expect(PerformanceChartScale.visibleXLabelIndices(0), isEmpty);
     });
   });
-
-  group('runLabel', () {
-    test('uses 1-based run numbering within the window', () {
-      expect(PerformanceChartScale.runLabel(0), 'Run 1');
-      expect(PerformanceChartScale.runLabel(1), 'Run 2');
-      expect(PerformanceChartScale.runLabel(9), 'Run 10');
-    });
-  });
 }

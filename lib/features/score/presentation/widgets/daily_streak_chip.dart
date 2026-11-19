@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 
 /// Placeholder daily streak indicator (no persistence yet).
@@ -55,7 +56,7 @@ class DailyStreakChip extends StatelessWidget {
                 ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              '$days Days',
+              context.l10n.progressDaysStreak(days),
               style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w700,

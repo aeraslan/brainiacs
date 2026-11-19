@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/audio/audio_controller_provider.dart';
+import 'core/localization/locale_provider.dart';
 import 'core/session/game_session_notifier.dart';
 import 'core/session/game_session_state.dart';
 import 'core/storage/local_storage_provider.dart';
@@ -18,10 +19,12 @@ import 'features/menu/presentation/practice_countdown_screen.dart';
 import 'features/menu/presentation/practice_menu_screen.dart';
 import 'features/score/presentation/score_screen.dart';
 import 'features/score/presentation/times_up_screen.dart';
+import 'features/settings/presentation/settings_screen.dart';
 import 'features/statistics/presentation/my_progress_screen.dart';
 import 'features/tutorial/presentation/tutorial_screen.dart';
 import 'features/visual/presentation/color_clash_screen.dart';
 import 'features/visual/presentation/visual_sort_screen.dart';
+import 'l10n/generated/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,15 +33,21 @@ Future<void> main() async {
   runApp(const ProviderScope(child: BrainiacsApp()));
 }
 
-class BrainiacsApp extends StatelessWidget {
+class BrainiacsApp extends ConsumerWidget {
   const BrainiacsApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final languagePreference = ref.watch(languagePreferenceProvider);
+
     return MaterialApp(
-      title: 'Brainiacs',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      locale: localeForPreference(languagePreference),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localeListResolutionCallback: (locales, _) => resolveAppLocale(locales),
       home: const HomeShell(),
     );
   }
@@ -86,6 +95,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       GamePhase.menu => const MainMenuScreen(),
       GamePhase.practiceMenu => const PracticeMenuScreen(),
       GamePhase.myProgress => const MyProgressScreen(),
+      GamePhase.settings => const SettingsScreen(),
       GamePhase.tutorial => const TutorialScreen(),
       GamePhase.countdown => const PracticeCountdownScreen(),
       GamePhase.playing => switch (currentGame) {

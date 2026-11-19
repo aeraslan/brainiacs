@@ -68,12 +68,12 @@ void main() {
     expect(find.text('Balance'), findsOneWidget);
 
     await tester.scrollUntilVisible(
-      find.text('Asteroids'),
+      find.text('Visual Sort'),
       80,
       scrollable: find.byType(Scrollable).last,
     );
     await tester.pump();
-    expect(find.text('Asteroids'), findsOneWidget);
+    expect(find.text('Visual Sort'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Color Clash'),

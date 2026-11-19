@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/l10n_extension.dart';
 
 /// "HOW TO PLAY" pill, game title, and short subtitle for the tutorial shell.
 class TutorialHeader extends StatelessWidget {
@@ -42,14 +43,14 @@ class TutorialHeader extends StatelessWidget {
               ),
             ],
           ),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
               vertical: AppSpacing.xs + 2,
             ),
             child: Text(
-              'HOW TO PLAY',
-              style: TextStyle(
+              context.l10n.tutorialHowToPlay,
+              style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
                 fontSize: 13,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../shared/tutorial/tutorial_pointer.dart';
 
 /// Rounded miniature demo frame with a "WATCH FIRST" badge.
@@ -25,6 +26,9 @@ class TutorialDemoCard extends StatelessWidget {
   static const double _widthFactor = 0.72;
   static const double _referenceWidth = 390;
   static const double _referenceHeight = 640;
+
+  /// Keeps the WATCH FIRST badge from covering top game chrome (e.g. rule pill).
+  static const double _topChromeInset = 40;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +84,12 @@ class TutorialDemoCard extends StatelessWidget {
                                 viewPadding: EdgeInsets.zero,
                                 viewInsets: EdgeInsets.zero,
                               ),
-                              child: child,
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  top: _topChromeInset,
+                                ),
+                                child: child,
+                              ),
                             ),
                           ),
                         ),
@@ -136,14 +145,14 @@ class _WatchFirstBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.xs + 1,
         ),
         child: Text(
-          'WATCH FIRST',
-          style: TextStyle(
+          context.l10n.tutorialWatchFirst,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
             fontSize: 12,

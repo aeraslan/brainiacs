@@ -50,6 +50,7 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
   /// Keeps the target word mounted across wrong-answer shake so entrance
   /// animation does not replay as a second tilt.
   final GlobalKey _targetWordKey = GlobalKey();
+  final GlobalKey _rulePillKey = GlobalKey();
   final Map<String, GlobalKey> _choiceKeys = {};
   int _tutorialToken = 0;
 
@@ -133,14 +134,21 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
       return;
     }
 
+    // Drop the previous answer spotlight so the rule and word are readable.
+    pointer.clearSpotlight();
+
     // Pause on the question so the player can read the target word.
     await Future<void>.delayed(questionPause);
     if (!_isTutorialActive(token)) {
       return;
     }
 
-    // Emphasize the rule pill before answering.
+    // Emphasize + spotlight the rule pill before answering.
     setState(() => _emphasizeRule = true);
+    await pointer.moveToKey(_rulePillKey);
+    if (!_isTutorialActive(token)) {
+      return;
+    }
     await Future<void>.delayed(ruleEmphasizeDuration);
     if (!_isTutorialActive(token)) {
       return;
@@ -288,9 +296,12 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
                     const GameHud(isOnLightBackground: true),
                     const SizedBox(height: AppSpacing.sm),
                   ],
-                  StroopRulePill(
-                    rule: round.rule,
-                    emphasized: _emphasizeRule,
+                  KeyedSubtree(
+                    key: _rulePillKey,
+                    child: StroopRulePill(
+                      rule: round.rule,
+                      emphasized: _emphasizeRule,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Expanded(

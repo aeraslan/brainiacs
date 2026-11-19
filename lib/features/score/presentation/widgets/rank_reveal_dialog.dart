@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/audio/audio_controller_provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_tier.dart';
 import '../../../../shared/widgets/candy_button.dart';
@@ -20,7 +22,7 @@ abstract final class RankRevealDialog {
     return showGeneralDialog<void>(
       context: context,
       barrierDismissible: false,
-      barrierLabel: 'Dismiss rank reveal',
+      barrierLabel: AppLocalizations.of(context).scoreDismissRankReveal,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
@@ -143,7 +145,7 @@ class _RankRevealCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Your Rank',
+              context.l10n.scoreYourRank,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
@@ -160,7 +162,10 @@ class _RankRevealCard extends StatelessWidget {
                   width: double.infinity,
                   child: Opacity(
                     opacity: hasLocked ? 1 : 0.45,
-                    child: CandyButton(label: 'Nice!', onPressed: onDismiss),
+                    child: CandyButton(
+                      label: context.l10n.scoreNice,
+                      onPressed: onDismiss,
+                    ),
                   ),
                 )
                 .animate(target: hasLocked ? 1 : 0)

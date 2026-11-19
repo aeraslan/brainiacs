@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 
 /// Animates the final score counting up from 0 to [target].
@@ -24,7 +25,7 @@ class ScoreCountUp extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Final Score',
+          context.l10n.scoreFinalScore,
           textAlign: TextAlign.center,
           style: textTheme.bodyLarge,
         ),

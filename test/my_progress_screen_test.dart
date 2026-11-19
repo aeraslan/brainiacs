@@ -8,7 +8,6 @@ import 'package:brainiacs_flutter/features/statistics/domain/game_session_record
 import 'package:brainiacs_flutter/features/statistics/presentation/my_progress_screen.dart';
 import 'package:brainiacs_flutter/features/statistics/presentation/widgets/performance_chart.dart';
 import 'package:brainiacs_flutter/main.dart';
-import 'package:brainiacs_flutter/shared/widgets/scroll_more_cue.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -273,7 +272,7 @@ void main() {
 
     expect(find.byType(MyProgressScreen), findsOneWidget);
     expect(tester.takeException(), isNull);
-    expect(find.text(ScrollMoreCue.label), findsOneWidget);
+    expect(find.text('Scroll for more'), findsOneWidget);
 
     await tester.drag(
       find.byType(SingleChildScrollView),
@@ -281,7 +280,7 @@ void main() {
     );
     await tester.pump();
     expect(tester.takeException(), isNull);
-    expect(find.text(ScrollMoreCue.label), findsNothing);
+    expect(find.text('Scroll for more'), findsNothing);
 
     await _disposeAnimations(tester);
   });

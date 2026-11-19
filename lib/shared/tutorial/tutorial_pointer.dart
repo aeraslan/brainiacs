@@ -96,6 +96,14 @@ class TutorialPointerController {
     return true;
   }
 
+  /// Clears the spotlight hole without moving or hiding the pointer.
+  void clearSpotlight() {
+    if (_disposed) {
+      return;
+    }
+    spotlightRect.value = null;
+  }
+
   void hide() {
     if (_disposed) {
       return;

@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_progress_notifier.dart';
 import '../../../../core/rank/title_tier.dart';
@@ -31,6 +32,7 @@ class ProgressRankCard extends ConsumerWidget {
     final next = heldTitle.nextHigher;
     final light = Color.lerp(heldTitle.color, Colors.white, 0.35)!;
     final dark = Color.lerp(heldTitle.color, Colors.black, 0.18)!;
+    final l10n = context.l10n;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final defendDays = daysLeft;
 
@@ -96,7 +98,7 @@ class ProgressRankCard extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        'Rank ${heldTitle.rankNumber} of ${TitleTier.count}',
+                        l10n.rankOf(heldTitle.rankNumber, TitleTier.count),
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w600,
@@ -116,7 +118,7 @@ class ProgressRankCard extends ConsumerWidget {
             const SizedBox(height: AppSpacing.sm),
             if (next == null)
               Text(
-                'Top rank reached',
+                l10n.rankTopReached,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -124,7 +126,7 @@ class ProgressRankCard extends ConsumerWidget {
               )
             else ...[
               Text(
-                'Next: ${next.label}',
+                l10n.rankNext(next.label),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -134,7 +136,7 @@ class ProgressRankCard extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                'Score ${next.minScore}+ in one game',
+                l10n.rankScoreRequirement(next.minScore),
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
@@ -158,19 +160,19 @@ class ProgressRankCard extends ConsumerWidget {
                   ),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'View All Ranks',
-                      style: TextStyle(
+                      l10n.rankViewAll,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                         color: AppColors.electricBlue,
                       ),
                     ),
-                    SizedBox(width: 2),
-                    Icon(
+                    const SizedBox(width: 2),
+                    const Icon(
                       Icons.chevron_right_rounded,
                       size: 16,
                       color: AppColors.electricBlue,
@@ -210,10 +212,8 @@ class _DefendBadge extends StatelessWidget {
     final urgent = daysLeft <= 2;
     final accent = urgent ? AppColors.coral : AppColors.electricBlue;
     final label = daysLeft <= 0
-        ? 'Defend today'
-        : daysLeft == 1
-            ? '1 day left'
-            : '$daysLeft days left';
+        ? context.l10n.rankDefendToday
+        : context.l10n.rankDaysLeft(daysLeft);
 
     return FittedBox(
       fit: BoxFit.scaleDown,

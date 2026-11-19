@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
+import '../../core/localization/l10n_extension.dart';
 import 'animated_orbital_rings.dart';
 
 class CountdownOverlay extends StatefulWidget {
@@ -26,9 +27,9 @@ class CountdownOverlay extends StatefulWidget {
 }
 
 class _CountdownOverlayState extends State<CountdownOverlay> {
-  static const List<String> _steps = ['3', '2', '1', 'GO!'];
   static const double _countdownFontSize = 112;
   static final Color _ringColor = Colors.white.withValues(alpha: 0.10);
+  static const int _goStepIndex = 3;
 
   /// Stretch each step so the UI tracks the 3-2-1-GO audio clip.
   static const double _paceFactor = 1.39;
@@ -39,8 +40,13 @@ class _CountdownOverlayState extends State<CountdownOverlay> {
   int _index = 0;
   bool _completed = false;
 
+  static const int _stepCount = 4;
+
   /// Sound-friendly count: 3, 2, 1, then 0 for GO!.
-  int get _countForStep => _steps.length - 1 - _index;
+  int get _countForStep => _stepCount - 1 - _index;
+
+  List<String> _steps(BuildContext context) =>
+      ['3', '2', '1', context.l10n.countdownGo];
 
   Duration get _fadeInDuration =>
       Duration(milliseconds: (140 * _paceFactor).round());
@@ -57,7 +63,7 @@ class _CountdownOverlayState extends State<CountdownOverlay> {
     if (!mounted || _completed) {
       return;
     }
-    if (_index >= _steps.length - 1) {
+    if (_index >= _stepCount - 1) {
       _finishWithDissolve();
       return;
     }
@@ -96,33 +102,42 @@ class _CountdownOverlayState extends State<CountdownOverlay> {
     overlayState.insert(entry);
   }
 
-  bool get _isGo => _steps[_index] == 'GO!';
+  bool _isGoStep(int index) => index == _goStepIndex;
 
   @override
   Widget build(BuildContext context) {
     final accent = widget.accentColor;
+    final l10n = context.l10n;
+    final steps = _steps(context);
+    final isGo = _isGoStep(_index);
 
     return _CountdownFrame(
       accentColor: accent,
       ringColor: _ringColor,
       ringsKey: _ringsKey,
-      stepLabel: _steps[_index],
-      subtitle: _isGo ? 'Let’s play' : 'Starting soon',
-      isGo: _isGo,
+      stepLabel: steps[_index],
+      subtitle: isGo ? l10n.countdownLetsPlay : l10n.countdownStartingSoon,
+      getReadyLabel: l10n.countdownGetReady,
+      isGo: isGo,
       stepKey: ValueKey(_index),
-      stepChild: _buildStepText(context, accent),
+      stepChild: _buildStepText(context, accent, steps, isGo),
     );
   }
 
-  Widget _buildStepText(BuildContext context, Color accent) {
+  Widget _buildStepText(
+    BuildContext context,
+    Color accent,
+    List<String> steps,
+    bool isGo,
+  ) {
     final text = Text(
-      _steps[_index],
+      steps[_index],
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.displayLarge?.copyWith(
             color: Colors.white,
-            fontSize: _isGo ? 88 : _countdownFontSize,
+            fontSize: isGo ? 88 : _countdownFontSize,
             fontWeight: FontWeight.w900,
-            letterSpacing: _isGo ? 4 : -2,
+            letterSpacing: isGo ? 4 : -2,
             height: 1,
             shadows: [
               Shadow(
@@ -151,7 +166,7 @@ class _CountdownOverlayState extends State<CountdownOverlay> {
           curve: Curves.easeOutBack,
         );
 
-    if (_isGo) {
+    if (isGo) {
       return entrance.then(delay: _goHoldDelay);
     }
 
@@ -232,13 +247,19 @@ class _CountdownDissolveCoverState extends State<_CountdownDissolveCover>
         );
       },
       child: IgnorePointer(
-        child: _CountdownFrame(
-          accentColor: widget.accentColor,
-          ringColor: _CountdownOverlayState._ringColor,
-          ringPhase: widget.ringPhase,
-          stepLabel: 'GO!',
-          subtitle: 'Let’s play',
-          isGo: true,
+        child: Builder(
+          builder: (context) {
+            final l10n = context.l10n;
+            return _CountdownFrame(
+              accentColor: widget.accentColor,
+              ringColor: _CountdownOverlayState._ringColor,
+              ringPhase: widget.ringPhase,
+              stepLabel: l10n.countdownGo,
+              subtitle: l10n.countdownLetsPlay,
+              getReadyLabel: l10n.countdownGetReady,
+              isGo: true,
+            );
+          },
         ),
       ),
     );
@@ -251,6 +272,7 @@ class _CountdownFrame extends StatelessWidget {
     required this.ringColor,
     required this.stepLabel,
     required this.subtitle,
+    required this.getReadyLabel,
     required this.isGo,
     this.ringsKey,
     this.ringPhase = 0,
@@ -262,6 +284,7 @@ class _CountdownFrame extends StatelessWidget {
   final Color ringColor;
   final String stepLabel;
   final String subtitle;
+  final String getReadyLabel;
   final bool isGo;
   final GlobalKey<AnimatedOrbitalRingsState>? ringsKey;
   final double ringPhase;
@@ -313,7 +336,7 @@ class _CountdownFrame extends StatelessWidget {
               children: [
                 const SizedBox(height: AppSpacing.xl),
                 Text(
-                  'Get ready',
+                  getReadyLabel,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white.withValues(alpha: 0.72),
                         letterSpacing: 1.4,

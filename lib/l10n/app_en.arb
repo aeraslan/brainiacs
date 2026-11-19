@@ -1,0 +1,277 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Brainiacs",
+
+  "commonBack": "Back",
+  "commonMenu": "Menu",
+  "commonScore": "Score",
+  "commonClear": "C",
+  "commonScrollForMore": "Scroll for more",
+  "commonDismiss": "Dismiss",
+
+  "menuSubtitle": "Train your brain. Beat the clock.",
+  "menuNewGame": "New Game",
+  "menuPractice": "Practice",
+  "menuMyProgress": "My Progress",
+  "menuSettings": "Settings",
+  "menuSettingsTooltip": "Settings",
+
+  "practiceTitle": "Practice",
+  "practiceQuickOps": "Quick Ops",
+  "practiceMissingOp": "Missing Op",
+  "practiceCards": "Cards",
+  "practiceRecall": "Recall",
+  "practiceCubeCount": "Cube Count",
+  "practiceBalance": "Balance",
+  "practiceAsteroids": "Visual Sort",
+  "practiceColorClash": "Color Clash",
+
+  "rankDecayTitle": "Mind getting rusty!",
+  "rankDecayBody": "Your mind is getting rusty! You haven't trained in over a week, so your rank has dropped. Time to win it back!",
+  "rankDecayCta": "Let's train!",
+  "rankDecayDismiss": "Dismiss rank decay notice",
+
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsSystemDefault": "System Default",
+  "settingsEnglish": "English",
+  "settingsTurkish": "Türkçe",
+  "settingsAudio": "Audio",
+  "settingsMusic": "Music",
+  "settingsMusicDescription": "Background music",
+  "settingsSoundEffects": "Sound Effects",
+  "settingsSoundEffectsDescription": "Game sounds and feedback",
+
+  "pauseTitle": "Paused",
+  "pauseResume": "Resume",
+  "pauseEndPractice": "End Practice",
+  "pauseQuitToMenu": "Quit to Menu",
+  "pauseMusic": "Music",
+  "pauseSoundEffects": "Sound Effects",
+  "pauseDismiss": "Dismiss pause menu",
+
+  "tutorialHowToPlay": "HOW TO PLAY",
+  "tutorialWatchFirst": "WATCH FIRST",
+  "tutorialPlay": "PLAY!",
+
+  "tutorialQuickMathTitle": "Quick Math",
+  "tutorialQuickMathSubtitle": "Solve the equation as fast as you can.",
+  "tutorialQuickMathStep1": "Solve the equation.",
+  "tutorialQuickMathStep2": "Tap the digits of the answer.",
+  "tutorialQuickMathStep3": "Correct answers unlock harder sums.",
+
+  "tutorialMissingOperatorTitle": "Missing Operator",
+  "tutorialMissingOperatorSubtitle": "Complete the equation with the right operator.",
+  "tutorialMissingOperatorStep1": "Find the missing operator to complete the equation.",
+  "tutorialMissingOperatorStep2": "Answer correctly to unlock harder equations.",
+  "tutorialMissingOperatorStep3": "Think fast, but stay accurate!",
+
+  "tutorialCardMatchTitle": "Card Match",
+  "tutorialCardMatchSubtitle": "Memorize, then match the pairs.",
+  "tutorialCardMatchStep1": "Memorize the cards while they are face up.",
+  "tutorialCardMatchStep2": "Flip two cards to find a pair.",
+  "tutorialCardMatchStep3": "Clear the board to get more cards.",
+
+  "tutorialMatrixRecallTitle": "Matrix Recall",
+  "tutorialMatrixRecallSubtitle": "Watch the sequence, then tap it back.",
+  "tutorialMatrixRecallStep1": "Watch the tiles light up.",
+  "tutorialMatrixRecallStep2": "Tap them back in the same order.",
+  "tutorialMatrixRecallStep3": "Each round adds one more tile.",
+
+  "tutorialCubeCountTitle": "Cube Count",
+  "tutorialCubeCountSubtitle": "Count every cube in the stack.",
+  "tutorialCubeCountStep1": "Count every cube, including hidden ones.",
+  "tutorialCubeCountStep2": "Enter the total on the pad.",
+  "tutorialCubeCountStep3": "Correct counts unlock taller stacks.",
+
+  "tutorialBalanceLogicTitle": "Balance Logic",
+  "tutorialBalanceLogicSubtitle": "Use the scales to compare weights.",
+  "tutorialBalanceLogicStep1": "Read the scales.",
+  "tutorialBalanceLogicStep2": "Pick the heaviest object.",
+  "tutorialBalanceLogicStep3": "Correct picks unlock tougher puzzles.",
+
+  "tutorialAsteroidsTitle": "Visual Sort",
+  "tutorialAsteroidsSubtitle": "Tap the asteroids in ascending order.",
+  "tutorialAsteroidsStep1": "Tap the asteroids from lowest to highest.",
+  "tutorialAsteroidsStep2": "A wrong tap shakes the asteroid.",
+  "tutorialAsteroidsStep3": "Clear the field to face more asteroids.",
+
+  "tutorialColorClashTitle": "Color Clash",
+  "tutorialColorClashSubtitle": "Follow the rule: match the ink or the word.",
+  "tutorialColorClashStep1": "Check the rule: ink color or word.",
+  "tutorialColorClashStep2": "Tap the matching color.",
+  "tutorialColorClashStep3": "Correct answers unlock tougher clashes.",
+
+  "countdownGo": "GO!",
+  "countdownGetReady": "Get ready",
+  "countdownLetsPlay": "Let’s play",
+  "countdownStartingSoon": "Starting soon",
+
+  "cardMatchWrong": "Wrong!",
+  "cardMatchMemorize": "Memorize the cards...",
+  "matrixRecallWatch": "Watch the sequence...",
+  "matrixRecallYourTurn": "Your turn!",
+
+  "colorClashMatchColor": "Match the COLOR!",
+  "colorClashMatchText": "Read the TEXT!",
+  "colorClashRed": "Red",
+  "colorClashBlue": "Blue",
+  "colorClashGreen": "Green",
+  "colorClashYellow": "Yellow",
+  "colorClashPink": "Pink",
+  "colorClashPurple": "Purple",
+
+  "asteroidOne": "ONE",
+  "asteroidTwo": "TWO",
+  "asteroidThree": "THREE",
+  "asteroidFour": "FOUR",
+  "asteroidFive": "FIVE",
+  "asteroidSix": "SIX",
+  "asteroidSeven": "SEVEN",
+  "asteroidEight": "EIGHT",
+  "asteroidNine": "NINE",
+  "asteroidTen": "TEN",
+  "asteroidEleven": "ELEVEN",
+  "asteroidTwelve": "TWELVE",
+  "asteroidThirteen": "THIRTEEN",
+  "asteroidFourteen": "FOURTEEN",
+  "asteroidFifteen": "FIFTEEN",
+  "asteroidSixteen": "SIXTEEN",
+  "asteroidSeventeen": "SEVENTEEN",
+  "asteroidEighteen": "EIGHTEEN",
+  "asteroidNineteen": "NINETEEN",
+  "asteroidTwenty": "TWENTY",
+
+
+  "hudPauseHome": "Pause menu",
+  "hudTimePenalty": "-{seconds}s",
+  "@hudTimePenalty": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+
+  "categoryMath": "Math",
+  "categoryMemory": "Memory",
+  "categoryAnalytic": "Analytic",
+  "categoryVisual": "Visual",
+
+  "timesUpTitle": "Time's Up!",
+  "scoreGameOver": "Game Over",
+  "scoreTimeUp": "Time's Up!",
+  "scoreFinalScore": "Final Score",
+  "scorePlayAgain": "Play Again",
+  "scoreThisRun": "This run",
+  "scoreNewHighScore": "New high score",
+  "scoreNewRankUnlocked": "New Rank Unlocked!",
+  "scoreYourRank": "Your Rank",
+  "scoreNice": "Continue",
+  "scoreDismissRankReveal": "Dismiss rank reveal",
+
+  "rankOf": "Rank {number} of {total}",
+  "@rankOf": {
+    "placeholders": {
+      "number": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "rankTopReached": "Top rank reached",
+  "rankNext": "Next: {name}",
+  "@rankNext": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rankScoreRequirement": "Score {score}+ in one game",
+  "@rankScoreRequirement": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "rankThisRunProgress": "This run: {runScore} / {nextScore}",
+  "@rankThisRunProgress": {
+    "placeholders": {
+      "runScore": { "type": "String" },
+      "nextScore": { "type": "String" }
+    }
+  },
+  "rankViewAll": "View All Ranks",
+  "rankAllRanks": "All Ranks",
+  "rankYou": "YOU",
+  "rankLadderEntry": "Rank {number} · {score}+ pts",
+  "@rankLadderEntry": {
+    "placeholders": {
+      "number": { "type": "int" },
+      "score": { "type": "int" }
+    }
+  },
+  "rankLadderExplainer": "Train at least once every {days} days to keep your rank. Practice games don't count.",
+  "@rankLadderExplainer": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+
+  "rankDefendToday": "defend today",
+  "rankDaysLeft": "{count, plural, =1{1 day left} other{{count} days left}}",
+  "@rankDaysLeft": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "rankDefendChipNew": "New held rank: {name} — defend today!",
+  "@rankDefendChipNew": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "rankDefendChipDefend": "{name} — {status}",
+  "@rankDefendChipDefend": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "rankDefendChipDefended": "{name} defended — {status}",
+  "@rankDefendChipDefended": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "rankDefendChipHeld": "Held: {name} — {status}",
+  "@rankDefendChipHeld": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+
+  "progressTitle": "My Progress",
+  "progressGamesPlayed": "Games Played",
+  "progressPersonalBest": "Personal Best",
+  "progressLatestScore": "Latest Score",
+  "progressAverageScore": "Average Score",
+  "progressLast10Runs": "Last 10 runs",
+  "progressCategoryRecords": "Category Records",
+  "progressRecentPerformance": "Recent Performance",
+  "progressEmptyTitle": "Your progress starts here!",
+  "progressEmptyBody": "Complete your next New Game session to start building your performance history.",
+  "progressLegacyNote": "Detailed score tracking starts with your next completed game.",
+  "progressEmDash": "—",
+  "progressRunLabel": "Run {number}",
+  "@progressRunLabel": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "progressDaysStreak": "{count, plural, =1{1 Day} other{{count} Days}}",
+  "@progressDaysStreak": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
+}
