@@ -176,8 +176,8 @@ void main() {
     final session = container.read(gameSessionProvider.notifier);
     session.startGame();
     session.beginPlaying();
-    // Drive enough score for Active Neuron (4500+).
-    for (var i = 0; i < 45; i++) {
+    // Drive enough score for Active Neuron (3000–4499).
+    for (var i = 0; i < 35; i++) {
       session.addScore(100);
     }
     session.endRun();
@@ -203,10 +203,7 @@ void main() {
     final history = container.read(sessionHistoryProvider);
     expect(history, hasLength(1));
     expect(history.single.totalScore, 400);
-    expect(
-      history.single.id,
-      container.read(gameSessionProvider).sessionId,
-    );
+    expect(history.single.id, container.read(gameSessionProvider).sessionId);
   });
 
   test('practice nextGame does not record history', () async {
@@ -235,26 +232,28 @@ void main() {
     expect(container.read(sessionHistoryProvider), isEmpty);
   });
 
-  test('New Game endSessionEarly skips history but still records rank',
-      () async {
-    await Future<void>.delayed(Duration.zero);
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'New Game endSessionEarly skips history but still records rank',
+    () async {
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
 
-    final session = container.read(gameSessionProvider.notifier);
-    session.startGame();
-    session.beginPlaying();
-    for (var i = 0; i < 45; i++) {
-      session.addScore(100);
-    }
-    session.endSessionEarly();
+      final session = container.read(gameSessionProvider.notifier);
+      session.startGame();
+      session.beginPlaying();
+      for (var i = 0; i < 35; i++) {
+        session.addScore(100);
+      }
+      session.endSessionEarly();
 
-    expect(container.read(gameSessionProvider).phase, GamePhase.scoreScreen);
-    expect(container.read(sessionHistoryProvider), isEmpty);
+      expect(container.read(gameSessionProvider).phase, GamePhase.scoreScreen);
+      expect(container.read(sessionHistoryProvider), isEmpty);
 
-    final title = container.read(titleProgressProvider);
-    expect(title.lastSessionTitle, TitleTier.activeNeuron);
-    expect(title.totalGamesPlayed, 1);
-  });
+      final title = container.read(titleProgressProvider);
+      expect(title.lastSessionTitle, TitleTier.activeNeuron);
+      expect(title.totalGamesPlayed, 1);
+    },
+  );
 
   test('resetToMenu mid-run records no history', () async {
     await Future<void>.delayed(Duration.zero);
@@ -271,15 +270,17 @@ void main() {
     expect(container.read(titleProgressProvider).totalGamesPlayed, 0);
   });
 
-  test('openMyProgress and closeMyProgress toggle phase without audio side effects',
-      () {
-    final session = container.read(gameSessionProvider.notifier);
-    session.openMyProgress();
-    expect(container.read(gameSessionProvider).phase, GamePhase.myProgress);
+  test(
+    'openMyProgress and closeMyProgress toggle phase without audio side effects',
+    () {
+      final session = container.read(gameSessionProvider.notifier);
+      session.openMyProgress();
+      expect(container.read(gameSessionProvider).phase, GamePhase.myProgress);
 
-    session.closeMyProgress();
-    expect(container.read(gameSessionProvider).phase, GamePhase.menu);
-  });
+      session.closeMyProgress();
+      expect(container.read(gameSessionProvider).phase, GamePhase.menu);
+    },
+  );
 
   test('pause freezes timer; resume continues from frozen value', () {
     fakeAsync((async) {

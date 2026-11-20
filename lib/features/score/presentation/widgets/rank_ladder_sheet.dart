@@ -5,6 +5,7 @@ import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_progress_state.dart';
 import '../../../../core/rank/title_tier.dart';
+import '../../../../core/rank/title_tier_l10n.dart';
 
 /// Bottom sheet listing every configured rank with the held rank highlighted.
 abstract final class RankLadderSheet {
@@ -75,19 +76,19 @@ class _RankLadderSheetBody extends StatelessWidget {
                   Text(
                     l10n.rankAllRanks,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textPrimary,
-                        ),
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     l10n.rankLadderExplainer(TitleProgressState.decayDays),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                          height: 1.35,
-                        ),
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                      height: 1.35,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Flexible(
@@ -132,6 +133,7 @@ class _RankLadderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final light = Color.lerp(tier.color, Colors.white, 0.35)!;
     final dark = Color.lerp(tier.color, Colors.black, 0.18)!;
     final opacity = isBelow ? 0.55 : 1.0;
@@ -166,8 +168,12 @@ class _RankLadderRow extends StatelessWidget {
           );
 
     final titleColor = isCurrent ? AppColors.onAccent : AppColors.textPrimary;
-    final metaColor =
-        isCurrent ? AppColors.onAccent.withValues(alpha: 0.9) : AppColors.textSecondary;
+    final descriptionColor = isCurrent
+        ? AppColors.onAccent.withValues(alpha: 0.9)
+        : AppColors.textSecondary;
+    final metaColor = isCurrent
+        ? AppColors.onAccent.withValues(alpha: 0.85)
+        : AppColors.textSecondary.withValues(alpha: 0.9);
 
     return Opacity(
       opacity: isBelow ? 0.85 : 1,
@@ -176,14 +182,18 @@ class _RankLadderRow extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm + 2,
+            vertical: AppSpacing.md,
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                tier.icon,
-                color: isCurrent ? AppColors.onAccent : tier.color,
-                size: 26,
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(
+                  tier.icon,
+                  color: isCurrent ? AppColors.onAccent : tier.color,
+                  size: 26,
+                ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -191,15 +201,26 @@ class _RankLadderRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tier.label,
+                      tier.localizedName(l10n),
                       style: TextStyle(
                         color: titleColor,
                         fontWeight: FontWeight.w800,
                         fontSize: 16,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
-                      context.l10n.rankLadderEntry(tier.rankNumber, tier.minScore),
+                      tier.localizedDescription(l10n),
+                      style: TextStyle(
+                        color: descriptionColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        height: 1.3,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      l10n.rankLadderEntry(tier.rankNumber, tier.minScore),
                       style: TextStyle(
                         color: metaColor,
                         fontWeight: FontWeight.w600,
@@ -209,6 +230,7 @@ class _RankLadderRow extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: AppSpacing.xs),
               if (isCurrent)
                 DecoratedBox(
                   decoration: BoxDecoration(
@@ -221,7 +243,7 @@ class _RankLadderRow extends StatelessWidget {
                       vertical: AppSpacing.xs,
                     ),
                     child: Text(
-                      context.l10n.rankYou,
+                      l10n.rankYou,
                       style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w900,

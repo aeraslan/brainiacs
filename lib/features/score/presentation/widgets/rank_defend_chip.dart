@@ -7,6 +7,7 @@ import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_progress_state.dart';
 import '../../../../core/rank/title_tier.dart';
+import '../../../../core/rank/title_tier_l10n.dart';
 
 /// How this run relates to the player's held rank for defend messaging.
 enum RankDefendOutcome {
@@ -54,35 +55,35 @@ class RankDefendChip extends StatelessWidget {
     final urgent = daysLeft <= 2;
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.xl),
-        border: Border.all(
-          color: (urgent ? AppColors.coral : AppColors.electricBlue)
-              .withValues(alpha: 0.5),
-          width: 1.5,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.shadow,
-            blurRadius: 8,
-            offset: Offset(0, 3),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppSpacing.xl),
+            border: Border.all(
+              color: (urgent ? AppColors.coral : AppColors.electricBlue)
+                  .withValues(alpha: 0.5),
+              width: 1.5,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 8,
+                offset: Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        child: _RankDefendContent(
-          heldTitle: heldTitle,
-          daysLeft: daysLeft,
-          outcome: outcome,
-          compact: false,
-        ),
-      ),
-    )
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            child: _RankDefendContent(
+              heldTitle: heldTitle,
+              daysLeft: daysLeft,
+              outcome: outcome,
+              compact: false,
+            ),
+          ),
+        )
         .animate()
         .fadeIn(delay: 200.ms, duration: 300.ms)
         .slideY(
@@ -147,14 +148,14 @@ class _RankDefendContent extends StatelessWidget {
   }
 
   String _label(AppLocalizations l10n) {
-    final name = heldTitle.label;
+    final name = heldTitle.localizedName(l10n);
     final status = _defendStatus(l10n);
     return switch (outcome) {
-      RankDefendOutcome.unlocked => daysLeft <= 0
-          ? l10n.rankDefendChipNew(name)
-          : l10n.rankDefendChipDefend(name, status),
-      RankDefendOutcome.defended =>
-        l10n.rankDefendChipDefended(name, status),
+      RankDefendOutcome.unlocked =>
+        daysLeft <= 0
+            ? l10n.rankDefendChipNew(name)
+            : l10n.rankDefendChipDefend(name, status),
+      RankDefendOutcome.defended => l10n.rankDefendChipDefended(name, status),
       RankDefendOutcome.pending => l10n.rankDefendChipHeld(name, status),
     };
   }
@@ -170,14 +171,8 @@ class _RankDefendContent extends StatelessWidget {
     return Row(
       mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
       children: [
-        Icon(
-          Icons.shield_moon_rounded,
-          color: accent,
-          size: iconSize,
-        )
-            .animate(
-              onPlay: (controller) => controller.repeat(reverse: true),
-            )
+        Icon(Icons.shield_moon_rounded, color: accent, size: iconSize)
+            .animate(onPlay: (controller) => controller.repeat(reverse: true))
             .scale(
               begin: const Offset(1, 1),
               end: const Offset(1.15, 1.15),

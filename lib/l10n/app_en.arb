@@ -167,7 +167,7 @@
   "scoreThisRun": "This run",
   "scoreNewHighScore": "New high score",
   "scoreNewRankUnlocked": "New Rank Unlocked!",
-  "scoreYourRank": "Your Rank",
+  "scoreYourRank": "Your Rank This Run",
   "scoreNice": "Continue",
   "scoreDismissRankReveal": "Dismiss rank reveal",
 
@@ -249,6 +249,27 @@
       "status": { "type": "String" }
     }
   },
+
+  "rankRevealPromotionHeading": "NEW RANK UNLOCKED!",
+  "rankRevealDefendedHeading": "RANK DEFENDED!",
+  "rankRevealSessionHeading": "YOUR RANK THIS RUN",
+
+  "rankDormantMindName": "Single Brain Cell",
+  "rankDormantMindDescription": "One brain cell. Zero backup plans.",
+  "rankMindApprenticeName": "Brain Not Found",
+  "rankMindApprenticeDescription": "Error 404: Intelligence not found.",
+  "rankActiveNeuronName": "Caveman Mode",
+  "rankActiveNeuronDescription": "Discovered fire. Still figuring out the calculator.",
+  "rankSharpIntellectName": "Gifted But Lazy",
+  "rankSharpIntellectDescription": "Your teachers saw potential. Your homework didn't.",
+  "rankAnalyticMindName": "Mom's Little Genius",
+  "rankAnalyticMindDescription": "Mom says you're a genius. She's totally unbiased.",
+  "rankQuantumBrainName": "Galaxy Brain",
+  "rankQuantumBrainDescription": "Your brain has officially expanded beyond reasonable limits.",
+  "rankSynapseLordName": "NASA Is Calling",
+  "rankSynapseLordDescription": "They called three times. You were busy solving Sudoku.",
+  "rankBrainiacName": "Certified Brainiac",
+  "rankBrainiacDescription": "AI asks YOU the questions now. We're slightly concerned.",
 
   "progressTitle": "My Progress",
   "progressGamesPlayed": "Games Played",

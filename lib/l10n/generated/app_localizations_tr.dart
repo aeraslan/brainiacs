@@ -523,6 +523,71 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get rankRevealPromotionHeading => 'YENİ RÜTBE KAZANDIN!';
+
+  @override
+  String get rankRevealDefendedHeading => 'RÜTBENİ KORUDUN!';
+
+  @override
+  String get rankRevealSessionHeading => 'BU OYUNDAKİ RÜTBEN';
+
+  @override
+  String get rankDormantMindName => 'Tek Hücreli Yaşam Formu';
+
+  @override
+  String get rankDormantMindDescription =>
+      'Evrim uzun bir yolculuk. Sen daha yeni başladın.';
+
+  @override
+  String get rankMindApprenticeName => 'Beyin Hücresi Aranıyor';
+
+  @override
+  String get rankMindApprenticeDescription =>
+      'Kayıp ilanı verildi. Henüz bir iz yok.';
+
+  @override
+  String get rankActiveNeuronName => 'Neandertal';
+
+  @override
+  String get rankActiveNeuronDescription =>
+      'Ateşi bulduk. Şimdi sıra hesap makinesinde.';
+
+  @override
+  String get rankSharpIntellectName => 'Zeki Ama Çalışmıyor';
+
+  @override
+  String get rankSharpIntellectDescription =>
+      'Veli toplantısının değişmeyen yıldızı.';
+
+  @override
+  String get rankAnalyticMindName => 'Annesinin Dahisi';
+
+  @override
+  String get rankAnalyticMindDescription =>
+      'Aile WhatsApp grubunun bilim danışmanı.';
+
+  @override
+  String get rankQuantumBrainName => 'Kuantum Kafa';
+
+  @override
+  String get rankQuantumBrainDescription =>
+      'Beynin başka bir boyutta çalışıyor.';
+
+  @override
+  String get rankSynapseLordName => 'NASA Beni Arıyor';
+
+  @override
+  String get rankSynapseLordDescription =>
+      'Üç kez aradılar. Meşgule attın, Sudoku çözüyordun.';
+
+  @override
+  String get rankBrainiacName => 'Brainiac';
+
+  @override
+  String get rankBrainiacDescription =>
+      'Yapay zekâ sana soru soruyor. Biz de biraz korkuyoruz.';
+
+  @override
   String get progressTitle => 'Gelişimim';
 
   @override

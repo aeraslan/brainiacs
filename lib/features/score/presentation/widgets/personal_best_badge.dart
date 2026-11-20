@@ -12,57 +12,52 @@ class PersonalBestBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            AppColors.vibrantPurple,
-            AppColors.coral,
-            AppColors.sunnyYellow,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(AppSpacing.xl),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x339B5DE5),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.emoji_events_rounded,
-              color: AppColors.onAccent,
-              size: 18,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                AppColors.vibrantPurple,
+                AppColors.coral,
+                AppColors.sunnyYellow,
+              ],
             ),
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              context.l10n.scoreNewRankUnlocked,
-              style: const TextStyle(
-                color: AppColors.onAccent,
-                fontWeight: FontWeight.w800,
-                fontSize: 14,
-                letterSpacing: 0.2,
+            borderRadius: BorderRadius.circular(AppSpacing.xl),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x339B5DE5),
+                blurRadius: 12,
+                offset: Offset(0, 4),
               ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
-          ],
-        ),
-      ),
-    )
-        .animate(
-          onPlay: (controller) => controller.repeat(),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.emoji_events_rounded,
+                  color: AppColors.onAccent,
+                  size: 18,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  context.l10n.scoreNewRankUnlocked,
+                  style: const TextStyle(
+                    color: AppColors.onAccent,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
         )
-        .shimmer(
-          duration: 1800.ms,
-          color: Colors.white.withValues(alpha: 0.55),
-        )
+        .animate(onPlay: (controller) => controller.repeat())
+        .shimmer(duration: 1800.ms, color: Colors.white.withValues(alpha: 0.55))
         .animate()
         .fadeIn(duration: 300.ms)
         .scale(

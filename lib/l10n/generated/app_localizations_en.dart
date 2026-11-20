@@ -434,7 +434,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scoreNewRankUnlocked => 'New Rank Unlocked!';
 
   @override
-  String get scoreYourRank => 'Your Rank';
+  String get scoreYourRank => 'Your Rank This Run';
 
   @override
   String get scoreNice => 'Continue';
@@ -517,6 +517,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String rankDefendChipHeld(String name, String status) {
     return 'Held: $name — $status';
   }
+
+  @override
+  String get rankRevealPromotionHeading => 'NEW RANK UNLOCKED!';
+
+  @override
+  String get rankRevealDefendedHeading => 'RANK DEFENDED!';
+
+  @override
+  String get rankRevealSessionHeading => 'YOUR RANK THIS RUN';
+
+  @override
+  String get rankDormantMindName => 'Single Brain Cell';
+
+  @override
+  String get rankDormantMindDescription => 'One brain cell. Zero backup plans.';
+
+  @override
+  String get rankMindApprenticeName => 'Brain Not Found';
+
+  @override
+  String get rankMindApprenticeDescription =>
+      'Error 404: Intelligence not found.';
+
+  @override
+  String get rankActiveNeuronName => 'Caveman Mode';
+
+  @override
+  String get rankActiveNeuronDescription =>
+      'Discovered fire. Still figuring out the calculator.';
+
+  @override
+  String get rankSharpIntellectName => 'Gifted But Lazy';
+
+  @override
+  String get rankSharpIntellectDescription =>
+      'Your teachers saw potential. Your homework didn\'t.';
+
+  @override
+  String get rankAnalyticMindName => 'Mom\'s Little Genius';
+
+  @override
+  String get rankAnalyticMindDescription =>
+      'Mom says you\'re a genius. She\'s totally unbiased.';
+
+  @override
+  String get rankQuantumBrainName => 'Galaxy Brain';
+
+  @override
+  String get rankQuantumBrainDescription =>
+      'Your brain has officially expanded beyond reasonable limits.';
+
+  @override
+  String get rankSynapseLordName => 'NASA Is Calling';
+
+  @override
+  String get rankSynapseLordDescription =>
+      'They called three times. You were busy solving Sudoku.';
+
+  @override
+  String get rankBrainiacName => 'Certified Brainiac';
+
+  @override
+  String get rankBrainiacDescription =>
+      'AI asks YOU the questions now. We\'re slightly concerned.';
 
   @override
   String get progressTitle => 'My Progress';

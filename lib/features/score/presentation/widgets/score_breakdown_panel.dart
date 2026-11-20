@@ -57,132 +57,128 @@ class _ChunkyCandyBar extends StatelessWidget {
   final int index;
 
   static const List<Shadow> _contentShadow = [
-    Shadow(
-      color: Color(0x33FFFFFF),
-      offset: Offset(0, 1),
-      blurRadius: 2,
-    ),
+    Shadow(color: Color(0x33FFFFFF), offset: Offset(0, 1), blurRadius: 2),
   ];
 
   @override
   Widget build(BuildContext context) {
     final entryDelayMs = index * 120;
     final fillDelayMs = entryDelayMs + 280;
-    final fraction =
-        (score / ScoreBreakdownPanel.maxSkillScore).clamp(0.0, 1.0);
+    final fraction = (score / ScoreBreakdownPanel.maxSkillScore).clamp(
+      0.0,
+      1.0,
+    );
     final radius = BorderRadius.circular(ScoreBreakdownPanel.barHeight / 2);
     final color = type.color;
 
     return RepaintBoundary(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: radius,
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: SizedBox(
-          height: ScoreBreakdownPanel.barHeight,
-          child: ClipRRect(
-            borderRadius: radius,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ColoredBox(
-                  color: Color.alphaBlend(
-                    color.withValues(alpha: 0.15),
-                    ScoreBreakdownPanel._trackGrey,
-                  ),
-                ),
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: FractionallySizedBox(
-                      widthFactor: fraction,
-                      heightFactor: 1,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          ColoredBox(color: color),
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: FractionallySizedBox(
-                              heightFactor: 0.35,
-                              widthFactor: 1,
-                              child: ColoredBox(
-                                color: Colors.white.withValues(alpha: 0.28),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                          .animate()
-                          .scaleX(
-                            begin: 0,
-                            end: 1,
-                            alignment: Alignment.centerLeft,
-                            delay: fillDelayMs.ms,
-                            duration: 650.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        type.icon,
-                        color: AppColors.textPrimary,
-                        size: 20,
-                        shadows: _contentShadow,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          type.localizedLabel(context.l10n),
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                            shadows: _contentShadow,
-                          ),
-                        ),
-                      ),
-                      if (isNewHigh) ...[
-                        const _NewHighChip(),
-                        const SizedBox(width: AppSpacing.xs),
-                      ],
-                      Text(
-                        '$score',
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 17,
-                          shadows: _contentShadow,
-                        ),
-                      ),
-                    ],
-                  ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: const [
+                BoxShadow(
+                  color: AppColors.shadow,
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
+            child: SizedBox(
+              height: ScoreBreakdownPanel.barHeight,
+              child: ClipRRect(
+                borderRadius: radius,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ColoredBox(
+                      color: Color.alphaBlend(
+                        color.withValues(alpha: 0.15),
+                        ScoreBreakdownPanel._trackGrey,
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: FractionallySizedBox(
+                          widthFactor: fraction,
+                          heightFactor: 1,
+                          child:
+                              Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  ColoredBox(color: color),
+                                  Align(
+                                    alignment: Alignment.topCenter,
+                                    child: FractionallySizedBox(
+                                      heightFactor: 0.35,
+                                      widthFactor: 1,
+                                      child: ColoredBox(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.28,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ).animate().scaleX(
+                                begin: 0,
+                                end: 1,
+                                alignment: Alignment.centerLeft,
+                                delay: fillDelayMs.ms,
+                                duration: 650.ms,
+                                curve: Curves.easeOutCubic,
+                              ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            type.icon,
+                            color: AppColors.textPrimary,
+                            size: 20,
+                            shadows: _contentShadow,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              type.localizedLabel(context.l10n),
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                                shadows: _contentShadow,
+                              ),
+                            ),
+                          ),
+                          if (isNewHigh) ...[
+                            const _NewHighChip(),
+                            const SizedBox(width: AppSpacing.xs),
+                          ],
+                          Text(
+                            '$score',
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17,
+                              shadows: _contentShadow,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(
-          delay: entryDelayMs.ms,
-          duration: 320.ms,
         )
+        .animate()
+        .fadeIn(delay: entryDelayMs.ms, duration: 320.ms)
         .slideY(
           begin: 0.25,
           end: 0,
@@ -199,38 +195,36 @@ class _NewHighChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.coral, AppColors.sunnyYellow],
-        ),
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33FF6B6B),
-            blurRadius: 6,
-            offset: Offset(0, 2),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.coral, AppColors.sunnyYellow],
+            ),
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x33FF6B6B),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: 2,
-        ),
-        child: Text(
-          context.l10n.scoreNewHighScore,
-          style: const TextStyle(
-            color: AppColors.onAccent,
-            fontWeight: FontWeight.w900,
-            fontSize: 10,
-            letterSpacing: 0.2,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: 2,
+            ),
+            child: Text(
+              context.l10n.scoreNewHighScore,
+              style: const TextStyle(
+                color: AppColors.onAccent,
+                fontWeight: FontWeight.w900,
+                fontSize: 10,
+                letterSpacing: 0.2,
+              ),
+            ),
           ),
-        ),
-      ),
-    )
-        .animate(
-          onPlay: (controller) => controller.repeat(reverse: true),
         )
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
         .scale(
           begin: const Offset(1, 1),
           end: const Offset(1.08, 1.08),

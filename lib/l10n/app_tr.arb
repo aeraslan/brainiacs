@@ -250,6 +250,27 @@
     }
   },
 
+  "rankRevealPromotionHeading": "YENİ RÜTBE KAZANDIN!",
+  "rankRevealDefendedHeading": "RÜTBENİ KORUDUN!",
+  "rankRevealSessionHeading": "BU OYUNDAKİ RÜTBEN",
+
+  "rankDormantMindName": "Tek Hücreli Yaşam Formu",
+  "rankDormantMindDescription": "Evrim uzun bir yolculuk. Sen daha yeni başladın.",
+  "rankMindApprenticeName": "Beyin Hücresi Aranıyor",
+  "rankMindApprenticeDescription": "Kayıp ilanı verildi. Henüz bir iz yok.",
+  "rankActiveNeuronName": "Neandertal",
+  "rankActiveNeuronDescription": "Ateşi bulduk. Şimdi sıra hesap makinesinde.",
+  "rankSharpIntellectName": "Zeki Ama Çalışmıyor",
+  "rankSharpIntellectDescription": "Veli toplantısının değişmeyen yıldızı.",
+  "rankAnalyticMindName": "Annesinin Dahisi",
+  "rankAnalyticMindDescription": "Aile WhatsApp grubunun bilim danışmanı.",
+  "rankQuantumBrainName": "Kuantum Kafa",
+  "rankQuantumBrainDescription": "Beynin başka bir boyutta çalışıyor.",
+  "rankSynapseLordName": "NASA Beni Arıyor",
+  "rankSynapseLordDescription": "Üç kez aradılar. Meşgule attın, Sudoku çözüyordun.",
+  "rankBrainiacName": "Brainiac",
+  "rankBrainiacDescription": "Yapay zekâ sana soru soruyor. Biz de biraz korkuyoruz.",
+
   "progressTitle": "Gelişimim",
   "progressGamesPlayed": "Oynanan Oyun",
   "progressPersonalBest": "Kişisel Rekor",

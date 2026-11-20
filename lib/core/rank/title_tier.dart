@@ -5,62 +5,52 @@ import '../constants/app_colors.dart';
 /// Eight player titles earned from a full 4-game core-loop total score.
 enum TitleTier {
   dormantMind(
-    label: 'Dormant Mind',
     minScore: 0,
     color: Color(0xFF9AA0B8),
     icon: Icons.nights_stay_rounded,
   ),
   mindApprentice(
-    label: 'Mind Apprentice',
-    minScore: 2000,
+    minScore: 1500,
     color: AppColors.mint,
     icon: Icons.school_rounded,
   ),
   activeNeuron(
-    label: 'Active Neuron',
-    minScore: 4500,
+    minScore: 3000,
     color: AppColors.electricBlue,
     icon: Icons.bolt_rounded,
   ),
   sharpIntellect(
-    label: 'Sharp Intellect',
-    minScore: 6500,
+    minScore: 4500,
     color: AppColors.coral,
     icon: Icons.lightbulb_rounded,
   ),
   analyticMind(
-    label: 'Analytic Mind',
-    minScore: 8500,
+    minScore: 6000,
     color: Color(0xFFFF9F43),
     icon: Icons.insights_rounded,
   ),
   quantumBrain(
-    label: 'Quantum Brain',
-    minScore: 10500,
+    minScore: 7500,
     color: AppColors.vibrantPurple,
     icon: Icons.blur_circular_rounded,
   ),
   synapseLord(
-    label: 'Synapse Lord',
-    minScore: 12500,
+    minScore: 9000,
     color: AppColors.sunnyYellow,
     icon: Icons.auto_awesome_rounded,
   ),
   brainiac(
-    label: 'Brainiac',
-    minScore: 15000,
+    minScore: 10500,
     color: Color(0xFFFF4D8D),
     icon: Icons.emoji_events_rounded,
   );
 
   const TitleTier({
-    required this.label,
     required this.minScore,
     required this.color,
     required this.icon,
   });
 
-  final String label;
   final int minScore;
   final Color color;
   final IconData icon;

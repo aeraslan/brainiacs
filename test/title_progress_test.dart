@@ -52,65 +52,114 @@ void main() {
     }
   }
 
-  test('recordLoopScore unlocks a higher title and sets lastPlayedDate',
-      () async {
-    final container = createContainer();
-    addTearDown(container.dispose);
-    await waitForHydrate(container);
+  test(
+    'recordLoopScore unlocks a higher title and sets lastPlayedDate',
+    () async {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      await waitForHydrate(container);
 
-    final notifier = container.read(titleProgressProvider.notifier);
-    notifier.recordLoopScore(
-      totalScore: 4500,
-      scoresByGame: evenScores(4500),
-    );
+      final notifier = container.read(titleProgressProvider.notifier);
+      notifier.recordLoopScore(
+        totalScore: 3000,
+        scoresByGame: evenScores(3000),
+      );
 
-    final state = container.read(titleProgressProvider);
-    expect(state.highestTitle, TitleTier.activeNeuron);
-    expect(state.lastSessionTitle, TitleTier.activeNeuron);
-    expect(state.unlockedNewRank, isTrue);
-    expect(state.lastEarnedDate, fakeNow);
-    expect(state.highestScore, 4500);
-    expect(state.totalGamesPlayed, 1);
-    expect(state.newCategoryHighs, MiniGameType.values.toSet());
-    expect(state.highestScoreFor(MiniGameType.math), greaterThan(0));
+      final state = container.read(titleProgressProvider);
+      expect(state.highestTitle, TitleTier.activeNeuron);
+      expect(state.lastSessionTitle, TitleTier.activeNeuron);
+      expect(state.unlockedNewRank, isTrue);
+      expect(state.lastEarnedDate, fakeNow);
+      expect(state.highestScore, 3000);
+      expect(state.totalGamesPlayed, 1);
+      expect(state.newCategoryHighs, MiniGameType.values.toSet());
+      expect(state.highestScoreFor(MiniGameType.math), greaterThan(0));
 
-    final storage = container.read(localStorageProvider);
-    expect(storage.currentRankIndex, TitleTier.activeNeuron.index);
-    expect(storage.highestScore, 4500);
-    expect(storage.totalGamesPlayed, 1);
-    expect(storage.lastPlayedDate, fakeNow);
-    expect(storage.highestScoreFor(MiniGameType.math), greaterThan(0));
-  });
+      final storage = container.read(localStorageProvider);
+      expect(storage.currentRankIndex, TitleTier.activeNeuron.index);
+      expect(storage.highestScore, 3000);
+      expect(storage.totalGamesPlayed, 1);
+      expect(storage.lastPlayedDate, fakeNow);
+      expect(storage.highestScoreFor(MiniGameType.math), greaterThan(0));
+    },
+  );
 
-  test('recordLoopScore matching highest refreshes date without unlock',
-      () async {
-    final container = createContainer(
-      storage: {
-        LocalStorageService.currentRankIndexKey: TitleTier.activeNeuron.index,
-        LocalStorageService.lastPlayedDateKey:
-            DateTime(2026, 9, 18).toIso8601String(),
-      },
-    );
-    addTearDown(container.dispose);
-    await waitForHydrate(container);
+  test(
+    'recordLoopScore matching highest refreshes date without unlock',
+    () async {
+      final container = createContainer(
+        storage: {
+          LocalStorageService.currentRankIndexKey: TitleTier.activeNeuron.index,
+          LocalStorageService.lastPlayedDateKey: DateTime(
+            2026,
+            9,
+            18,
+          ).toIso8601String(),
+        },
+      );
+      addTearDown(container.dispose);
+      await waitForHydrate(container);
 
-    expect(
-      container.read(titleProgressProvider).highestTitle,
-      TitleTier.activeNeuron,
-    );
+      expect(
+        container.read(titleProgressProvider).highestTitle,
+        TitleTier.activeNeuron,
+      );
 
-    final notifier = container.read(titleProgressProvider.notifier);
-    notifier.recordLoopScore(
-      totalScore: 4500,
-      scoresByGame: evenScores(4500),
-    );
+      final notifier = container.read(titleProgressProvider.notifier);
+      notifier.recordLoopScore(
+        totalScore: 3000,
+        scoresByGame: evenScores(3000),
+      );
 
-    final state = container.read(titleProgressProvider);
-    expect(state.highestTitle, TitleTier.activeNeuron);
-    expect(state.unlockedNewRank, isFalse);
-    expect(state.lastEarnedDate, fakeNow);
-    expect(state.totalGamesPlayed, 1);
-  });
+      final state = container.read(titleProgressProvider);
+      expect(state.highestTitle, TitleTier.activeNeuron);
+      expect(state.unlockedNewRank, isFalse);
+      expect(state.lastEarnedDate, fakeNow);
+      expect(state.totalGamesPlayed, 1);
+    },
+  );
+
+  test(
+    'hydrate keeps stored rank and does not promote from historical score',
+    () async {
+      final container = createContainer(
+        storage: {
+          LocalStorageService.currentRankIndexKey: TitleTier.quantumBrain.index,
+          LocalStorageService.highestScoreKey: 0,
+          LocalStorageService.lastPlayedDateKey: DateTime(
+            2026,
+            9,
+            18,
+          ).toIso8601String(),
+        },
+      );
+      addTearDown(container.dispose);
+      await waitForHydrate(container);
+
+      expect(
+        container.read(titleProgressProvider).highestTitle,
+        TitleTier.quantumBrain,
+      );
+    },
+  );
+
+  test(
+    'hydrate does not promote dormantMind from a high historical score',
+    () async {
+      final container = createContainer(
+        storage: {
+          LocalStorageService.currentRankIndexKey: TitleTier.dormantMind.index,
+          LocalStorageService.highestScoreKey: 12000,
+        },
+      );
+      addTearDown(container.dispose);
+      await waitForHydrate(container);
+
+      final state = container.read(titleProgressProvider);
+      expect(state.highestTitle, TitleTier.dormantMind);
+      expect(state.highestScore, 12000);
+    },
+  );
 
   test('recordLoopScore below highest leaves defend date untouched', () async {
     final previous = DateTime(2026, 9, 18);
@@ -126,10 +175,7 @@ void main() {
     await waitForHydrate(container);
 
     final notifier = container.read(titleProgressProvider.notifier);
-    notifier.recordLoopScore(
-      totalScore: 2000,
-      scoresByGame: evenScores(2000),
-    );
+    notifier.recordLoopScore(totalScore: 2000, scoresByGame: evenScores(2000));
 
     final state = container.read(titleProgressProvider);
     expect(state.highestTitle, TitleTier.quantumBrain);
@@ -144,107 +190,112 @@ void main() {
     expect(storage.currentRankIndex, TitleTier.quantumBrain.index);
   });
 
-  test('recordLoopScore sets category highs and marks NEW only for beats',
-      () async {
-    final container = createContainer(
-      storage: {
-        LocalStorageService.highestScoreMathKey: 800,
-        LocalStorageService.highestScoreMemoryKey: 600,
-        LocalStorageService.highestScoreAnalyticalKey: 700,
-        LocalStorageService.highestScoreVisualKey: 500,
-      },
-    );
-    addTearDown(container.dispose);
-    await waitForHydrate(container);
+  test(
+    'recordLoopScore sets category highs and marks NEW only for beats',
+    () async {
+      final container = createContainer(
+        storage: {
+          LocalStorageService.highestScoreMathKey: 800,
+          LocalStorageService.highestScoreMemoryKey: 600,
+          LocalStorageService.highestScoreAnalyticalKey: 700,
+          LocalStorageService.highestScoreVisualKey: 500,
+        },
+      );
+      addTearDown(container.dispose);
+      await waitForHydrate(container);
 
-    final notifier = container.read(titleProgressProvider.notifier);
-    notifier.recordLoopScore(
-      totalScore: 2700,
-      scoresByGame: {
-        MiniGameType.math: 900,
-        MiniGameType.memory: 400,
-        MiniGameType.analytical: 700,
-        MiniGameType.visual: 700,
-      },
-    );
+      final notifier = container.read(titleProgressProvider.notifier);
+      notifier.recordLoopScore(
+        totalScore: 2700,
+        scoresByGame: {
+          MiniGameType.math: 900,
+          MiniGameType.memory: 400,
+          MiniGameType.analytical: 700,
+          MiniGameType.visual: 700,
+        },
+      );
 
-    final state = container.read(titleProgressProvider);
-    expect(state.highestScoreFor(MiniGameType.math), 900);
-    expect(state.highestScoreFor(MiniGameType.memory), 600);
-    expect(state.highestScoreFor(MiniGameType.analytical), 700);
-    expect(state.highestScoreFor(MiniGameType.visual), 700);
-    expect(
-      state.newCategoryHighs,
-      {MiniGameType.math, MiniGameType.visual},
-    );
+      final state = container.read(titleProgressProvider);
+      expect(state.highestScoreFor(MiniGameType.math), 900);
+      expect(state.highestScoreFor(MiniGameType.memory), 600);
+      expect(state.highestScoreFor(MiniGameType.analytical), 700);
+      expect(state.highestScoreFor(MiniGameType.visual), 700);
+      expect(state.newCategoryHighs, {MiniGameType.math, MiniGameType.visual});
 
-    final storage = container.read(localStorageProvider);
-    expect(storage.highestScoreFor(MiniGameType.math), 900);
-    expect(storage.highestScoreFor(MiniGameType.memory), 600);
-    expect(storage.highestScoreFor(MiniGameType.visual), 700);
-  });
+      final storage = container.read(localStorageProvider);
+      expect(storage.highestScoreFor(MiniGameType.math), 900);
+      expect(storage.highestScoreFor(MiniGameType.memory), 600);
+      expect(storage.highestScoreFor(MiniGameType.visual), 700);
+    },
+  );
 
-  test('recordLoopScore second weaker run does not lower category highs',
-      () async {
-    final container = createContainer();
-    addTearDown(container.dispose);
-    await waitForHydrate(container);
+  test(
+    'recordLoopScore second weaker run does not lower category highs',
+    () async {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      await waitForHydrate(container);
 
-    final notifier = container.read(titleProgressProvider.notifier);
-    notifier.recordLoopScore(
-      totalScore: 4000,
-      scoresByGame: {
-        MiniGameType.math: 1000,
-        MiniGameType.memory: 1000,
-        MiniGameType.analytical: 1000,
-        MiniGameType.visual: 1000,
-      },
-    );
-    notifier.recordLoopScore(
-      totalScore: 1200,
-      scoresByGame: {
-        MiniGameType.math: 300,
-        MiniGameType.memory: 300,
-        MiniGameType.analytical: 300,
-        MiniGameType.visual: 300,
-      },
-    );
+      final notifier = container.read(titleProgressProvider.notifier);
+      notifier.recordLoopScore(
+        totalScore: 4000,
+        scoresByGame: {
+          MiniGameType.math: 1000,
+          MiniGameType.memory: 1000,
+          MiniGameType.analytical: 1000,
+          MiniGameType.visual: 1000,
+        },
+      );
+      notifier.recordLoopScore(
+        totalScore: 1200,
+        scoresByGame: {
+          MiniGameType.math: 300,
+          MiniGameType.memory: 300,
+          MiniGameType.analytical: 300,
+          MiniGameType.visual: 300,
+        },
+      );
 
-    final state = container.read(titleProgressProvider);
-    expect(state.highestScoreFor(MiniGameType.math), 1000);
-    expect(state.newCategoryHighs, isEmpty);
-    expect(state.totalGamesPlayed, 2);
-  });
+      final state = container.read(titleProgressProvider);
+      expect(state.highestScoreFor(MiniGameType.math), 1000);
+      expect(state.newCategoryHighs, isEmpty);
+      expect(state.totalGamesPlayed, 2);
+    },
+  );
 
-  test('applyDecayIfNeeded drops one tier after 7 days and sets hasDecayed',
-      () async {
-    final container = createContainer(
-      storage: {
-        LocalStorageService.currentRankIndexKey:
-            TitleTier.sharpIntellect.index,
-        LocalStorageService.lastPlayedDateKey:
-            DateTime(2026, 9, 13).toIso8601String(),
-      },
-    );
-    addTearDown(container.dispose);
-    await waitForHydrate(container);
+  test(
+    'applyDecayIfNeeded drops one tier after 7 days and sets hasDecayed',
+    () async {
+      final container = createContainer(
+        storage: {
+          LocalStorageService.currentRankIndexKey:
+              TitleTier.sharpIntellect.index,
+          LocalStorageService.lastPlayedDateKey: DateTime(
+            2026,
+            9,
+            13,
+          ).toIso8601String(),
+        },
+      );
+      addTearDown(container.dispose);
+      await waitForHydrate(container);
 
-    final state = container.read(titleProgressProvider);
-    expect(state.highestTitle, TitleTier.activeNeuron);
-    expect(state.lastEarnedDate, fakeNow);
-    expect(state.hasDecayed, isTrue);
+      final state = container.read(titleProgressProvider);
+      expect(state.highestTitle, TitleTier.activeNeuron);
+      expect(state.lastEarnedDate, fakeNow);
+      expect(state.hasDecayed, isTrue);
 
-    final storage = container.read(localStorageProvider);
-    expect(storage.currentRankIndex, TitleTier.activeNeuron.index);
-    expect(storage.lastPlayedDate, fakeNow);
-  });
+      final storage = container.read(localStorageProvider);
+      expect(storage.currentRankIndex, TitleTier.activeNeuron.index);
+      expect(storage.lastPlayedDate, fakeNow);
+    },
+  );
 
   test('applyDecayIfNeeded does not drop before 7 days', () async {
     final earned = DateTime(2026, 9, 14);
     final container = createContainer(
       storage: {
-        LocalStorageService.currentRankIndexKey:
-            TitleTier.sharpIntellect.index,
+        LocalStorageService.currentRankIndexKey: TitleTier.sharpIntellect.index,
         LocalStorageService.lastPlayedDateKey: earned.toIso8601String(),
       },
     );
@@ -261,8 +312,11 @@ void main() {
     final container = createContainer(
       storage: {
         LocalStorageService.currentRankIndexKey: TitleTier.dormantMind.index,
-        LocalStorageService.lastPlayedDateKey:
-            DateTime(2026, 9, 1).toIso8601String(),
+        LocalStorageService.lastPlayedDateKey: DateTime(
+          2026,
+          9,
+          1,
+        ).toIso8601String(),
       },
     );
     addTearDown(container.dispose);
@@ -276,10 +330,12 @@ void main() {
   test('acknowledgeDecay clears hasDecayed flag', () async {
     final container = createContainer(
       storage: {
-        LocalStorageService.currentRankIndexKey:
-            TitleTier.sharpIntellect.index,
-        LocalStorageService.lastPlayedDateKey:
-            DateTime(2026, 9, 13).toIso8601String(),
+        LocalStorageService.currentRankIndexKey: TitleTier.sharpIntellect.index,
+        LocalStorageService.lastPlayedDateKey: DateTime(
+          2026,
+          9,
+          13,
+        ).toIso8601String(),
       },
     );
     addTearDown(container.dispose);
@@ -294,8 +350,11 @@ void main() {
     final container = createContainer(
       prefs: {
         LocalStorageService.legacyHighestTitleKey: TitleTier.quantumBrain.name,
-        LocalStorageService.legacyLastEarnedDateKey:
-            DateTime(2026, 9, 18).toIso8601String(),
+        LocalStorageService.legacyLastEarnedDateKey: DateTime(
+          2026,
+          9,
+          18,
+        ).toIso8601String(),
       },
     );
     addTearDown(container.dispose);

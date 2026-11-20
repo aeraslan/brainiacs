@@ -7,6 +7,7 @@ import '../../../../core/localization/l10n_extension.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/rank/title_progress_notifier.dart';
 import '../../../../core/rank/title_tier.dart';
+import '../../../../core/rank/title_tier_l10n.dart';
 import '../../../score/presentation/widgets/rank_ladder_sheet.dart';
 
 /// Compact dashboard rank summary without a misleading run-progress bar.
@@ -25,9 +26,9 @@ class ProgressRankCard extends ConsumerWidget {
     );
     final daysLeft = lastEarnedDate == null
         ? null
-        : ref.watch(titleProgressProvider).daysLeftToDefend(
-              ref.read(clockProvider)(),
-            );
+        : ref
+              .watch(titleProgressProvider)
+              .daysLeftToDefend(ref.read(clockProvider)());
 
     final next = heldTitle.nextHigher;
     final light = Color.lerp(heldTitle.color, Colors.white, 0.35)!;
@@ -88,7 +89,7 @@ class ProgressRankCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        heldTitle.label,
+                        heldTitle.localizedName(l10n),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -120,19 +121,19 @@ class ProgressRankCard extends ConsumerWidget {
               Text(
                 l10n.rankTopReached,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               )
             else ...[
               Text(
-                l10n.rankNext(next.label),
+                l10n.rankNext(next.localizedName(l10n)),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
@@ -147,10 +148,8 @@ class ProgressRankCard extends ConsumerWidget {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () => RankLadderSheet.show(
-                  context,
-                  heldTitle: heldTitle,
-                ),
+                onPressed: () =>
+                    RankLadderSheet.show(context, heldTitle: heldTitle),
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
                   minimumSize: const Size(0, 36),
@@ -193,12 +192,7 @@ class ProgressRankCard extends ConsumerWidget {
     return card
         .animate()
         .fadeIn(duration: 280.ms)
-        .slideY(
-          begin: 0.1,
-          end: 0,
-          duration: 320.ms,
-          curve: Curves.easeOut,
-        );
+        .slideY(begin: 0.1, end: 0, duration: 320.ms, curve: Curves.easeOut);
   }
 }
 

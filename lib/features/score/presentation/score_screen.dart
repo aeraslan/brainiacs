@@ -171,19 +171,20 @@ class _ScoreHubContentState extends State<_ScoreHubContent> {
       children: [
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(
-                widget.headline,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.displayMedium,
-              )
-              .animate()
-              .fadeIn(duration: 180.ms)
-              .scale(
-                begin: const Offset(0.7, 0.7),
-                end: const Offset(1, 1),
-                duration: 320.ms,
-                curve: Curves.easeOutBack,
-              ),
+          child:
+              Text(
+                    widget.headline,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.displayMedium,
+                  )
+                  .animate()
+                  .fadeIn(duration: 180.ms)
+                  .scale(
+                    begin: const Offset(0.7, 0.7),
+                    end: const Offset(1, 1),
+                    duration: 320.ms,
+                    curve: Curves.easeOutBack,
+                  ),
         ),
         if (widget.unlockedNewRank) ...[
           const SizedBox(height: AppSpacing.sm),
@@ -197,15 +198,16 @@ class _ScoreHubContentState extends State<_ScoreHubContent> {
             context.l10n.scoreThisRun,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                ),
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
         ],
         _RankRevealHost(
           earnedTitle: widget.sessionTitle,
+          outcome: widget.defendOutcome,
           onRevealComplete: _onRevealComplete,
         ),
         if (_revealComplete) ...[
@@ -232,10 +234,12 @@ class _ScoreHubContentState extends State<_ScoreHubContent> {
 class _RankRevealHost extends StatefulWidget {
   const _RankRevealHost({
     required this.earnedTitle,
+    required this.outcome,
     required this.onRevealComplete,
   });
 
   final TitleTier earnedTitle;
+  final RankDefendOutcome? outcome;
   final VoidCallback onRevealComplete;
 
   @override
@@ -268,7 +272,11 @@ class _RankRevealHostState extends State<_RankRevealHost> {
       return;
     }
     _dialogShown = true;
-    await RankRevealDialog.show(context, earnedTitle: widget.earnedTitle);
+    await RankRevealDialog.show(
+      context,
+      earnedTitle: widget.earnedTitle,
+      outcome: widget.outcome,
+    );
     if (!mounted) {
       return;
     }

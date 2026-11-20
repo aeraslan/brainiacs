@@ -71,9 +71,7 @@ class EndMatchCelebration extends StatelessWidget {
               child: SizedBox(
                 width: 280,
                 height: 280,
-                child: const CustomPaint(
-                  painter: _SunburstPainter(),
-                )
+                child: const CustomPaint(painter: _SunburstPainter())
                     .animate()
                     .fadeIn(duration: 400.ms, curve: Curves.easeOut)
                     .scale(
@@ -93,15 +91,9 @@ class EndMatchCelebration extends StatelessWidget {
             for (final particle in _particles)
               Align(
                 alignment: particle.alignment,
-                child: _StarParticle(
-                  size: particle.size,
-                  color: particle.color,
-                )
+                child: _StarParticle(size: particle.size, color: particle.color)
                     .animate()
-                    .fadeIn(
-                      delay: particle.delayMs.ms,
-                      duration: 280.ms,
-                    )
+                    .fadeIn(delay: particle.delayMs.ms, duration: 280.ms)
                     .scale(
                       begin: const Offset(0, 0),
                       end: const Offset(1, 1),
@@ -139,10 +131,7 @@ class _ParticleSpec {
 }
 
 class _StarParticle extends StatelessWidget {
-  const _StarParticle({
-    required this.size,
-    required this.color,
-  });
+  const _StarParticle({required this.size, required this.color});
 
   final double size;
   final Color color;

@@ -85,11 +85,13 @@ class TitleProgressNotifier extends Notifier<TitleProgressState> {
     final highest = state.highestTitle;
     final playedAt = _now;
     final nextGamesPlayed = state.totalGamesPlayed + 1;
-    final nextHighestScore =
-        totalScore > state.highestScore ? totalScore : state.highestScore;
+    final nextHighestScore = totalScore > state.highestScore
+        ? totalScore
+        : state.highestScore;
 
-    final nextCategoryHighs =
-        Map<MiniGameType, int>.from(state.highestScoresByGame);
+    final nextCategoryHighs = Map<MiniGameType, int>.from(
+      state.highestScoresByGame,
+    );
     final beaten = <MiniGameType>{};
     for (final type in MiniGameType.values) {
       final runScore = scoresByGame[type] ?? 0;
@@ -165,5 +167,5 @@ class TitleProgressNotifier extends Notifier<TitleProgressState> {
 
 final titleProgressProvider =
     NotifierProvider<TitleProgressNotifier, TitleProgressState>(
-  TitleProgressNotifier.new,
-);
+      TitleProgressNotifier.new,
+    );

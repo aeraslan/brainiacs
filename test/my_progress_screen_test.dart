@@ -118,7 +118,7 @@ void main() {
     expect(find.text('Latest Score'), findsOneWidget);
     expect(find.text('Average Score'), findsOneWidget);
     expect(find.text('Last 10 runs'), findsOneWidget);
-    expect(find.text('Dormant Mind'), findsWidgets);
+    expect(find.text('Single Brain Cell'), findsWidgets);
 
     await tester.tap(find.byTooltip('Back'));
     await tester.pump();
@@ -159,8 +159,11 @@ void main() {
         LocalStorageService.totalGamesPlayedKey: 4,
         LocalStorageService.highestScoreKey: 4500,
         LocalStorageService.currentRankIndexKey: TitleTier.activeNeuron.index,
-        LocalStorageService.lastPlayedDateKey:
-            DateTime(2026, 11, 17).toIso8601String(),
+        LocalStorageService.lastPlayedDateKey: DateTime(
+          2026,
+          11,
+          17,
+        ).toIso8601String(),
       },
       clock: () => now,
     );
@@ -168,7 +171,7 @@ void main() {
 
     expect(find.text(_legacyNote), findsOneWidget);
     expect(find.text(_emptyTitle), findsOneWidget);
-    expect(find.text('Active Neuron'), findsWidgets);
+    expect(find.text('Caveman Mode'), findsWidgets);
     expect(find.text('Games Played'), findsOneWidget);
     expect(find.text('Personal Best'), findsOneWidget);
 
@@ -191,21 +194,9 @@ void main() {
         LocalStorageService.totalGamesPlayedKey: 3,
         LocalStorageService.highestScoreKey: 3000,
         LocalStorageService.sessionHistoryKey: [
-          _historyEntry(
-            id: '1',
-            score: 1000,
-            at: DateTime(2026, 11, 1),
-          ),
-          _historyEntry(
-            id: '2',
-            score: 2000,
-            at: DateTime(2026, 11, 2),
-          ),
-          _historyEntry(
-            id: '3',
-            score: 3000,
-            at: DateTime(2026, 11, 3),
-          ),
+          _historyEntry(id: '1', score: 1000, at: DateTime(2026, 11, 1)),
+          _historyEntry(id: '2', score: 2000, at: DateTime(2026, 11, 2)),
+          _historyEntry(id: '3', score: 3000, at: DateTime(2026, 11, 3)),
         ],
       },
     );
@@ -249,16 +240,8 @@ void main() {
         LocalStorageService.totalGamesPlayedKey: 2,
         LocalStorageService.highestScoreKey: 2200,
         LocalStorageService.sessionHistoryKey: [
-          _historyEntry(
-            id: 'a',
-            score: 1800,
-            at: DateTime(2026, 10, 1),
-          ),
-          _historyEntry(
-            id: 'b',
-            score: 2200,
-            at: DateTime(2026, 10, 2),
-          ),
+          _historyEntry(id: 'a', score: 1800, at: DateTime(2026, 10, 1)),
+          _historyEntry(id: 'b', score: 2200, at: DateTime(2026, 10, 2)),
         ],
       },
     );
@@ -294,21 +277,15 @@ void main() {
       storage: {
         LocalStorageService.totalGamesPlayedKey: 2,
         LocalStorageService.highestScoreKey: 2200,
-        LocalStorageService.currentRankIndexKey:
-            TitleTier.sharpIntellect.index,
-        LocalStorageService.lastPlayedDateKey:
-            DateTime(2026, 11, 17).toIso8601String(),
+        LocalStorageService.currentRankIndexKey: TitleTier.sharpIntellect.index,
+        LocalStorageService.lastPlayedDateKey: DateTime(
+          2026,
+          11,
+          17,
+        ).toIso8601String(),
         LocalStorageService.sessionHistoryKey: [
-          _historyEntry(
-            id: 'a',
-            score: 1800,
-            at: DateTime(2026, 10, 1),
-          ),
-          _historyEntry(
-            id: 'b',
-            score: 2200,
-            at: DateTime(2026, 10, 2),
-          ),
+          _historyEntry(id: 'a', score: 1800, at: DateTime(2026, 10, 1)),
+          _historyEntry(id: 'b', score: 2200, at: DateTime(2026, 10, 2)),
         ],
       },
       clock: () => DateTime(2026, 11, 19, 12),

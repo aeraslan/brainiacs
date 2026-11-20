@@ -29,7 +29,7 @@ void main() {
     expect(find.byTooltip('Leaderboard'), findsNothing);
     expect(find.text('Profile/Stats'), findsNothing);
     expect(find.text('My Progress'), findsOneWidget);
-    expect(find.text('Dormant Mind'), findsOneWidget);
+    expect(find.text('Single Brain Cell'), findsOneWidget);
 
     // Repeating flutter_animate timers / delayed starts must be disposed before teardown.
     await tester.pumpWidget(const SizedBox.shrink());

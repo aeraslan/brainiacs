@@ -16,9 +16,7 @@ class TitleProgressState {
   });
 
   factory TitleProgressState.initial() {
-    return const TitleProgressState(
-      highestTitle: TitleTier.dormantMind,
-    );
+    return const TitleProgressState(highestTitle: TitleTier.dormantMind);
   }
 
   static const int decayDays = 7;

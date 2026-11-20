@@ -5,20 +5,20 @@ void main() {
   group('TitleTier.fromScore', () {
     test('maps boundary scores to the correct tiers', () {
       expect(TitleTier.fromScore(0), TitleTier.dormantMind);
-      expect(TitleTier.fromScore(1999), TitleTier.dormantMind);
-      expect(TitleTier.fromScore(2000), TitleTier.mindApprentice);
-      expect(TitleTier.fromScore(4499), TitleTier.mindApprentice);
-      expect(TitleTier.fromScore(4500), TitleTier.activeNeuron);
-      expect(TitleTier.fromScore(6499), TitleTier.activeNeuron);
-      expect(TitleTier.fromScore(6500), TitleTier.sharpIntellect);
-      expect(TitleTier.fromScore(8499), TitleTier.sharpIntellect);
-      expect(TitleTier.fromScore(8500), TitleTier.analyticMind);
-      expect(TitleTier.fromScore(10499), TitleTier.analyticMind);
-      expect(TitleTier.fromScore(10500), TitleTier.quantumBrain);
-      expect(TitleTier.fromScore(12499), TitleTier.quantumBrain);
-      expect(TitleTier.fromScore(12500), TitleTier.synapseLord);
-      expect(TitleTier.fromScore(14999), TitleTier.synapseLord);
-      expect(TitleTier.fromScore(15000), TitleTier.brainiac);
+      expect(TitleTier.fromScore(1499), TitleTier.dormantMind);
+      expect(TitleTier.fromScore(1500), TitleTier.mindApprentice);
+      expect(TitleTier.fromScore(2999), TitleTier.mindApprentice);
+      expect(TitleTier.fromScore(3000), TitleTier.activeNeuron);
+      expect(TitleTier.fromScore(4499), TitleTier.activeNeuron);
+      expect(TitleTier.fromScore(4500), TitleTier.sharpIntellect);
+      expect(TitleTier.fromScore(5999), TitleTier.sharpIntellect);
+      expect(TitleTier.fromScore(6000), TitleTier.analyticMind);
+      expect(TitleTier.fromScore(7499), TitleTier.analyticMind);
+      expect(TitleTier.fromScore(7500), TitleTier.quantumBrain);
+      expect(TitleTier.fromScore(8999), TitleTier.quantumBrain);
+      expect(TitleTier.fromScore(9000), TitleTier.synapseLord);
+      expect(TitleTier.fromScore(10499), TitleTier.synapseLord);
+      expect(TitleTier.fromScore(10500), TitleTier.brainiac);
       expect(TitleTier.fromScore(20000), TitleTier.brainiac);
     });
 
@@ -67,16 +67,32 @@ void main() {
 
     test('progressToNext uses run score against configured thresholds', () {
       expect(TitleTier.dormantMind.progressToNext(0), 0);
-      expect(TitleTier.dormantMind.progressToNext(1000), 0.5);
-      expect(TitleTier.dormantMind.progressToNext(2000), 1);
+      expect(TitleTier.dormantMind.progressToNext(750), 0.5);
+      expect(TitleTier.dormantMind.progressToNext(1500), 1);
       expect(TitleTier.dormantMind.progressToNext(5000), 1);
 
-      expect(TitleTier.activeNeuron.progressToNext(4500), 0);
-      expect(TitleTier.activeNeuron.progressToNext(5500), 0.5);
-      expect(TitleTier.activeNeuron.progressToNext(6500), 1);
+      expect(TitleTier.activeNeuron.progressToNext(3000), 0);
+      expect(TitleTier.activeNeuron.progressToNext(3750), 0.5);
+      expect(TitleTier.activeNeuron.progressToNext(4500), 1);
+
+      expect(TitleTier.synapseLord.progressToNext(9000), 0);
+      expect(TitleTier.synapseLord.progressToNext(9750), 0.5);
+      expect(TitleTier.synapseLord.progressToNext(10499), closeTo(0.999, 0.01));
+      expect(TitleTier.synapseLord.progressToNext(10500), 1);
 
       expect(TitleTier.brainiac.progressToNext(0), 1);
       expect(TitleTier.brainiac.progressToNext(20000), 1);
+    });
+
+    test('configured minScore thresholds match the rebalanced ladder', () {
+      expect(TitleTier.dormantMind.minScore, 0);
+      expect(TitleTier.mindApprentice.minScore, 1500);
+      expect(TitleTier.activeNeuron.minScore, 3000);
+      expect(TitleTier.sharpIntellect.minScore, 4500);
+      expect(TitleTier.analyticMind.minScore, 6000);
+      expect(TitleTier.quantumBrain.minScore, 7500);
+      expect(TitleTier.synapseLord.minScore, 9000);
+      expect(TitleTier.brainiac.minScore, 10500);
     });
   });
 }

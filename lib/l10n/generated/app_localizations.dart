@@ -917,7 +917,7 @@ abstract class AppLocalizations {
   /// No description provided for @scoreYourRank.
   ///
   /// In en, this message translates to:
-  /// **'Your Rank'**
+  /// **'Your Rank This Run'**
   String get scoreYourRank;
 
   /// No description provided for @scoreNice.
@@ -1027,6 +1027,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Held: {name} — {status}'**
   String rankDefendChipHeld(String name, String status);
+
+  /// No description provided for @rankRevealPromotionHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW RANK UNLOCKED!'**
+  String get rankRevealPromotionHeading;
+
+  /// No description provided for @rankRevealDefendedHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'RANK DEFENDED!'**
+  String get rankRevealDefendedHeading;
+
+  /// No description provided for @rankRevealSessionHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR RANK THIS RUN'**
+  String get rankRevealSessionHeading;
+
+  /// No description provided for @rankDormantMindName.
+  ///
+  /// In en, this message translates to:
+  /// **'Single Brain Cell'**
+  String get rankDormantMindName;
+
+  /// No description provided for @rankDormantMindDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'One brain cell. Zero backup plans.'**
+  String get rankDormantMindDescription;
+
+  /// No description provided for @rankMindApprenticeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Brain Not Found'**
+  String get rankMindApprenticeName;
+
+  /// No description provided for @rankMindApprenticeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Error 404: Intelligence not found.'**
+  String get rankMindApprenticeDescription;
+
+  /// No description provided for @rankActiveNeuronName.
+  ///
+  /// In en, this message translates to:
+  /// **'Caveman Mode'**
+  String get rankActiveNeuronName;
+
+  /// No description provided for @rankActiveNeuronDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovered fire. Still figuring out the calculator.'**
+  String get rankActiveNeuronDescription;
+
+  /// No description provided for @rankSharpIntellectName.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifted But Lazy'**
+  String get rankSharpIntellectName;
+
+  /// No description provided for @rankSharpIntellectDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your teachers saw potential. Your homework didn\'t.'**
+  String get rankSharpIntellectDescription;
+
+  /// No description provided for @rankAnalyticMindName.
+  ///
+  /// In en, this message translates to:
+  /// **'Mom\'s Little Genius'**
+  String get rankAnalyticMindName;
+
+  /// No description provided for @rankAnalyticMindDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Mom says you\'re a genius. She\'s totally unbiased.'**
+  String get rankAnalyticMindDescription;
+
+  /// No description provided for @rankQuantumBrainName.
+  ///
+  /// In en, this message translates to:
+  /// **'Galaxy Brain'**
+  String get rankQuantumBrainName;
+
+  /// No description provided for @rankQuantumBrainDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your brain has officially expanded beyond reasonable limits.'**
+  String get rankQuantumBrainDescription;
+
+  /// No description provided for @rankSynapseLordName.
+  ///
+  /// In en, this message translates to:
+  /// **'NASA Is Calling'**
+  String get rankSynapseLordName;
+
+  /// No description provided for @rankSynapseLordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'They called three times. You were busy solving Sudoku.'**
+  String get rankSynapseLordDescription;
+
+  /// No description provided for @rankBrainiacName.
+  ///
+  /// In en, this message translates to:
+  /// **'Certified Brainiac'**
+  String get rankBrainiacName;
+
+  /// No description provided for @rankBrainiacDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'AI asks YOU the questions now. We\'re slightly concerned.'**
+  String get rankBrainiacDescription;
 
   /// No description provided for @progressTitle.
   ///

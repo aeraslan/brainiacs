@@ -7,10 +7,7 @@ import '../../../../core/constants/app_spacing.dart';
 
 /// Animates the final score counting up from 0 to [target].
 class ScoreCountUp extends StatelessWidget {
-  const ScoreCountUp({
-    super.key,
-    required this.target,
-  });
+  const ScoreCountUp({super.key, required this.target});
 
   final int target;
 
@@ -33,33 +30,36 @@ class ScoreCountUp extends StatelessWidget {
         RepaintBoundary(
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text(
-              '$target',
-              textAlign: TextAlign.center,
-              style: textTheme.displayLarge?.copyWith(color: AppColors.accent),
-            )
-                .animate()
-                .custom(
-                  duration: countDuration,
-                  curve: Curves.easeOutCubic,
-                  begin: 0,
-                  end: target.toDouble(),
-                  builder: (context, value, child) {
-                    return Text(
-                      '${value.round()}',
+            child:
+                Text(
+                      '$target',
                       textAlign: TextAlign.center,
                       style: textTheme.displayLarge?.copyWith(
                         color: AppColors.accent,
                       ),
-                    );
-                  },
-                )
-                .scale(
-                  begin: const Offset(0.85, 0.85),
-                  end: const Offset(1, 1),
-                  duration: 400.ms,
-                  curve: Curves.easeOutBack,
-                ),
+                    )
+                    .animate()
+                    .custom(
+                      duration: countDuration,
+                      curve: Curves.easeOutCubic,
+                      begin: 0,
+                      end: target.toDouble(),
+                      builder: (context, value, child) {
+                        return Text(
+                          '${value.round()}',
+                          textAlign: TextAlign.center,
+                          style: textTheme.displayLarge?.copyWith(
+                            color: AppColors.accent,
+                          ),
+                        );
+                      },
+                    )
+                    .scale(
+                      begin: const Offset(0.85, 0.85),
+                      end: const Offset(1, 1),
+                      duration: 400.ms,
+                      curve: Curves.easeOutBack,
+                    ),
           ),
         ),
       ],
