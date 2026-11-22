@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/session/game_session_notifier.dart';
+import '../../../core/session/pause_aware_delay.dart';
 import '../domain/asteroid.dart';
 
 class VisualSortState {
@@ -152,7 +153,10 @@ class VisualSortNotifier extends Notifier<VisualSortState> {
 
   Future<void> _advanceAfterPop() async {
     final generation = ++_evaluationGeneration;
-    await Future<void>.delayed(VisualSortState.popDelay);
+    await pauseAwareDelay(
+      isPaused: () => ref.read(gameSessionProvider).isPaused,
+      duration: VisualSortState.popDelay,
+    );
     if (generation != _evaluationGeneration) {
       return;
     }
@@ -173,7 +177,10 @@ class VisualSortNotifier extends Notifier<VisualSortState> {
     );
 
     final generation = ++_evaluationGeneration;
-    await Future<void>.delayed(VisualSortState.shakeDelay);
+    await pauseAwareDelay(
+      isPaused: () => ref.read(gameSessionProvider).isPaused,
+      duration: VisualSortState.shakeDelay,
+    );
     if (generation != _evaluationGeneration) {
       return;
     }

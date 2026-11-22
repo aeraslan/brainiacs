@@ -6,6 +6,7 @@ import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
+import '../../../core/session/pause_aware_delay.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
 import '../../../shared/widgets/animated_orbital_rings.dart';
 import '../../../shared/widgets/answer_feedback_burst.dart';
@@ -229,7 +230,10 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
         .read(gameSessionProvider.notifier)
         .addScore(isCorrect ? correctPoints : incorrectPenalty);
 
-    await Future<void>.delayed(feedbackDelay);
+    await pauseAwareDelay(
+      isPaused: () => ref.read(gameSessionProvider).isPaused,
+      duration: feedbackDelay,
+    );
     if (!mounted) {
       return;
     }
@@ -249,7 +253,10 @@ class _ColorClashScreenState extends ConsumerState<ColorClashScreen> {
     // before advancing to the next round.
     if (delayIncorrectAdvance) {
       setState(() => _hintIdentityId = correctId);
-      await Future<void>.delayed(correctHintDuration);
+      await pauseAwareDelay(
+        isPaused: () => ref.read(gameSessionProvider).isPaused,
+        duration: correctHintDuration,
+      );
       if (!mounted) {
         return;
       }

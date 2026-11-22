@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -25,9 +26,13 @@ import 'features/tutorial/presentation/tutorial_screen.dart';
 import 'features/visual/presentation/color_clash_screen.dart';
 import 'features/visual/presentation/visual_sort_screen.dart';
 import 'l10n/generated/app_localizations.dart';
+import 'shared/widgets/gameplay_pause_host.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   await Hive.initFlutter();
   await Hive.openBox(LocalStorageService.boxName);
   runApp(const ProviderScope(child: BrainiacsApp()));
@@ -72,6 +77,31 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     });
   }
 
+  void _handleSystemBack() {
+    final session = ref.read(gameSessionProvider);
+    final notifier = ref.read(gameSessionProvider.notifier);
+
+    switch (session.phase) {
+      case GamePhase.menu:
+        SystemNavigator.pop();
+      case GamePhase.practiceMenu:
+      case GamePhase.tutorial:
+        notifier.resetToMenu();
+      case GamePhase.countdown:
+        notifier.openPracticeMenu();
+      case GamePhase.settings:
+        notifier.closeSettings();
+      case GamePhase.myProgress:
+        notifier.closeMyProgress();
+      case GamePhase.playing:
+        notifier.pauseGame();
+      case GamePhase.timesUp:
+        break;
+      case GamePhase.scoreScreen:
+        notifier.resetToMenu();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final phase = ref.watch(gameSessionProvider.select((state) => state.phase));
@@ -91,33 +121,47 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       gameSessionProvider.select((state) => state.visualVariant),
     );
 
-    return switch (phase) {
+    final content = switch (phase) {
       GamePhase.menu => const MainMenuScreen(),
       GamePhase.practiceMenu => const PracticeMenuScreen(),
       GamePhase.myProgress => const MyProgressScreen(),
       GamePhase.settings => const SettingsScreen(),
       GamePhase.tutorial => const TutorialScreen(),
       GamePhase.countdown => const PracticeCountdownScreen(),
-      GamePhase.playing => switch (currentGame) {
-        MiniGameType.math => switch (mathVariant) {
-          MathGameVariant.quickMath => const QuickMathScreen(),
-          MathGameVariant.missingOperator => const MissingOperatorScreen(),
-        },
-        MiniGameType.memory => switch (memoryVariant) {
-          MemoryGameVariant.cardMatch => const CardMatchScreen(),
-          MemoryGameVariant.matrixRecall => const MatrixRecallScreen(),
-        },
-        MiniGameType.analytical => switch (analyticVariant) {
-          AnalyticGameVariant.cubeCount => const CubeCountScreen(),
-          AnalyticGameVariant.balanceLogic => const BalanceLogicScreen(),
-        },
-        MiniGameType.visual => switch (visualVariant) {
-          VisualGameVariant.visualSort => const VisualSortScreen(),
-          VisualGameVariant.colorClash => const ColorClashScreen(),
-        },
-      },
+      GamePhase.playing => GameplayPauseHost(
+          child: switch (currentGame) {
+            MiniGameType.math => switch (mathVariant) {
+              MathGameVariant.quickMath => const QuickMathScreen(),
+              MathGameVariant.missingOperator =>
+                const MissingOperatorScreen(),
+            },
+            MiniGameType.memory => switch (memoryVariant) {
+              MemoryGameVariant.cardMatch => const CardMatchScreen(),
+              MemoryGameVariant.matrixRecall => const MatrixRecallScreen(),
+            },
+            MiniGameType.analytical => switch (analyticVariant) {
+              AnalyticGameVariant.cubeCount => const CubeCountScreen(),
+              AnalyticGameVariant.balanceLogic => const BalanceLogicScreen(),
+            },
+            MiniGameType.visual => switch (visualVariant) {
+              VisualGameVariant.visualSort => const VisualSortScreen(),
+              VisualGameVariant.colorClash => const ColorClashScreen(),
+            },
+          },
+        ),
       GamePhase.timesUp => const TimesUpScreen(),
       GamePhase.scoreScreen => const ScoreScreen(),
     };
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
+        _handleSystemBack();
+      },
+      child: content,
+    );
   }
 }

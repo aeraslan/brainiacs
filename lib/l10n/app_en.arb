@@ -50,6 +50,16 @@
   "pauseMusic": "Music",
   "pauseSoundEffects": "Sound Effects",
   "pauseDismiss": "Dismiss pause menu",
+  "pausePenaltyFirstFree": "First pause is free. No time penalty.",
+  "pausePenaltyResuming": "Resuming costs {seconds} seconds. Each additional pause costs 1 more second.",
+  "@pausePenaltyResuming": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "pausePenaltyAutomatic": "Game paused automatically. No time penalty.",
 
   "tutorialHowToPlay": "HOW TO PLAY",
   "tutorialWatchFirst": "WATCH FIRST",

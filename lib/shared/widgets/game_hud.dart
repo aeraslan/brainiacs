@@ -5,12 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/constants/app_spacing.dart';
-import '../../core/session/active_puzzle_reroll.dart';
 import '../../core/session/game_session_notifier.dart';
-import '../../core/session/game_session_state.dart';
 import 'candy_pad_button.dart';
 import 'circular_timer.dart';
-import 'pause_menu_dialog.dart';
 
 class GameHud extends ConsumerWidget {
   const GameHud({super.key, this.isOnLightBackground = false});
@@ -25,37 +22,6 @@ class GameHud extends ConsumerWidget {
     return hsl
         .withLightness((hsl.lightness - 0.12).clamp(0.0, 1.0))
         .toColor();
-  }
-
-  Future<void> _showHomeMenu(BuildContext context, WidgetRef ref) async {
-    final session = ref.read(gameSessionProvider.notifier);
-    final isPracticeMode = ref.read(
-      gameSessionProvider.select((s) => s.isPracticeMode),
-    );
-
-    session.pauseGame();
-
-    final action = await PauseMenuDialog.show(
-      context,
-      isPracticeMode: isPracticeMode,
-    );
-
-    if (!context.mounted) {
-      return;
-    }
-
-    switch (action) {
-      case PauseMenuAction.resume:
-      case null:
-        session.resumeGame();
-        if (ref.read(gameSessionProvider).phase == GamePhase.playing) {
-          rerollActivePuzzle(ref);
-        }
-      case PauseMenuAction.endPractice:
-        session.endSessionEarly();
-      case PauseMenuAction.quitToMenu:
-        session.resetToMenu();
-    }
   }
 
   @override
@@ -75,7 +41,9 @@ class GameHud extends ConsumerWidget {
                 _HomeButton(
                   size: _homeSize,
                   semanticLabel: context.l10n.hudPauseHome,
-                  onPressed: () => _showHomeMenu(context, ref),
+                  onPressed: () {
+                    ref.read(gameSessionProvider.notifier).pauseGame();
+                  },
                   darken: _darken,
                 ),
                 const Spacer(),
@@ -140,6 +108,7 @@ class _CenteredTimer extends ConsumerStatefulWidget {
 
 class _CenteredTimerState extends ConsumerState<_CenteredTimer> {
   int? _playingPenaltyToken;
+  int _penaltySeconds = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +116,11 @@ class _CenteredTimerState extends ConsumerState<_CenteredTimer> {
       gameSessionProvider.select((s) => s.timePenaltyToken),
       (previous, next) {
         if (next > 0 && next != previous) {
-          setState(() => _playingPenaltyToken = next);
+          final seconds = ref.read(gameSessionProvider).lastAppliedPenaltySeconds;
+          setState(() {
+            _playingPenaltyToken = next;
+            _penaltySeconds = seconds;
+          });
         }
       },
     );
@@ -166,15 +139,13 @@ class _CenteredTimerState extends ConsumerState<_CenteredTimer> {
           clipBehavior: Clip.none,
           children: [
             CircularTimer(timeRemaining: timeRemaining, size: size),
-            if (_playingPenaltyToken != null)
+            if (_playingPenaltyToken != null && _penaltySeconds > 0)
               Positioned(
                 right: 0,
                 top: 0,
                 child: _TimePenaltyFlash(
                   key: ValueKey('time-penalty-$_playingPenaltyToken'),
-                  label: context.l10n.hudTimePenalty(
-                    GameSessionState.pauseTimePenaltySeconds,
-                  ),
+                  label: context.l10n.hudTimePenalty(_penaltySeconds),
                   onComplete: () {
                     if (!mounted) {
                       return;

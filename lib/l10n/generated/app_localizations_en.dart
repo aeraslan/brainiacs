@@ -139,6 +139,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pauseDismiss => 'Dismiss pause menu';
 
   @override
+  String get pausePenaltyFirstFree => 'First pause is free. No time penalty.';
+
+  @override
+  String pausePenaltyResuming(int seconds) {
+    return 'Resuming costs $seconds seconds. Each additional pause costs 1 more second.';
+  }
+
+  @override
+  String get pausePenaltyAutomatic =>
+      'Game paused automatically. No time penalty.';
+
+  @override
   String get tutorialHowToPlay => 'HOW TO PLAY';
 
   @override

@@ -20,91 +20,82 @@ class MyProgressScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
-          return;
-        }
-        ref.read(gameSessionProvider.notifier).closeMyProgress();
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.sm,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                AppSpacing.sm,
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    tooltip: context.l10n.commonBack,
+                    onPressed: () {
+                      ref
+                          .read(gameSessionProvider.notifier)
+                          .closeMyProgress();
+                    },
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    color: AppColors.textPrimary,
+                  ),
+                  Expanded(
+                    child: Text(
+                      context.l10n.progressTitle,
+                      textAlign: TextAlign.center,
+                      style: textTheme.headlineMedium,
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ScrollOverflowHint(
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.sm,
-                  AppSpacing.sm,
                   AppSpacing.lg,
                   AppSpacing.sm,
+                  AppSpacing.lg,
+                  AppSpacing.xxl,
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    IconButton(
-                      tooltip: context.l10n.commonBack,
-                      onPressed: () {
-                        ref
-                            .read(gameSessionProvider.notifier)
-                            .closeMyProgress();
-                      },
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      color: AppColors.textPrimary,
+                    _AnimatedSection(
+                      reduceMotion: reduceMotion,
+                      delay: Duration.zero,
+                      child: const ProgressRankCard(),
                     ),
-                    Expanded(
-                      child: Text(
-                        context.l10n.progressTitle,
-                        textAlign: TextAlign.center,
-                        style: textTheme.headlineMedium,
-                      ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _AnimatedSection(
+                      reduceMotion: reduceMotion,
+                      delay: 80.ms,
+                      child: const PrimaryStatsGrid(),
                     ),
-                    const SizedBox(width: 48),
+                    const SizedBox(height: AppSpacing.lg),
+                    _AnimatedSection(
+                      reduceMotion: reduceMotion,
+                      delay: 160.ms,
+                      child: const CategoryRecordsSection(),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _AnimatedSection(
+                      reduceMotion: reduceMotion,
+                      delay: 240.ms,
+                      child: const PerformanceChart(),
+                    ),
                   ],
                 ),
               ),
-              Expanded(
-                child: ScrollOverflowHint(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.sm,
-                    AppSpacing.lg,
-                    AppSpacing.xxl,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _AnimatedSection(
-                        reduceMotion: reduceMotion,
-                        delay: Duration.zero,
-                        child: const ProgressRankCard(),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      _AnimatedSection(
-                        reduceMotion: reduceMotion,
-                        delay: 80.ms,
-                        child: const PrimaryStatsGrid(),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      _AnimatedSection(
-                        reduceMotion: reduceMotion,
-                        delay: 160.ms,
-                        child: const CategoryRecordsSection(),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      _AnimatedSection(
-                        reduceMotion: reduceMotion,
-                        delay: 240.ms,
-                        child: const PerformanceChart(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

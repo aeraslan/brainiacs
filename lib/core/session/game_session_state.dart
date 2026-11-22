@@ -24,6 +24,9 @@ enum MemoryGameVariant { cardMatch, matrixRecall }
 /// Which Visual family game fills the Visual stage for this run.
 enum VisualGameVariant { visualSort, colorClash }
 
+/// Why the session is currently paused (or [none] when not paused).
+enum PauseOrigin { none, manual, automatic }
+
 class GameSessionState {
   const GameSessionState({
     required this.totalScore,
@@ -40,7 +43,10 @@ class GameSessionState {
     this.isPracticeMode = false,
     this.isPaused = false,
     this.pauseCount = 0,
+    this.pauseOrigin = PauseOrigin.none,
     this.timePenaltyToken = 0,
+    this.lastAppliedPenaltySeconds = 0,
+    this.pauseMenuRequestId = 0,
   });
 
   factory GameSessionState.initial() {
@@ -59,8 +65,18 @@ class GameSessionState {
   }
 
   static const int maxTimeLimit = 60;
-  static const int pauseTimePenaltySeconds = 3;
   static const Duration timesUpDuration = Duration(seconds: 2);
+
+  /// Time deducted when resuming after [pauseNumber] manual pauses this mini-game.
+  ///
+  /// Pause 1 is free. From pause 2 onward the penalty is `pauseNumber + 1`
+  /// seconds (2 → 3s, 3 → 4s, …).
+  static int penaltyForManualPause(int pauseNumber) {
+    if (pauseNumber <= 1) {
+      return 0;
+    }
+    return pauseNumber + 1;
+  }
 
   static const List<MiniGameType> defaultRunSequence = [
     MiniGameType.math,
@@ -91,8 +107,17 @@ class GameSessionState {
   final String sessionId;
   final bool isPracticeMode;
   final bool isPaused;
+
+  /// Manual pauses opened during the current mini-game (not automatic).
   final int pauseCount;
+  final PauseOrigin pauseOrigin;
   final int timePenaltyToken;
+
+  /// Seconds deducted by the most recent [timePenaltyToken] flash.
+  final int lastAppliedPenaltySeconds;
+
+  /// Bumped when the pause menu should open (manual or automatic).
+  final int pauseMenuRequestId;
 
   MiniGameType get currentGame => currentRunSequence[currentIndex];
 
@@ -103,6 +128,17 @@ class GameSessionState {
   bool get isLastGame => currentIndex >= currentRunSequence.length - 1;
 
   int scoreFor(MiniGameType type) => scoresByGame[type] ?? 0;
+
+  /// Pending Resume penalty for the current pause (0 when free or automatic).
+  int get pendingResumePenaltySeconds {
+    if (!isPaused) {
+      return 0;
+    }
+    if (pauseOrigin != PauseOrigin.manual) {
+      return 0;
+    }
+    return penaltyForManualPause(pauseCount);
+  }
 
   GameSessionState copyWith({
     int? totalScore,
@@ -119,7 +155,10 @@ class GameSessionState {
     bool? isPracticeMode,
     bool? isPaused,
     int? pauseCount,
+    PauseOrigin? pauseOrigin,
     int? timePenaltyToken,
+    int? lastAppliedPenaltySeconds,
+    int? pauseMenuRequestId,
   }) {
     return GameSessionState(
       totalScore: totalScore ?? this.totalScore,
@@ -136,7 +175,11 @@ class GameSessionState {
       isPracticeMode: isPracticeMode ?? this.isPracticeMode,
       isPaused: isPaused ?? this.isPaused,
       pauseCount: pauseCount ?? this.pauseCount,
+      pauseOrigin: pauseOrigin ?? this.pauseOrigin,
       timePenaltyToken: timePenaltyToken ?? this.timePenaltyToken,
+      lastAppliedPenaltySeconds:
+          lastAppliedPenaltySeconds ?? this.lastAppliedPenaltySeconds,
+      pauseMenuRequestId: pauseMenuRequestId ?? this.pauseMenuRequestId,
     );
   }
 }

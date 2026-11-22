@@ -8,6 +8,7 @@ import '../../core/audio/audio_controller_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/localization/l10n_extension.dart';
+import '../../core/session/game_session_state.dart';
 import 'candy_pad_button.dart';
 import 'candy_switch_row.dart';
 
@@ -22,18 +23,26 @@ abstract final class PauseMenuDialog {
   static Future<PauseMenuAction?> show(
     BuildContext context, {
     required bool isPracticeMode,
+    PauseOrigin pauseOrigin = PauseOrigin.manual,
+    int manualPauseNumber = 1,
+    int pendingPenaltySeconds = 0,
   }) {
-    final barrierLabel = context.l10n.pauseDismiss;
     return showGeneralDialog<PauseMenuAction>(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: barrierLabel,
+      barrierDismissible: false,
+      barrierLabel: context.l10n.pauseDismiss,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (dialogContext, animation, secondaryAnimation) {
-        return _PauseMenuOverlay(
-          isPracticeMode: isPracticeMode,
-          onAction: (action) => Navigator.of(dialogContext).pop(action),
+        return PopScope(
+          canPop: false,
+          child: _PauseMenuOverlay(
+            isPracticeMode: isPracticeMode,
+            pauseOrigin: pauseOrigin,
+            manualPauseNumber: manualPauseNumber,
+            pendingPenaltySeconds: pendingPenaltySeconds,
+            onAction: (action) => Navigator.of(dialogContext).pop(action),
+          ),
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
@@ -54,10 +63,16 @@ abstract final class PauseMenuDialog {
 class _PauseMenuOverlay extends StatelessWidget {
   const _PauseMenuOverlay({
     required this.isPracticeMode,
+    required this.pauseOrigin,
+    required this.manualPauseNumber,
+    required this.pendingPenaltySeconds,
     required this.onAction,
   });
 
   final bool isPracticeMode;
+  final PauseOrigin pauseOrigin;
+  final int manualPauseNumber;
+  final int pendingPenaltySeconds;
   final ValueChanged<PauseMenuAction> onAction;
 
   static const Color _endPracticeOrange = Color(0xFFFFA726);
@@ -76,14 +91,10 @@ class _PauseMenuOverlay extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => onAction(PauseMenuAction.resume),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-              child: ColoredBox(
-                color: Colors.black.withValues(alpha: 0.58),
-              ),
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: 0.58),
             ),
           ),
           Center(
@@ -91,6 +102,9 @@ class _PauseMenuOverlay extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: _PauseMenuCard(
                 isPracticeMode: isPracticeMode,
+                pauseOrigin: pauseOrigin,
+                manualPauseNumber: manualPauseNumber,
+                pendingPenaltySeconds: pendingPenaltySeconds,
                 onAction: onAction,
                 darken: _darken,
                 endPracticeOrange: _endPracticeOrange,
@@ -106,17 +120,34 @@ class _PauseMenuOverlay extends StatelessWidget {
 class _PauseMenuCard extends ConsumerWidget {
   const _PauseMenuCard({
     required this.isPracticeMode,
+    required this.pauseOrigin,
+    required this.manualPauseNumber,
+    required this.pendingPenaltySeconds,
     required this.onAction,
     required this.darken,
     required this.endPracticeOrange,
   });
 
   final bool isPracticeMode;
+  final PauseOrigin pauseOrigin;
+  final int manualPauseNumber;
+  final int pendingPenaltySeconds;
   final ValueChanged<PauseMenuAction> onAction;
   final Color Function(Color) darken;
   final Color endPracticeOrange;
 
   static const double _buttonHeight = AppSpacing.xxl + AppSpacing.sm;
+
+  String _penaltyMessage(BuildContext context) {
+    final l10n = context.l10n;
+    if (pauseOrigin == PauseOrigin.automatic) {
+      return l10n.pausePenaltyAutomatic;
+    }
+    if (manualPauseNumber <= 1 || pendingPenaltySeconds <= 0) {
+      return l10n.pausePenaltyFirstFree;
+    }
+    return l10n.pausePenaltyResuming(pendingPenaltySeconds);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,15 +157,16 @@ class _PauseMenuCard extends ConsumerWidget {
         mediaQuery.padding.vertical -
         (AppSpacing.lg * 2);
 
-    final buttons = <Widget>[
-      _PauseActionButton(
-        label: l10n.pauseResume,
-        color: AppColors.mint,
-        darkColor: darken(AppColors.mint),
-        onPressed: () => onAction(PauseMenuAction.resume),
-        delayMs: 0,
-        height: _buttonHeight,
-      ),
+    final resumeButton = _PauseActionButton(
+      label: l10n.pauseResume,
+      color: AppColors.mint,
+      darkColor: darken(AppColors.mint),
+      onPressed: () => onAction(PauseMenuAction.resume),
+      delayMs: 0,
+      height: _buttonHeight,
+    );
+
+    final trailingButtons = <Widget>[
       if (isPracticeMode)
         _PauseActionButton(
           label: l10n.pauseEndPractice,
@@ -196,7 +228,11 @@ class _PauseMenuCard extends ConsumerWidget {
                       children: [
                         const _PauseAudioSection(),
                         const SizedBox(height: AppSpacing.md),
-                        ...buttons.map(
+                        resumeButton,
+                        const SizedBox(height: AppSpacing.sm),
+                        _PausePenaltyHint(message: _penaltyMessage(context)),
+                        const SizedBox(height: AppSpacing.sm),
+                        ...trailingButtons.map(
                           (button) => Padding(
                             padding:
                                 const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -211,6 +247,43 @@ class _PauseMenuCard extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PausePenaltyHint extends StatelessWidget {
+  const _PausePenaltyHint({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.info_outline_rounded,
+            size: 16,
+            color: AppColors.textSecondary.withValues(alpha: 0.85),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              message,
+              textAlign: TextAlign.left,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

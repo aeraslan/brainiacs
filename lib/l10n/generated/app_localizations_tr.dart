@@ -140,6 +140,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pauseDismiss => 'Duraklatma menüsünü kapat';
 
   @override
+  String get pausePenaltyFirstFree =>
+      'İlk duraklatma ücretsiz. Süre cezası yok.';
+
+  @override
+  String pausePenaltyResuming(int seconds) {
+    return 'Devam edince $seconds saniye düşülecek. Her ek duraklatmada ceza 1 saniye artar.';
+  }
+
+  @override
+  String get pausePenaltyAutomatic =>
+      'Oyun otomatik duraklatıldı. Süre cezası yok.';
+
+  @override
   String get tutorialHowToPlay => 'NASIL OYNANIR?';
 
   @override

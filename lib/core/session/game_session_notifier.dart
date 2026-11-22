@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/statistics/application/session_history_notifier.dart';
@@ -11,10 +13,26 @@ import 'game_session_state.dart';
 
 class GameSessionNotifier extends Notifier<GameSessionState> {
   Timer? _timer;
+  AppLifecycleListener? _lifecycleListener;
 
   @override
   GameSessionState build() {
-    ref.onDispose(_cancelTimer);
+    _lifecycleListener?.dispose();
+    _lifecycleListener = null;
+    if (_platformChannelsReady) {
+      _lifecycleListener = AppLifecycleListener(
+        onInactive: _onAppBackgrounded,
+        onHide: _onAppBackgrounded,
+        onPause: _onAppBackgrounded,
+        onResume: _onAppForegrounded,
+        onShow: _onAppForegrounded,
+      );
+    }
+    ref.onDispose(() {
+      _lifecycleListener?.dispose();
+      _lifecycleListener = null;
+      _cancelTimer();
+    });
     return GameSessionState.initial();
   }
 
@@ -136,11 +154,13 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       phase: GamePhase.playing,
       isPaused: false,
       pauseCount: 0,
+      pauseOrigin: PauseOrigin.none,
     );
     ref.read(audioControllerProvider.notifier).playGameBGM();
     _startPeriodicTimer();
   }
 
+  /// Manual pause (HUD button or Android Back). Increments [pauseCount].
   void pauseGame() {
     if (state.phase != GamePhase.playing || state.isPaused) {
       return;
@@ -149,6 +169,32 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     state = state.copyWith(
       isPaused: true,
       pauseCount: state.pauseCount + 1,
+      pauseOrigin: PauseOrigin.manual,
+      pauseMenuRequestId: state.pauseMenuRequestId + 1,
+    );
+  }
+
+  /// Automatic pause when the app leaves the foreground. Free; no counter bump.
+  void pauseForBackground() {
+    if (state.phase != GamePhase.playing || state.isPaused) {
+      return;
+    }
+    _cancelTimer();
+    state = state.copyWith(
+      isPaused: true,
+      pauseOrigin: PauseOrigin.automatic,
+      pauseMenuRequestId: state.pauseMenuRequestId + 1,
+    );
+  }
+
+  /// Opens the pause menu for an automatic pause that already set [isPaused]
+  /// without bumping [pauseMenuRequestId] (defensive helper for hosts).
+  void requestPauseMenu() {
+    if (state.phase != GamePhase.playing || !state.isPaused) {
+      return;
+    }
+    state = state.copyWith(
+      pauseMenuRequestId: state.pauseMenuRequestId + 1,
     );
   }
 
@@ -157,38 +203,48 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       return;
     }
 
-    final applyPenalty = state.pauseCount >= 2;
-    if (applyPenalty) {
-      final previousTime = state.timeRemaining;
-      final nextTime = previousTime -
-          GameSessionState.pauseTimePenaltySeconds;
-      if (nextTime <= 0) {
-        _cancelTimer();
-        state = state.copyWith(
-          timeRemaining: 0,
-          phase: GamePhase.timesUp,
-          isPaused: false,
-          timePenaltyToken: state.timePenaltyToken + 1,
-        );
-        // Penalty skipped the 3s warning window — still fire the alarm.
-        ref.read(audioControllerProvider.notifier).playTimeUpAlarm();
-        _timer = Timer(GameSessionState.timesUpDuration, _afterTimesUp);
-        return;
-      }
+    final origin = state.pauseOrigin;
+    final penalty = origin == PauseOrigin.manual
+        ? GameSessionState.penaltyForManualPause(state.pauseCount)
+        : 0;
 
+    if (penalty <= 0) {
       state = state.copyWith(
         isPaused: false,
-        timeRemaining: nextTime,
-        timePenaltyToken: state.timePenaltyToken + 1,
+        pauseOrigin: PauseOrigin.none,
       );
-      if (previousTime > 3 && nextTime <= 3) {
-        ref.read(audioControllerProvider.notifier).playTimeUpAlarm();
-      }
       _startPeriodicTimer();
       return;
     }
 
-    state = state.copyWith(isPaused: false);
+    final previousTime = state.timeRemaining;
+    final nextTime = previousTime - penalty;
+    if (nextTime <= 0) {
+      _cancelTimer();
+      state = state.copyWith(
+        timeRemaining: 0,
+        phase: GamePhase.timesUp,
+        isPaused: false,
+        pauseOrigin: PauseOrigin.none,
+        timePenaltyToken: state.timePenaltyToken + 1,
+        lastAppliedPenaltySeconds: penalty,
+      );
+      // Penalty skipped the 3s warning window — still fire the alarm.
+      ref.read(audioControllerProvider.notifier).playTimeUpAlarm();
+      _timer = Timer(GameSessionState.timesUpDuration, _afterTimesUp);
+      return;
+    }
+
+    state = state.copyWith(
+      isPaused: false,
+      pauseOrigin: PauseOrigin.none,
+      timeRemaining: nextTime,
+      timePenaltyToken: state.timePenaltyToken + 1,
+      lastAppliedPenaltySeconds: penalty,
+    );
+    if (previousTime > 3 && nextTime <= 3) {
+      ref.read(audioControllerProvider.notifier).playTimeUpAlarm();
+    }
     _startPeriodicTimer();
   }
 
@@ -210,6 +266,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
       phase: GamePhase.tutorial,
       isPaused: false,
       pauseCount: 0,
+      pauseOrigin: PauseOrigin.none,
     );
   }
 
@@ -239,7 +296,11 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
             );
       }
     }
-    state = state.copyWith(phase: GamePhase.scoreScreen, isPaused: false);
+    state = state.copyWith(
+      phase: GamePhase.scoreScreen,
+      isPaused: false,
+      pauseOrigin: PauseOrigin.none,
+    );
     ref.read(audioControllerProvider.notifier).playResultBGM();
   }
 
@@ -277,6 +338,15 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
     _finishRun(completed: false);
   }
 
+  void _onAppBackgrounded() {
+    pauseForBackground();
+  }
+
+  void _onAppForegrounded() {
+    // Keep gameplay paused; GameplayPauseHost opens the dialog via
+    // pauseMenuRequestId. Do not restart the timer here.
+  }
+
   void _onTick() {
     if (state.phase != GamePhase.playing || state.isPaused) {
       _cancelTimer();
@@ -293,6 +363,7 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
         timeRemaining: 0,
         phase: GamePhase.timesUp,
         isPaused: false,
+        pauseOrigin: PauseOrigin.none,
       );
       _timer = Timer(GameSessionState.timesUpDuration, _afterTimesUp);
       return;
@@ -316,6 +387,15 @@ class GameSessionNotifier extends Notifier<GameSessionState> {
   void _cancelTimer() {
     _timer?.cancel();
     _timer = null;
+  }
+
+  static bool get _platformChannelsReady {
+    try {
+      ServicesBinding.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }
 

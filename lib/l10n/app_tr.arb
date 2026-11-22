@@ -50,6 +50,16 @@
   "pauseMusic": "Müzik",
   "pauseSoundEffects": "Ses Efektleri",
   "pauseDismiss": "Duraklatma menüsünü kapat",
+  "pausePenaltyFirstFree": "İlk duraklatma ücretsiz. Süre cezası yok.",
+  "pausePenaltyResuming": "Devam edince {seconds} saniye düşülecek. Her ek duraklatmada ceza 1 saniye artar.",
+  "@pausePenaltyResuming": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "pausePenaltyAutomatic": "Oyun otomatik duraklatıldı. Süre cezası yok.",
 
   "tutorialHowToPlay": "NASIL OYNANIR?",
   "tutorialWatchFirst": "ÖNCE İZLE",

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/session/game_session_notifier.dart';
+import '../../../core/session/pause_aware_delay.dart';
 import '../domain/memory_card.dart';
 
 enum CardMatchPhase {
@@ -85,20 +86,36 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
   Timer? _memorizeTimer;
   int _evaluationGeneration = 0;
 
+  /// Remaining memorize time when paused mid-countdown; null when not frozen.
+  Duration? _memorizeRemaining;
+
+  /// Wall-clock deadline for the active memorize timer.
+  DateTime? _memorizeDeadline;
+
   @override
   CardMatchState build() {
     ref.onDispose(_cancelMemorizeTimer);
+    ref.listen(gameSessionProvider.select((s) => s.isPaused), (previous, next) {
+      if (next) {
+        _freezeMemorizeTimer();
+      } else if (previous == true) {
+        _resumeMemorizeTimer();
+      }
+    });
     return CardMatchState.initial();
   }
 
   void reset() {
     _cancelMemorizeTimer();
+    _memorizeRemaining = null;
+    _memorizeDeadline = null;
     _evaluationGeneration++;
     startLevel(1);
   }
 
   void startLevel(int level) {
     _cancelMemorizeTimer();
+    _memorizeRemaining = null;
     _evaluationGeneration++;
 
     final safeLevel = level < 1 ? 1 : level;
@@ -117,7 +134,7 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
       mismatchCardIndices: const [],
     );
 
-    _memorizeTimer = Timer(CardMatchState.memorizeDuration, endMemorize);
+    _scheduleMemorize(CardMatchState.memorizeDuration);
   }
 
   /// Discard the current board and deal a new one at the same level.
@@ -138,6 +155,8 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
     }
 
     _cancelMemorizeTimer();
+    _memorizeRemaining = null;
+    _memorizeDeadline = null;
     state = state.copyWith(
       phase: CardMatchPhase.play,
       cards: [
@@ -209,7 +228,10 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
 
       if (state.allMatched) {
         ref.read(audioControllerProvider.notifier).playCorrect();
-        await Future<void>.delayed(CardMatchState.levelCompleteDelay);
+        await pauseAwareDelay(
+          isPaused: () => ref.read(gameSessionProvider).isPaused,
+          duration: CardMatchState.levelCompleteDelay,
+        );
         if (generation != _evaluationGeneration) {
           return;
         }
@@ -223,7 +245,10 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
         .addScore(CardMatchState.mismatchPenalty);
 
     // Let the face-up stickers register before the red flash/shake.
-    await Future<void>.delayed(CardMatchState.mismatchRevealDelay);
+    await pauseAwareDelay(
+      isPaused: () => ref.read(gameSessionProvider).isPaused,
+      duration: CardMatchState.mismatchRevealDelay,
+    );
     if (generation != _evaluationGeneration) {
       return;
     }
@@ -235,7 +260,10 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
       mismatchCardIndices: List<int>.from(selectedIndices),
     );
 
-    await Future<void>.delayed(CardMatchState.mismatchDelay);
+    await pauseAwareDelay(
+      isPaused: () => ref.read(gameSessionProvider).isPaused,
+      duration: CardMatchState.mismatchDelay,
+    );
     if (generation != _evaluationGeneration) {
       return;
     }
@@ -251,6 +279,44 @@ class CardMatchNotifier extends Notifier<CardMatchState> {
       isEvaluating: false,
       mismatchCardIndices: const [],
     );
+  }
+
+  void _scheduleMemorize(Duration duration) {
+    _cancelMemorizeTimer();
+    if (duration <= Duration.zero) {
+      endMemorize();
+      return;
+    }
+    _memorizeDeadline = DateTime.now().add(duration);
+    _memorizeRemaining = null;
+    _memorizeTimer = Timer(duration, endMemorize);
+  }
+
+  void _freezeMemorizeTimer() {
+    if (state.phase != CardMatchPhase.memorize) {
+      return;
+    }
+    final deadline = _memorizeDeadline;
+    if (deadline == null) {
+      return;
+    }
+    final remaining = deadline.difference(DateTime.now());
+    _cancelMemorizeTimer();
+    _memorizeDeadline = null;
+    _memorizeRemaining =
+        remaining > Duration.zero ? remaining : Duration.zero;
+  }
+
+  void _resumeMemorizeTimer() {
+    if (state.phase != CardMatchPhase.memorize) {
+      return;
+    }
+    final remaining = _memorizeRemaining;
+    if (remaining == null) {
+      return;
+    }
+    _memorizeRemaining = null;
+    _scheduleMemorize(remaining);
   }
 
   void _cancelMemorizeTimer() {

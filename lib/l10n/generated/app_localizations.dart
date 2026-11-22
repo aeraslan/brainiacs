@@ -356,6 +356,24 @@ abstract class AppLocalizations {
   /// **'Dismiss pause menu'**
   String get pauseDismiss;
 
+  /// No description provided for @pausePenaltyFirstFree.
+  ///
+  /// In en, this message translates to:
+  /// **'First pause is free. No time penalty.'**
+  String get pausePenaltyFirstFree;
+
+  /// No description provided for @pausePenaltyResuming.
+  ///
+  /// In en, this message translates to:
+  /// **'Resuming costs {seconds} seconds. Each additional pause costs 1 more second.'**
+  String pausePenaltyResuming(int seconds);
+
+  /// No description provided for @pausePenaltyAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Game paused automatically. No time penalty.'**
+  String get pausePenaltyAutomatic;
+
   /// No description provided for @tutorialHowToPlay.
   ///
   /// In en, this message translates to:

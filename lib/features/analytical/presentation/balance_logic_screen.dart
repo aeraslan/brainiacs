@@ -6,6 +6,7 @@ import '../../../core/audio/audio_controller_provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/session/game_session_notifier.dart';
+import '../../../core/session/pause_aware_delay.dart';
 import '../../../shared/tutorial/tutorial_pointer.dart';
 import '../../../shared/widgets/answer_feedback_burst.dart';
 import '../../../shared/widgets/game_hud.dart';
@@ -181,7 +182,10 @@ class _BalanceLogicScreenState extends ConsumerState<BalanceLogicScreen> {
         .read(gameSessionProvider.notifier)
         .addScore(isCorrect ? correctPoints : incorrectPenalty);
 
-    await Future<void>.delayed(feedbackDelay);
+    await pauseAwareDelay(
+      isPaused: () => ref.read(gameSessionProvider).isPaused,
+      duration: feedbackDelay,
+    );
     if (!mounted) {
       return;
     }
